@@ -20,6 +20,8 @@ import AdminDashboard from "./AdminDashboard";
 
 import Messages from "./Messages";
 
+import Profile from "./Profile";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -43,6 +45,8 @@ const PAGES = {
     AdminDashboard: AdminDashboard,
     
     Messages: Messages,
+    
+    Profile: Profile,
     
 }
 
@@ -78,6 +82,7 @@ function PagesContent() {
                 <Route path="/Auth" element={<Auth />} />
                 <Route path="/AdminDashboard" element={<AdminDashboard />} />
                 <Route path="/Messages" element={<Messages />} />
+                <Route path="/Profile" element={<Profile />} />
             </Routes>
         </Layout>
     );

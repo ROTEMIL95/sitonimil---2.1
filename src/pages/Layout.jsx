@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -93,9 +91,11 @@ export default function Layout({ children }) {
   };
 
   const handlePublishProductClick = (e) => {
+    e.preventDefault();
     if (!user) {
-      e.preventDefault();
       window.location.href = createPageUrl("Auth") + "?tab=register&redirect=UploadProduct";
+    } else {
+      window.location.href = createPageUrl("UploadProduct");
     }
   };
 
@@ -145,7 +145,7 @@ export default function Layout({ children }) {
                 ))}
                 
                 <Link
-                  to={user ? createPageUrl("UploadProduct") : createPageUrl("Auth") + "?tab=register&redirect=UploadProduct"}
+                  to={createPageUrl("UploadProduct")}
                   className="mr-4 flex items-center gap-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700 transition-colors"
                   onClick={handlePublishProductClick}
                 >
@@ -155,39 +155,24 @@ export default function Layout({ children }) {
               </div>
             </div>
 
-            <div className="hidden md:flex items-center mr-5">
-              <Button variant="ghost" size="icon" className="relative mx-3">
-                <Bell className="w-5 h-5" />
-                <Badge className="absolute -top-1 -right-1 h-4 w-4 bg-blue-600 p-0 flex items-center justify-center">3</Badge>
-              </Button>
-              
-              <Button variant="ghost" size="icon" asChild className="mx-3">
-                <Link to={createPageUrl("Messages")}>
-                  <MessageSquare className="w-5 h-5" />
-                </Link>
-              </Button>
-            </div>
-              
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
               {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <Avatar className="h-9 w-9 transition-transform hover:scale-105">
-                        {user.logo_url ? (
-                          <AvatarImage src={user.logo_url} alt={user.company_name || user.full_name} />
-                        ) : (
-                          <AvatarFallback className="bg-blue-100 text-blue-600">
-                            {(user.company_name || user.full_name)?.charAt(0) || "U"}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 mr-1 bg-white rounded-xl shadow-lg p-1" align="end">
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
+                <>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="w-5 h-5" />
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 bg-blue-600 p-0 flex items-center justify-center">3</Badge>
+                  </Button>
+                  
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link to={createPageUrl("Messages")}>
+                      <MessageSquare className="w-5 h-5" />
+                    </Link>
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="rounded-full">
+                        <Avatar className="h-9 w-9 transition-transform hover:scale-105">
                           {user.logo_url ? (
                             <AvatarImage src={user.logo_url} alt={user.company_name || user.full_name} />
                           ) : (
@@ -196,59 +181,60 @@ export default function Layout({ children }) {
                             </AvatarFallback>
                           )}
                         </Avatar>
-                        <div className="flex flex-col">
-                          <p className="text-sm font-medium">{user.company_name || user.full_name}</p>
-                          <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 mr-1 bg-white rounded-xl shadow-lg p-1" align="end" dir="rtl">
+                      <DropdownMenuLabel className="font-normal px-2 py-1.5">
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-8 w-8">
+                            {user.logo_url ? (
+                              <AvatarImage src={user.logo_url} alt={user.company_name || user.full_name} />
+                            ) : (
+                              <AvatarFallback className="bg-blue-100 text-blue-600">
+                                {(user.company_name || user.full_name)?.charAt(0) || "U"}
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <p className="text-sm font-medium">{user.company_name || user.full_name}</p>
+                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                          </div>
                         </div>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer">
-                      <Link to={createPageUrl("Profile")} className="flex items-center gap-2">
-                        <UserIcon className="h-4 w-4" />
-                        <span>הפרופיל שלי</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    {user.business_type === "supplier" && (
-                      <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer">
-                        <Link to={createPageUrl("Dashboard")} className="flex items-center gap-2">
-                          <Building className="h-4 w-4" />
-                          <span>לוח בקרה</span>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator className="my-1" />
+                      <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer px-2 py-1.5">
+                        <Link to={createPageUrl("Profile")} className="flex items-center gap-2">
+                          <UserIcon className="h-4 w-4" />
+                          <span>הפרופיל שלי</span>
                         </Link>
                       </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer">
-                      <Link to={createPageUrl("Orders")} className="flex items-center gap-2">
-                        <ShoppingCart className="h-4 w-4" />
-                        <span>ההזמנות שלי</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer">
-                      <Link to={createPageUrl("Settings")} className="flex items-center gap-2">
-                        <Settings className="h-4 w-4" />
-                        <span>הגדרות</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer">
-                      <Link to={createPageUrl("Help")} className="flex items-center gap-2">
-                        <HelpCircle className="h-4 w-4" />
-                        <span>עזרה ותמיכה</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={handleLogout} 
-                      className="hover:bg-red-50 text-red-600 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <LogOut className="h-4 w-4" />
-                        <span>התנתקות</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer px-2 py-1.5">
+                        <Link to={createPageUrl("Settings")} className="flex items-center gap-2">
+                          <Settings className="h-4 w-4" />
+                          <span>הגדרות</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer px-2 py-1.5">
+                        <Link to={createPageUrl("Help")} className="flex items-center gap-2">
+                          <HelpCircle className="h-4 w-4" />
+                          <span>עזרה ותמיכה</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="my-1" />
+                      <DropdownMenuItem 
+                        onClick={handleLogout} 
+                        className="hover:bg-red-50 text-red-600 cursor-pointer px-2 py-1.5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <LogOut className="h-4 w-4" />
+                          <span>התנתקות</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
-                <div className="hidden md:flex items-center gap-2">
+                <div className="hidden md:flex items-center gap-3">
                   <Button 
                     variant="default" 
                     size="sm" 
@@ -333,7 +319,7 @@ export default function Layout({ children }) {
                   ))}
                   
                   <Link
-                    to={user ? createPageUrl("UploadProduct") : createPageUrl("Auth") + "?tab=register&redirect=UploadProduct"}
+                    to={createPageUrl("UploadProduct")}
                     className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-blue-50 text-blue-600"
                     onClick={(e) => {
                       handlePublishProductClick(e);
@@ -355,16 +341,6 @@ export default function Layout({ children }) {
                           <MessageSquare className="w-5 h-5 ml-3" />
                           <span>הודעות</span>
                         </Link>
-                        {user.business_type === "supplier" && (
-                          <Link
-                            to={createPageUrl("Dashboard")}
-                            className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <Building className="w-5 h-5 ml-3" />
-                            <span>לוח בקרה</span>
-                          </Link>
-                        )}
                         <Link
                           to={createPageUrl("Profile")}
                           className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
@@ -372,14 +348,6 @@ export default function Layout({ children }) {
                         >
                           <UserIcon className="w-5 h-5 ml-3" />
                           <span>הפרופיל שלי</span>
-                        </Link>
-                        <Link
-                          to={createPageUrl("Orders")}
-                          className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <ShoppingCart className="w-5 h-5 ml-3" />
-                          <span>ההזמנות שלי</span>
                         </Link>
                         <Link
                           to={createPageUrl("Settings")}

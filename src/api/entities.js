@@ -11,7 +11,6 @@ export const User = {
     logo_url: "text",
     address: "text",
     phone: "text",
-    website: "text",
     categories: "array",
     verified: "boolean",
     created_at: "timestamp",
@@ -26,20 +25,65 @@ export const User = {
         return data;
     },
 
-    async register(email, password, fullName, businessType) {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    business_type: businessType
-                }
+    async register(email, password, fullName, businessType, supplierData = null) {
+        try {
+            // Create auth user
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        role: "user",
+                    },
+                },
+            });
+
+            if (authError) throw authError;
+
+            // Prepare user data
+            const userData = {
+                id: authData.user.id,
+                email,
+                full_name: fullName,
+                role: "user",
+                business_type: businessType,
+                description: "",
+                verified: false,
+                created_at: new Date().toISOString(),
+            };
+
+            // Add supplier-specific data if applicable
+            if (businessType === "supplier" && supplierData) {
+                Object.assign(userData, {
+                    company_name: supplierData.company_name,
+                    description: supplierData.description || "",
+                    address: supplierData.address,
+                    phone: supplierData.phone,
+                    website: supplierData.website || null,
+                });
             }
-        });
-        
-        if (authError) throw authError;
-        return authData;
+
+            // Create user record in users table
+            const { error: userError } = await supabase
+                .from("users")
+                .insert([userData]);
+
+            if (userError) {
+                // If user creation fails, we'll just throw the error
+                // The auth user will remain but won't have a corresponding record
+                // This can be handled by the admin later if needed
+                throw userError;
+            }
+
+            return {
+                authData,
+                userData,
+            };
+        } catch (error) {
+            console.error("Registration error:", error);
+            throw error;
+        }
     },
 
     async logout() {
@@ -244,10 +288,10 @@ export const Category = {
     async getRandomCategories(limit = 5) {
         const { data, error } = await supabase
             .from('categories')
-            .select('*')
-            .order('created_at', { ascending: false })
+            .select('id, label,image_url')
+            .order('id')
             .limit(limit);
-        
+
         if (error) throw error;
         return data;
     },

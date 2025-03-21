@@ -90,31 +90,28 @@ export default function Home() {
         }
 
         try {
+          console.log("Starting to fetch products...");
           const allProducts = await Product.list();
-          console.log("Products loaded:", allProducts);
+          console.log("Raw products from backend:", allProducts);
           
+          // Filter and sort products
           const validProducts = allProducts.filter(product => 
             product && 
             product.title && 
             product.price !== undefined && 
             product.status !== "inactive"
           );
+          console.log("Valid products after filtering:", validProducts);
           
           const sortedProducts = validProducts
             .sort((a, b) => (b.rating || 0) - (a.rating || 0))
             .slice(0, 4);
+          console.log("Final sorted products:", sortedProducts);
           
-          console.log("Sorted products:", sortedProducts);
-          
-          if (sortedProducts.length > 0) {
-            setFeaturedProducts(sortedProducts);
-          } else {
-            console.log("Using placeholder products");
-            setFeaturedProducts(placeholderProducts);
-          }
+          setFeaturedProducts(sortedProducts);
         } catch (error) {
           console.error("Error loading products:", error);
-          setFeaturedProducts(placeholderProducts);
+          setFeaturedProducts([]); // Set empty array instead of placeholder
         }
 
         try {
@@ -147,49 +144,6 @@ export default function Home() {
 
     return () => clearTimeout(updateTimer);
   }, [lastUpdated, toast]);
-
-  const placeholderProducts = [
-    {
-      id: "product1",
-      title: "אוזניות בלוטות׳ אלחוטיות",
-      description: "אוזניות באיכות פרימיום עם סינון רעשים אקטיבי וסוללה ארוכה במיוחד.",
-      price: 299,
-      minimum_order: 10,
-      category: "electronics",
-      rating: 4.8,
-      images: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070"]
-    },
-    {
-      id: "product2",
-      title: "שולחן עבודה מתכוונן",
-      description: "שולחן ארגונומי מתכוונן חשמלי לעבודה בישיבה או בעמידה.",
-      price: 1299,
-      minimum_order: 5,
-      category: "home_goods",
-      rating: 4.7,
-      images: ["https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?q=80&w=2069"]
-    },
-    {
-      id: "product3",
-      title: "מצלמת אבטחה חכמה",
-      description: "מצלמת אבטחה HD עם תכונות זיהוי תנועה, ראיית לילה וחיבור לענן.",
-      price: 449,
-      minimum_order: 8,
-      category: "electronics",
-      rating: 4.5,
-      images: ["https://images.unsplash.com/photo-1582931016663-d956ef4e4223?q=80&w=2070"]
-    },
-    {
-      id: "product4",
-      title: "מארז קוסמטיקה טבעית",
-      description: "סט מוצרי טיפוח וקוסמטיקה אורגניים מחומרים טבעיים בלבד.",
-      price: 199,
-      minimum_order: 15,
-      category: "health_beauty",
-      rating: 4.9,
-      images: ["https://images.unsplash.com/photo-1526947425960-945c6e72858f?q=80&w=2070"]
-    }
-  ];
 
   const fallbackSuppliers = [
     {
@@ -294,7 +248,7 @@ export default function Home() {
 
       {/* שדה חיפוש */}
       <motion.div variants={fadeIn} className="mt-6">
-  <div className="relative w-full max-w-2xl mx-auto">
+  <div className="relative w-full max-w-2xl">
     {/* שדה החיפוש עם עיצוב מתקדם */}
     <div className="bg-white p-3 rounded-full shadow-lg flex items-center border border-gray-200 focus-within:border-blue-500 transition">
       {/* אייקון זכוכית מגדלת */}
@@ -303,7 +257,7 @@ export default function Home() {
       {/* שדה החיפוש עם אפקטים מתקדמים */}
       <input
         type="text"
-        placeholder="🔍 חפשו מוצרים, קטגוריות או ספקים..."
+        placeholder=" חפשו מוצרים, קטגוריות או ספקים..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full bg-transparent border-none py-2 px-4 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
@@ -325,12 +279,12 @@ export default function Home() {
       <motion.div variants={fadeIn} className="flex flex-wrap gap-3 mt-6 justify-center md:justify-start">
         <span className="text-gray-700 text-sm font-medium">פופולרי:</span>
         {popularCategories.map((category, index) => (
-          <motion.div key={category.value} variants={fadeIn} custom={index}>
+          <motion.div key={`${category.value}-${index}`} variants={fadeIn} custom={index}>
             <Link 
               to={createPageUrl("Search") + `?category=${category.value}`}
               className="flex items-center bg-white shadow-sm border border-gray-200 hover:shadow-md px-3 py-1.5 rounded-full transition"
             >
-              <img src={category.image} alt={category.label} className="w-6 h-6 ml-2 rounded-full object-cover" />
+              <img src={category.image_url} alt={category.label} className="w-6 h-6 ml-2 rounded-full object-cover" />
               <span className="text-sm text-gray-700">{category.label}</span>
             </Link>
           </motion.div>
@@ -381,14 +335,20 @@ export default function Home() {
                       <div className="h-4 bg-gray-200 rounded w-1/2" />
                     </motion.div>
                   ))
-                : (featuredProducts.length > 0 ? featuredProducts : placeholderProducts).map((product, index) => (
-                    <motion.div 
-                      key={product.id || index}
-                      variants={fadeIn}
-                    >
-                      <ProductCard product={product} />
-                    </motion.div>
-                  ))}
+                : featuredProducts.length > 0 ? (
+                    featuredProducts.map((product, index) => (
+                      <motion.div 
+                        key={product.id}
+                        variants={fadeIn}
+                      >
+                        <ProductCard product={product} />
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8 text-gray-500">
+                      אין מוצרים זמינים כרגע
+                    </div>
+                  )}
             </motion.div>
           </div>
         </motion.section>

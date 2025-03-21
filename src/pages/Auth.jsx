@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { LogIn, UserPlus, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/api/supabaseClient";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -27,9 +29,14 @@ export default function Auth() {
     password: "",
     fullName: "",
     businessType: "buyer",
-    agreeTerms: false
+    agreeTerms: false,
+    companyName: "",
+    description: "",
+    address: "",
+    phone: "",
   });
   const [redirectTo, setRedirectTo] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -55,18 +62,32 @@ export default function Auth() {
 
     setLoading(true);
     try {
-      await User.login(formData.email, formData.password);
-      toast.success("התחברת בהצלחה");
-      if (redirectTo) {
-        navigate(createPageUrl(redirectTo));
-      } else {
+      // Login user
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      });
+      
+      if (error) throw error;
+      
+      // Get the updated session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        toast.success("התחברת בהצלחה");
+        // Navigate to home page
         navigate(createPageUrl("Home"));
+        // Force a page reload to refresh all components including navbar
+        window.location.reload();
+      } else {
+        throw new Error("לא הצלחנו להתחבר. נא לנסות שוב.");
       }
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(error.message || "התחברות נכשלה");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleLogout = async () => {
@@ -83,41 +104,88 @@ export default function Auth() {
   };
 
   const handleRegister = async () => {
-    if (!formData.email || !formData.password || !formData.fullName) {
-      toast.error("נא למלא את כל השדות");
-      return;
-    }
-
-    if (!formData.agreeTerms) {
-      toast.error("נא לאשר את תנאי השימוש");
-      return;
-    }
-    
-    setLoading(true);
     try {
+      setLoading(true);
+      setError(null);
+
+      // Validate required fields
+      if (!formData.email || !formData.password || !formData.fullName || !formData.businessType) {
+        setError("נא למלא את כל השדות החובה");
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError("כתובת האימייל אינה תקינה");
+        return;
+      }
+
+      // Validate password length
+      if (formData.password.length < 6) {
+        setError("הסיסמה חייבת להכיל לפחות 6 תווים");
+        return;
+      }
+
+      // Validate terms agreement
+      if (!formData.agreeTerms) {
+        setError("יש לאשר את תנאי השימוש");
+        return;
+      }
+
+      // Validate supplier fields if business type is supplier
+      if (formData.businessType === "supplier") {
+        if (!formData.companyName || !formData.description || !formData.address || !formData.phone) {
+          setError("נא למלא את כל השדות החובה לספקים");
+          return;
+        }
+      }
+
+      // Prepare supplier data if applicable
+      const supplierData = formData.businessType === "supplier" ? {
+        company_name: formData.companyName,
+        description: formData.description,
+        address: formData.address,
+        phone: formData.phone,
+      } : null;
+
+      // Register user
       await User.register(
         formData.email,
         formData.password,
         formData.fullName,
-        formData.businessType
+        formData.businessType,
+        supplierData
       );
+
+      // Show success message
+      toast.success("ההרשמה הושלמה בהצלחה! אנא התחבר כדי להמשיך.");
       
-      toast.success("נרשמת בהצלחה! נא לאשר את כתובת האימייל שלך");
-      
-      if (redirectTo) {
-        navigate(createPageUrl(redirectTo));
-      } else {
-        navigate(createPageUrl("Home"));
-      }
+      // Reset form
+      setFormData({
+        email: "",
+        password: "",
+        fullName: "",
+        businessType: "",
+        agreeTerms: false,
+        companyName: "",
+        description: "",
+        address: "",
+        phone: "",
+      });
+
+      // Switch to login tab
+      setActiveTab("login");
     } catch (error) {
       console.error("Registration failed:", error);
-      toast.error(error.message || "הרשמה נכשלה");
+      setError(error.message || "אירעה שגיאה בתהליך ההרשמה");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-4xl mx-auto">
       <div className="flex items-center gap-2 mb-6">
         <Button 
           variant="ghost" 
@@ -152,7 +220,7 @@ export default function Auth() {
                 <p className="text-gray-500">התחבר כדי להמשיך</p>
               </div>
               
-              <div className="space-y-4">
+              <div className="max-w-md mx-auto">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">אימייל</Label>
@@ -196,61 +264,64 @@ export default function Auth() {
               </div>
             </TabsContent>
             
-            <TabsContent value="register" className="mt-0">
+            <TabsContent value="register" className="mt-0" dir="rtl" >
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold mb-2">הרשמה לאתר</h2>
                 <p className="text-gray-500">צור חשבון חדש בסיטונאות ישראל</p>
               </div>
               
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">שם מלא</Label>
+                    <Label htmlFor="fullName" className="text-right">שם מלא</Label>
                     <Input 
                       id="fullName" 
                       placeholder="ישראל ישראלי" 
                       value={formData.fullName}
                       onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                      className="text-right"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="register-email">אימייל</Label>
+                    <Label htmlFor="register-email" className="text-right">אימייל</Label>
                     <Input 
                       id="register-email" 
                       type="email" 
                       placeholder="email@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="text-right"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="register-password">סיסמה</Label>
+                    <Label htmlFor="register-password" className="text-right">סיסמה</Label>
                     <Input 
                       id="register-password" 
                       type="password"
                       value={formData.password}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      className="text-right"
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="businessType">סוג עסק</Label>
+                  <div className="space-y-2" >
+                    <Label htmlFor="businessType" className="text-right">סוג עסק</Label>
                     <Select 
                       value={formData.businessType}
                       onValueChange={(value) => setFormData({...formData, businessType: value})}
                     >
-                      <SelectTrigger id="businessType">
+                      <SelectTrigger id="businessType" className="text-right" dir="rtl">
                         <SelectValue placeholder="בחר סוג עסק" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent dir="rtl">
                         <SelectItem value="buyer">קמעונאי / רוכש</SelectItem>
                         <SelectItem value="supplier">ספק / סיטונאי</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2 space-x-reverse">
                     <Checkbox 
                       id="terms" 
@@ -259,7 +330,7 @@ export default function Auth() {
                         setFormData({...formData, agreeTerms: checked === true})
                       }
                     />
-                    <Label htmlFor="terms" className="text-sm">
+                    <Label htmlFor="terms" className="text-sm text-right">
                       אני מסכים ל
                       <Link to="/" className="text-blue-600 hover:underline mx-1">
                         תנאי השימוש
@@ -270,21 +341,74 @@ export default function Auth() {
                       </Link>
                     </Label>
                   </div>
-                  
-                  <Button 
-                    onClick={handleRegister}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                    disabled={
-                      !formData.email || 
-                      !formData.password || 
-                      !formData.fullName || 
-                      !formData.agreeTerms ||
-                      loading
-                    }
-                  >
-                    הרשמה
-                  </Button>
                 </div>
+
+                {formData.businessType === "supplier" && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="companyName" className="text-right">שם העסק</Label>
+                      <Input 
+                        id="companyName" 
+                        placeholder="שם העסק המלא" 
+                        value={formData.companyName}
+                        onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+                        className="text-right"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="text-right">תיאור העסק</Label>
+                      <Textarea 
+                        id="description" 
+                        placeholder="תאר את העסק שלך, המוצרים שאתה מציע והיתרונות שלך כספק..." 
+                        value={formData.description}
+                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                        rows={4}
+                        className="text-right"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="address" className="text-right">כתובת העסק</Label>
+                      <Input 
+                        id="address" 
+                        placeholder="כתובת מלאה" 
+                        value={formData.address}
+                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        className="text-right"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-right">טלפון</Label>
+                      <Input 
+                        id="phone" 
+                        type="tel" 
+                        placeholder="מספר טלפון" 
+                        value={formData.phone}
+                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        className="text-right"
+                      />
+                    </div>
+
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6">
+                <Button 
+                  onClick={handleRegister}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  disabled={
+                    !formData.email || 
+                    !formData.password || 
+                    !formData.fullName || 
+                    !formData.agreeTerms ||
+                    loading
+                  }
+                >
+                  הרשמה
+                </Button>
               </div>
             </TabsContent>
           </Tabs>
