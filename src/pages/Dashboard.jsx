@@ -79,9 +79,16 @@ export default function SupplierDashboard() {
         if (!userData.business_type) {
           await User.updateMyUserData({ business_type: "supplier" });
           userData.business_type = "supplier";
-        } else if (userData.business_type !== "supplier") {
+        } else if (userData.business_type !== "supplier" && userData.user_metadata?.business_type !== "supplier") {
+          console.log("User is not a supplier:", userData);
           navigate(createPageUrl("Home"));
           return;
+        }
+        
+        // If we have business_type in user_metadata but not in the database, synchronize them
+        if (userData.user_metadata?.business_type === "supplier" && userData.business_type !== "supplier") {
+          await User.updateMyUserData({ business_type: "supplier" });
+          userData.business_type = "supplier";
         }
         
         setUser(userData);

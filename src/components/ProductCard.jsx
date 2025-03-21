@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Star, MessageSquare, Heart, Send, Phone, Mail, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Star, MessageSquare, Heart, Send, Phone, Mail, ArrowRight, Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,11 +49,12 @@ function ProductImage({ src, alt, className }) {
   );
 }
 
-export default function ProductCard({ product, variant = "default", className = "" }) {
+export default function ProductCard({ product, variant = "default" }) {
   const [isLiked, setIsLiked] = useState(false);
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -155,139 +155,92 @@ export default function ProductCard({ product, variant = "default", className = 
     return categories[categoryValue] || categoryValue;
   };
 
-  if (variant === "compact") {
+  const handleProductClick = () => {
+    navigate(createPageUrl("Product") + `?id=${product.id}`);
+  };
+
+  if (variant === "list") {
     return (
-      <Card className={`group overflow-hidden transition-all hover:shadow-md h-full ${className}`}>
-        <Link to={createPageUrl("Product") + `?id=${product.id}`} className="block h-full">
-          <div className="relative aspect-[4/3]">
-            <ProductImage 
-              src={product.images?.[0]}
-              alt={product.title || "מוצר"} 
-              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-            />
-            <Button
-              size="icon"
-              variant="ghost"
-              className={`absolute top-2 left-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white ${
-                isLiked ? "text-red-500" : "text-gray-500"
-              }`}
-              onClick={handleLike}
-            >
-              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-            </Button>
-          </div>
-          <div className="p-3">
-            <h3 className="font-medium text-sm mb-1 line-clamp-1">{product.title}</h3>
-            <div className="flex items-center mb-2">
-              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-              <span className="text-xs font-medium mr-1">{product.rating?.toFixed(1) || "N/A"}</span>
+      <Card className="overflow-hidden hover:shadow-md transition-shadow">
+        <div className="flex">
+          <div className="w-1/4">
+            <div className="h-full">
+              {product.images && product.images.length > 0 ? (
+                <img
+                  src={product.images[0]}
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onClick={handleProductClick}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center"
+                  onClick={handleProductClick}>
+                  <Package className="h-8 w-8 text-gray-400" />
+                </div>
+              )}
             </div>
-            <p className="text-gray-700 font-bold">{formatPrice(product.price)}+</p>
           </div>
-        </Link>
+          <div className="w-3/4 p-4">
+            <div className="flex justify-between">
+              <h3 className="font-medium mb-1 text-lg cursor-pointer hover:text-blue-600"
+                onClick={handleProductClick}>
+                {product.title}
+              </h3>
+              {product.customActions}
+            </div>
+            <div className="flex items-center text-sm mb-2">
+              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+              <span className="font-medium mr-1">{product.rating?.toFixed(1) || "0.0"}</span>
+            </div>
+            <p className="text-gray-500 text-sm mb-3 line-clamp-2">{product.description}</p>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-blue-600">₪{product.price?.toFixed(2) || "0.00"}+</span>
+              <span className="text-xs text-gray-500">MOQ: {product.minimum_order || 1}</span>
+            </div>
+          </div>
+        </div>
       </Card>
     );
   }
 
   return (
-    <Card className={`group overflow-hidden transition-all hover:shadow-md h-full ${className}`}>
-      <Link to={createPageUrl("Product") + `?id=${product.id}`} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden">
-          <ProductImage 
-            src={product.images?.[0]}
-            alt={product.title || "מוצר"} 
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <div
+        className="h-40 overflow-hidden relative cursor-pointer"
+        onClick={handleProductClick}
+      >
+        {product.images && product.images.length > 0 ? (
+          <img
+            src={product.images[0]}
+            alt={product.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
           />
-          
-          <div className="absolute top-0 left-0 p-2 flex gap-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              className={`rounded-full bg-white/80 backdrop-blur-sm hover:bg-white ${
-                isLiked ? "text-red-500" : "text-gray-500"
-              }`}
-              onClick={handleLike}
-            >
-              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-            </Button>
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <Package className="h-8 w-8 text-gray-400" />
           </div>
+        )}
+      </div>
+      <div className="p-4">
+        <div className="flex justify-between">
+          <h3 className="font-medium mb-1 truncate cursor-pointer hover:text-blue-600"
+            onClick={handleProductClick}>
+            {product.title}
+          </h3>
+          {product.customActions}
         </div>
-      </Link>
-      
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <Link to={createPageUrl("Product") + `?id=${product.id}`}>
-              <h3 className="font-medium mb-1 line-clamp-1 hover:text-blue-600 transition-colors">
-                {product.title}
-              </h3>
-            </Link>
-            
-            <div className="flex items-center mb-2">
-              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm font-medium mr-1">{product.rating?.toFixed(1) || "N/A"}</span>
-              <Badge variant="outline" className="mr-2 text-xs">
-                {getCategoryLabel(product.category)}
-              </Badge>
-            </div>
-          </div>
+        <div className="flex items-center text-sm">
+          <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+          <span className="font-medium mr-1">{product.rating?.toFixed(1) || "0.0"}</span>
         </div>
-        
-        <p className="text-gray-500 text-sm mb-3 h-10 line-clamp-2">{product.description}</p>
-        
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <div className="font-semibold text-blue-600">{formatPrice(product.price)}+</div>
-          <div className="text-sm text-gray-500">מינימום: {product.minimum_order}</div>
+        <p className="text-gray-500 text-sm mt-2 mb-3 line-clamp-2">{product.description}</p>
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-blue-600">₪{product.price?.toFixed(2) || "0.00"}+</span>
+          <span className="text-xs text-gray-500">MOQ: {product.minimum_order || 1}</span>
         </div>
-        
-        <div className="mt-4">
-          <Button 
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-sm"
-            onClick={handleContactClick}
-          >
-            <MessageSquare className="h-4 w-4 ml-2" />
-            יצירת קשר עם הספק
-          </Button>
-        </div>
-      </CardContent>
-      
-      <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
-        <DialogContent className="bg-white p-6 rounded-xl max-w-sm mx-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold mb-2 text-center">יצירת קשר עם הספק</DialogTitle>
-            <DialogDescription className="text-center">
-              בחר את דרך התקשורת המועדפת עליך
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-1 gap-4 my-4">
-            <Button 
-              className="bg-green-500 hover:bg-green-600 text-white h-12"
-              onClick={handleContactWhatsapp}
-            >
-              <Phone className="ml-2 h-5 w-5" />
-              וואטסאפ
-            </Button>
-            
-            <Button 
-              className="bg-blue-500 hover:bg-blue-600 text-white h-12"
-              onClick={handleContactMessages}
-            >
-              <Mail className="ml-2 h-5 w-5" />
-              הודעה פנימית
-            </Button>
-            
-            <Link 
-              to={createPageUrl("Product") + `?id=${product.id}`}
-              className="block text-center text-blue-600 hover:text-blue-700 mt-2"
-              onClick={() => setIsContactDialogOpen(false)}
-            >
-              פרטים נוספים על המוצר
-              <ArrowRight className="inline mr-1 h-4 w-4" />
-            </Link>
-          </div>
-        </DialogContent>
-      </Dialog>
+      </div>
     </Card>
   );
 }

@@ -535,7 +535,7 @@ export default function Home() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="text-white border-white hover:bg-white/10"
+                      className="bg-white text-blue-600 hover:bg-white/10"
                       onClick={() => User.login()}
                     >
                       כבר יש לך חשבון? התחבר

@@ -22,6 +22,8 @@ import Messages from "./Messages";
 
 import Profile from "./Profile";
 
+import MyProducts from "./MyProducts";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -47,6 +49,8 @@ const PAGES = {
     Messages: Messages,
     
     Profile: Profile,
+    
+    MyProducts: MyProducts,
     
 }
 
@@ -83,6 +87,7 @@ function PagesContent() {
                 <Route path="/AdminDashboard" element={<AdminDashboard />} />
                 <Route path="/Messages" element={<Messages />} />
                 <Route path="/Profile" element={<Profile />} />
+                <Route path="/MyProducts" element={<MyProducts />} />
             </Routes>
         </Layout>
     );

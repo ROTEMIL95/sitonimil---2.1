@@ -43,6 +43,7 @@ export default function ProfilePage() {
     phone: "",
     website: "",
     logo_url: "",
+    business_type: "",
   });
 
   useEffect(() => {
@@ -58,6 +59,7 @@ export default function ProfilePage() {
           phone: userData.phone || "",
           website: userData.website || "",
           logo_url: userData.logo_url || "",
+          business_type: userData.user_metadata?.business_type || "",
         });
         setLoading(false);
       } catch (error) {
@@ -80,11 +82,27 @@ export default function ProfilePage() {
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
-      await User.updateMyUserData(profileData);
+      const updatedUser = await User.updateMyUserData(profileData);
+      
+      // Also update user metadata with business_type if it has changed
+      if (user.user_metadata?.business_type !== profileData.business_type) {
+        try {
+          await User.updateUserMetadata({
+            business_type: profileData.business_type
+          });
+          console.log("User metadata updated with business_type:", profileData.business_type);
+        } catch (err) {
+          console.error("Failed to update user metadata:", err);
+        }
+      }
       
       setUser((prev) => ({
         ...prev,
         ...profileData,
+        user_metadata: {
+          ...(prev.user_metadata || {}),
+          business_type: profileData.business_type
+        }
       }));
       
       setEditMode(false);

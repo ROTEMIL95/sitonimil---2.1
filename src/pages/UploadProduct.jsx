@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Product } from "@/api/entities";
 import { User } from "@/api/entities";
-import { UploadProduct } from "@/api/integrations";
+import { UploadProduct as UploadProductAPI } from "@/api/integrations";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,71 +20,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, ImagePlus, X, AlertCircle, Plus, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/api/supabaseClient";
+import { toast } from "sonner";
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  console.log("🔹 Checking if UploadProduct exists:", UploadProduct);
-
-  if (!UploadProduct) {
-      console.error("❌ Error: UploadProduct is not defined!");
-      alert("שגיאה: הפונקציה להעלאת מוצר לא קיימת.");
-      return;
-  }
-
-  // הכנת הנתונים
-  const formattedData = {
-      ...productData,
-      price: Number(productData.price),
-      minimum_order: Number(productData.minimum_order),
-      stock: Number(productData.stock),
-      supplier_id: user.id,
-      lead_time: productData.lead_time || null,
-      created_at: new Date()
-  };
-
-  console.log("🔹 Sending product data:", formattedData);
-
-  setSaving(true);
-
-  try {
-      let response;
-      if (editMode) {
-          response = await Product.update(productData.id, formattedData);
-      } else {
-          response = await UploadProduct(formattedData);  // שינוי לקריאה הנכונה
-      }
-
-      console.log("✅ Product saved successfully:", response);
-      navigate(createPageUrl("Dashboard"));
-  } catch (error) {
-      console.error("❌ Error saving product:", error);
-      alert("אירעה שגיאה בשמירת המוצר: " + error.message);
-      setSaving(false);
-  }
-};
-
-export default function ProductUpload() {
+export default function UploadProduct() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editMode, setEditMode] = useState(false);
+  const params = useParams();
+  const productId = params.id;
+  const editMode = !!productId;
   
-  // Form state
   const [productData, setProductData] = useState({
     title: "",
     description: "",
-    price: "",
-    minimum_order: "",
+    price: 0,
+    minimum_order: 1,
+    stock: 0,
     category: "",
-    subcategory: "",
-    stock: "",
     images: [],
     specifications: {},
-    lead_time: "",
     status: "active"
   });
+
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploadState, setUploadState] = useState([]);
   
   // Image upload state
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -93,57 +52,50 @@ export default function ProductUpload() {
   const [newSpecValue, setNewSpecValue] = useState("");
   
   useEffect(() => {
-    const checkAccess = async () => {
+    const loadData = async () => {
       try {
+        // Load user data
         const userData = await User.me();
-        if (!userData || userData.business_type !== "supplier") {
+        setUser(userData);
+        
+        // Check if user is a supplier
+        // Check business_type from user metadata first
+        const isSupplier = 
+          (userData?.user_metadata?.business_type === "supplier") || 
+          (userData?.business_type === "supplier");
+        
+        if (!isSupplier) {
+          console.log("User is not a supplier:", userData);
+          toast.error("רק ספקים יכולים לפרסם מוצרים");
           navigate(createPageUrl("Home"));
           return;
         }
-        
-        setUser(userData);
-        
-        // Check if we're in edit mode
-        const urlParams = new URLSearchParams(window.location.search);
-        const editId = urlParams.get("edit");
-        
-        if (editId) {
-          await loadProduct(editId);
-          setEditMode(true);
+
+        // If editing, load product data
+        if (editMode) {
+          const product = await Product.getById(productId);
+          
+          // Verify this product belongs to this user
+          if (product.supplier_id !== userData.id) {
+            toast.error("אין לך הרשאה לערוך מוצר זה");
+            navigate(createPageUrl("Dashboard"));
+            return;
+          }
+          
+          setProductData(product);
         }
         
-        setLoading(false);
       } catch (error) {
-        console.error("Not authenticated:", error);
+        console.error("Error loading data:", error);
+        toast.error("התרחשה שגיאה בטעינת הנתונים");
         navigate(createPageUrl("Home"));
+      } finally {
+        setLoading(false);
       }
     };
     
-    checkAccess();
-  }, [navigate]);
-  
-  const loadProduct = async (productId) => {
-    try {
-      const allProducts = await Product.list();
-      const product = allProducts.find(p => p.id === productId);
-      
-      if (!product) {
-        navigate(createPageUrl("Dashboard"));
-        return;
-      }
-      
-      // Make sure the product belongs to the current user
-      if (product.supplier_id !== user?.id) {
-        navigate(createPageUrl("Dashboard"));
-        return;
-      }
-      
-      setProductData(product);
-    } catch (error) {
-      console.error("Error loading product:", error);
-      navigate(createPageUrl("Dashboard"));
-    }
-  };
+    loadData();
+  }, [productId, editMode, navigate]);
   
   const handleInputChange = (field, value) => {
     setProductData({
@@ -171,22 +123,24 @@ export default function ProductUpload() {
     setImageError("");
     
     try {
+      const safeFileName = file.name.replace(/[^\w.]/gi, "_");
       // Generate a unique file path
-      const filePath = `products/${Date.now()}-${file.name}`;
+      const filePath = `products/${Date.now()}-${safeFileName}`;
+      console.log("🔍 file:", file);
+      console.log("📏 size:", file.size);
       
-      // Upload the file to Supabase storage
-      const { data, error } = await supabase.storage
-        .from('products')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
+      // Upload the file to Supabase storage using the expected format
+      const { data, error } = await supabase
+        .storage
+        .from("product-image")
+        .upload(filePath, file);
 
       if (error) throw error;
 
       // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('products')
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from("product-image")
         .getPublicUrl(filePath);
       
       setProductData({
@@ -240,7 +194,7 @@ export default function ProductUpload() {
     
     // Basic validation
     if (!productData.title || !productData.price || !productData.category) {
-      alert("נא למלא את כל השדות הנדרשים");
+      toast.error("נא למלא את כל השדות הנדרשים");
       return;
     }
     
@@ -251,23 +205,43 @@ export default function ProductUpload() {
       minimum_order: Number(productData.minimum_order),
       stock: Number(productData.stock),
       supplier_id: user.id,
-      lead_time: productData.lead_time || null,
-      created_at: new Date()
+      created_at: new Date(),
+      // Make sure images is an array
+      images: Array.isArray(productData.images) ? productData.images : [],
+      // Make sure specifications is an object
+      specifications: productData.specifications || {}
     };
     
     setSaving(true);
     
     try {
+      let newProductId;
+      
       if (editMode) {
         await Product.update(productData.id, formattedData);
+        toast.success("המוצר עודכן בהצלחה");
+        // In edit mode, redirect to dashboard
+        navigate(createPageUrl("Dashboard"));
       } else {
-        await Product.create(formattedData);
+        // In create mode, get the new product ID and redirect to Search page
+        let result;
+        if (typeof UploadProductAPI === 'function') {
+          // Pass the complete formatted data object to UploadProductAPI
+          result = await UploadProductAPI(formattedData);
+        } else {
+          result = await Product.create(formattedData);
+        }
+        
+        toast.success("המוצר נוצר בהצלחה");
+        
+        // Redirect to Search page with a parameter to highlight the new product
+        // Navigate to the products page (Search) with a filter for the supplier's products
+        navigate(createPageUrl("Search") + `?supplier=${user.id}&new=true`);
       }
-      
-      navigate(createPageUrl("Dashboard"));
     } catch (error) {
       console.error("Error saving product:", error);
-      alert("אירעה שגיאה בשמירת המוצר");
+      toast.error("אירעה שגיאה בשמירת המוצר: " + (error.message || ""));
+    } finally {
       setSaving(false);
     }
   };

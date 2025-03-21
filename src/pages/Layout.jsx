@@ -37,6 +37,8 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { supabase } from "@/api/supabaseClient";
 
 export default function Layout({ children }) {
   const [user, setUser] = useState(null);
@@ -48,10 +50,36 @@ export default function Layout({ children }) {
   useEffect(() => {
     const loadUser = async () => {
       try {
+        // Get the authenticated user
         const userData = await User.me();
-        setUser(userData);
+        console.log("Auth user data:", userData);
+        
+        // Get the full user record from the database
+        if (userData) {
+          try {
+            const { data: userRecord } = await supabase
+              .from("users")
+              .select("*")
+              .eq("id", userData.id)
+              .single();
+              
+            console.log("User DB record:", userRecord);
+            
+            // Merge auth user with DB record to ensure business_type is available
+            if (userRecord) {
+              const mergedUser = { ...userData, ...userRecord };
+              console.log("Merged user data:", mergedUser);
+              setUser(mergedUser);
+            } else {
+              setUser(userData);
+            }
+          } catch (dbError) {
+            console.error("Error fetching user record:", dbError);
+            setUser(userData);
+          }
+        }
       } catch (error) {
-        console.log("User not logged in");
+        console.log("User not logged in", error);
       }
     };
     loadUser();
@@ -81,6 +109,30 @@ export default function Layout({ children }) {
     { name: "ספקים", path: createPageUrl("Suppliers") },
   ];
 
+  // Supplier-specific navigation links
+  const supplierLinks = [
+    { name: "המוצרים שלי", path: createPageUrl("MyProducts") },
+  ];
+
+  // Get all navigation links based on user role
+  const getAllNavLinks = () => {
+    // Basic links for everyone
+    let links = [...navLinks];
+    
+    // Add supplier-specific links if the user is a supplier
+    if (user) {
+      const isSupplier = 
+        (user.user_metadata?.business_type === "supplier") || 
+        (user.business_type === "supplier");
+        
+      if (isSupplier) {
+        links = [...links, ...supplierLinks];
+      }
+    }
+    
+    return links;
+  };
+
   const handleLogout = async () => {
     try {
       await User.logout();
@@ -92,11 +144,31 @@ export default function Layout({ children }) {
 
   const handlePublishProductClick = (e) => {
     e.preventDefault();
+    console.log("Current user data:", user);
+    
+    // First check if user exists
     if (!user) {
-      window.location.href = createPageUrl("Auth") + "?tab=register&redirect=UploadProduct";
-    } else {
-      window.location.href = createPageUrl("UploadProduct");
+      window.location.href = createPageUrl("Auth") + "?tab=login&redirect=UploadProduct";
+      return;
     }
+    
+    // Check business_type from user metadata first
+    if (user.user_metadata && user.user_metadata.business_type === "supplier") {
+      console.log("User is a supplier based on auth metadata");
+      window.location.href = createPageUrl("UploadProduct");
+      return;
+    }
+    
+    // Fallback to DB record business_type
+    if (user.business_type === "supplier") {
+      console.log("User is a supplier based on DB record");
+      window.location.href = createPageUrl("UploadProduct");
+      return;
+    }
+    
+    // If we get here, user is not a supplier
+    console.log("User is not a supplier:", user);
+    toast.error("רק ספקים יכולים לפרסם מוצרים");
   };
 
   return (
@@ -130,7 +202,7 @@ export default function Layout({ children }) {
               </Link>
               
               <div className="hidden mr-20 md:flex items-center">
-                {navLinks.map((link) => (
+                {getAllNavLinks().map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
@@ -303,7 +375,7 @@ export default function Layout({ children }) {
                     </div>
                   )}
                 
-                  {navLinks.map((link) => (
+                  {getAllNavLinks().map((link) => (
                     <Link
                       key={link.path}
                       to={link.path}

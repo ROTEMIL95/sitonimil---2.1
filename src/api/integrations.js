@@ -17,6 +17,8 @@ export async function addData(table, newData) {
     const { data, error } = await supabase.from(table).insert([newData]);
     if (error) {
         console.error(`Error adding data to ${table}:`, error);
+        console.log("🟨 נתוני המוצר:", formattedData);
+
         return { success: false, error };
     }
     return { success: true, data };
@@ -85,18 +87,36 @@ export async function getReviewsByProduct(product_id) {
 
 // * ---------------- פונקציות לניהול מוצרים (Products) ---------------- */
 
-export async function UploadProduct(title, description, price, category, images, stock, supplier_id) {
-    const productData = {
-        title,
-        description,
-        price,
-        category,
-        images,
-        stock,
-        supplier_id,
-        created_at: new Date()
+/**
+ * Upload a new product to the database
+ * @param {Object} productData - Complete product data object with all fields
+ * @returns {Promise} - Promise with the result of the operation
+ */
+export async function UploadProduct(productData) {
+    // Ensure all required fields are present
+    const requiredFields = {
+        title: productData.title || "",
+        description: productData.description || "",
+        price: Number(productData.price) || 0,
+        minimum_order: Number(productData.minimum_order) || 1,
+        category: productData.category || "",
+        images: Array.isArray(productData.images) ? productData.images : [],
+        stock: Number(productData.stock) || 0,
+        specifications: productData.specifications || {},
+        supplier_id: productData.supplier_id,
+        status: productData.status || "active",
+        created_at: productData.created_at || new Date()
     };
-    return await addData("products", productData);
+    
+    // Format the data according to the database schema
+    const formattedData = {
+        ...requiredFields,
+        // Ensure images and specifications are properly formatted as JSONB
+        images: JSON.stringify(requiredFields.images),
+        specifications: JSON.stringify(requiredFields.specifications)
+    };
+    
+    return await addData("products", formattedData);
 }
 
 export async function getProductsByCategory(category) {

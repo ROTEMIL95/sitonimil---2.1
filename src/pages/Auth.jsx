@@ -158,12 +158,13 @@ export default function Auth() {
         supplierData
       );
 
-      // Show success message
-      toast.success("ההרשמה הושלמה בהצלחה! אנא התחבר כדי להמשיך.");
+      // Store the email temporarily to populate the login form
+      const registeredEmail = formData.email;
       
       // Reset form
       setFormData({
-        email: "",
+        ...formData,
+        email: registeredEmail,
         password: "",
         fullName: "",
         businessType: "",
@@ -174,8 +175,15 @@ export default function Auth() {
         phone: "",
       });
 
+      // Show success message
+      toast.success("ההרשמה הושלמה בהצלחה! אנא התחבר כדי להמשיך.");
+      
       // Switch to login tab
       setActiveTab("login");
+      
+      // Sign out the user if they were automatically signed in
+      await supabase.auth.signOut();
+
     } catch (error) {
       console.error("Registration failed:", error);
       setError(error.message || "אירעה שגיאה בתהליך ההרשמה");

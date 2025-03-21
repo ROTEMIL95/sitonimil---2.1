@@ -35,6 +35,7 @@ export const User = {
                     data: {
                         full_name: fullName,
                         role: "user",
+                        business_type: businessType,
                     },
                 },
             });
@@ -60,7 +61,6 @@ export const User = {
                     description: supplierData.description || "",
                     address: supplierData.address,
                     phone: supplierData.phone,
-                    website: supplierData.website || null,
                 });
             }
 
@@ -97,6 +97,15 @@ export const User = {
         return user;
     },
 
+    async updateUserMetadata(metadata) {
+        const { data, error } = await supabase.auth.updateUser({
+            data: metadata
+        });
+        
+        if (error) throw error;
+        return data;
+    },
+
     async updateMyUserData(userData) {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError) throw userError;
@@ -109,6 +118,19 @@ export const User = {
             .single();
 
         if (error) throw error;
+        
+        // Also update the user metadata if business_type is being changed
+        if (userData.business_type) {
+            try {
+                await this.updateUserMetadata({
+                    business_type: userData.business_type
+                });
+            } catch (metadataError) {
+                console.error("Error updating user metadata:", metadataError);
+                // Continue even if metadata update fails
+            }
+        }
+        
         return data;
     },
 
@@ -138,35 +160,92 @@ export const Product = {
     created_at: "timestamp",
 
     async list() {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data;
+        try {
+            // Simple query as requested
+            let { data: products, error } = await supabase
+                .from('products')
+                .select('*');
+            
+            if (error) throw error;
+            
+            // Verify and log product data
+            console.log(`Product.list fetched ${products.length} products`);
+            console.log("Raw products from Supabase:", products);
+
+            // Return properly structured data
+            return products.map(product => ({
+                ...product,
+                // Ensure images is parsed properly from JSONB
+                images: typeof product.images === 'string' 
+                    ? JSON.parse(product.images) 
+                    : (Array.isArray(product.images) ? product.images : []),
+                // Ensure specifications is parsed properly from JSONB
+                specifications: typeof product.specifications === 'string'
+                    ? JSON.parse(product.specifications)
+                    : (product.specifications || {})
+            }));
+        } catch (error) {
+            console.error("Error in Product.list:", error);
+            throw error;
+        }
     },
 
     async getById(id) {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .eq('id', id)
-            .single();
-        
-        if (error) throw error;
-        return data;
+        try {
+            const { data, error } = await supabase
+                .from('products')
+                .select('*')
+                .eq('id', id)
+                .single();
+            
+            if (error) throw error;
+            
+            // Process JSONB fields
+            return {
+                ...data,
+                // Ensure images is parsed properly from JSONB
+                images: typeof data.images === 'string' 
+                    ? JSON.parse(data.images) 
+                    : (Array.isArray(data.images) ? data.images : []),
+                // Ensure specifications is parsed properly from JSONB
+                specifications: typeof data.specifications === 'string'
+                    ? JSON.parse(data.specifications)
+                    : (data.specifications || {})
+            };
+        } catch (error) {
+            console.error(`Error fetching product with ID ${id}:`, error);
+            throw error;
+        }
     },
 
     async create(productData) {
-        const { data, error } = await supabase
-            .from('products')
-            .insert([productData])
-            .select()
-            .single();
-        
-        if (error) throw error;
-        return data;
+        try {
+            // Format JSONB fields correctly
+            const formattedData = {
+                ...productData,
+                // Convert arrays and objects to strings for JSONB fields
+                images: Array.isArray(productData.images) 
+                    ? JSON.stringify(productData.images) 
+                    : JSON.stringify([]),
+                specifications: productData.specifications
+                    ? JSON.stringify(productData.specifications)
+                    : JSON.stringify({})
+            };
+
+            const { data, error } = await supabase
+                .from('products')
+                .insert([formattedData])
+                .select()
+                .single();
+            
+            if (error) throw error;
+            
+            console.log("Product created successfully:", data.id);
+            return data;
+        } catch (error) {
+            console.error("Error creating product:", error);
+            throw error;
+        }
     },
 
     async update(id, productData) {

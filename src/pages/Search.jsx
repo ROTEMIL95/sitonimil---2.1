@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Product } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Card } from "@/components/ui/card";
@@ -26,6 +26,11 @@ const initialFilterOptions = {
 // פונקציית סינון ומיון המוצרים - מוגדרת מחוץ לקומפוננטה למנוע שגיאות הרפרור
 const filterAndSortProducts = (products, options, searchQuery) => {
   let filtered = products.filter(product => {
+    // וידוא שהמוצר תקין
+    if (!product || !product.title) {
+      return false;
+    }
+    
     // סינון לפי חיפוש
     if (searchQuery && !product.title?.toLowerCase().includes(searchQuery.toLowerCase()) && 
         !product.description?.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -62,7 +67,10 @@ const filterAndSortProducts = (products, options, searchQuery) => {
   return filtered.sort((a, b) => {
     switch (options.sortBy) {
       case 'newest':
-        return new Date(b.created_date || 0).getTime() - new Date(a.created_date || 0).getTime();
+        // Use created_at field with proper fallback
+        const dateA = a.created_at ? new Date(a.created_at) : new Date(0);
+        const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
+        return dateB.getTime() - dateA.getTime();
       case 'price-low':
         return a.price - b.price;
       case 'price-high':
@@ -77,6 +85,7 @@ const filterAndSortProducts = (products, options, searchQuery) => {
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState("grid");
   const { toast } = useToast();
@@ -84,6 +93,8 @@ export default function SearchPage() {
   // Get search query parameters
   const query = searchParams.get("q") || "";
   const categoryParam = searchParams.get("category") || "";
+  const supplierParam = searchParams.get("supplier") || "";
+  const isNewProduct = searchParams.get("new") === "true";
   
   // Filter state
   const [filterOptions, setFilterOptions] = useState({
@@ -93,6 +104,30 @@ export default function SearchPage() {
 
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [suppliers, setSuppliers] = useState({});
+
+  // Function to refresh product data
+  const refreshProducts = async () => {
+    setLoading(true);
+    try {
+      const products = await Product.list();
+      // סינון מוצרים לא תקינים
+      const validProducts = products.filter(product => 
+        product && product.title && product.price !== undefined
+      );
+      setAllProducts(validProducts);
+      
+      console.log("Refreshed products:", validProducts.length);
+    } catch (error) {
+      console.error("Error refreshing products:", error);
+      toast({
+        variant: "destructive",
+        description: "שגיאה בטעינת המוצרים",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // טעינת מוצרים ראשונית - רק פעם אחת
   useEffect(() => {
@@ -105,6 +140,19 @@ export default function SearchPage() {
           product && product.title && product.price !== undefined
         );
         setAllProducts(validProducts);
+        console.log("Initial products loaded:", validProducts.length);
+
+        // Load suppliers for product info
+        try {
+          const usersList = await User.list();
+          const suppliersMap = {};
+          usersList.forEach(user => {
+            suppliersMap[user.id] = user;
+          });
+          setSuppliers(suppliersMap);
+        } catch (error) {
+          console.error("Error loading suppliers:", error);
+        }
       } catch (error) {
         console.error("Error loading products:", error);
         toast({
@@ -121,8 +169,63 @@ export default function SearchPage() {
 
   // חישוב המוצרים המסוננים באמצעות useMemo - רק כאשר הסינונים או המוצרים משתנים
   const filteredProducts = useMemo(() => {
-    return filterAndSortProducts(allProducts, filterOptions, query);
-  }, [allProducts, filterOptions, query]);
+    let filtered = filterAndSortProducts(allProducts, filterOptions, query);
+    
+    // Apply supplier filter if provided
+    if (supplierParam) {
+      filtered = filtered.filter(product => product.supplier_id === supplierParam);
+    }
+    
+    return filtered;
+  }, [allProducts, filterOptions, query, supplierParam]);
+  
+  // הפרדה בין מוצרים חדשים לישנים אם מסומן שזה מוצר חדש
+  const { newProducts, otherProducts } = useMemo(() => {
+    if (!isNewProduct || !supplierParam) {
+      return { newProducts: [], otherProducts: filteredProducts };
+    }
+    
+    // Get the newest products from this supplier (last 24 hours)
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+    
+    const newOnes = filteredProducts.filter(product => {
+      const createdDate = new Date(product.created_at);
+      return createdDate > oneDayAgo;
+    });
+    
+    const others = filteredProducts.filter(product => {
+      const createdDate = new Date(product.created_at);
+      return createdDate <= oneDayAgo;
+    });
+    
+    return {
+      newProducts: newOnes,
+      otherProducts: others
+    };
+  }, [filteredProducts, isNewProduct, supplierParam]);
+
+  // Apply scroll effect to newly added products
+  useEffect(() => {
+    if (isNewProduct && newProducts.length > 0 && !loading) {
+      // Scroll to the new products section smoothly
+      const newProductsHeader = document.getElementById('new-products-section');
+      if (newProductsHeader) {
+        setTimeout(() => {
+          newProductsHeader.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 500); // Small delay to ensure rendering is complete
+      }
+      
+      // Show a toast notification
+      toast({
+        title: "מוצר חדש נוסף בהצלחה!",
+        description: "המוצר שלך מוצג כעת בחנות",
+      });
+    }
+  }, [isNewProduct, newProducts.length, loading]);
 
   const handleSearch = (searchQuery, category) => {
     const params = new URLSearchParams();
@@ -200,11 +303,78 @@ export default function SearchPage() {
     return categoryMap[categoryValue] || categoryValue;
   };
 
+  // Render the main content of the search page
+  const renderContent = () => {
+    if (loading) {
+      return <ProductGrid products={[]} loading={true} viewMode={viewMode} />;
+    }
+    
+    return (
+      <>
+        {newProducts.length > 0 && (
+          <div className="mb-8" id="new-products-section">
+            <div className="flex items-center mb-4">
+              <h2 className="text-xl font-bold">מוצרים חדשים</h2>
+              <Badge variant="default" className="ml-2 bg-green-500">חדש</Badge>
+            </div>
+            <ProductGrid products={newProducts} loading={false} viewMode={viewMode} />
+            <Separator className="my-8" />
+          </div>
+        )}
+        
+        <div>
+          {newProducts.length > 0 ? (
+            <h2 className="text-xl font-bold mb-4">מוצרים נוספים</h2>
+          ) : (
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">כל המוצרים</h2>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                >
+                  <ListFilter className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          <ProductGrid products={otherProducts} loading={false} viewMode={viewMode} />
+        </div>
+      </>
+    );
+  };
+
+  // Refresh products when a new product is added
+  useEffect(() => {
+    if (isNewProduct) {
+      refreshProducts();
+    }
+  }, [isNewProduct]);
+
   return (
     <div className="py-6 md:py-10">
       <div className="max-w-7xl mx-auto">
         <div className="max-w-4xl mx-auto mb-8">
-          <h1 className="text-3xl font-bold mb-4 text-right">מוצרים</h1>
+          <div className="flex justify-between items-center">
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={refreshProducts}
+              className="mb-4"
+            >
+              רענון מוצרים
+            </Button>
+            <h1 className="text-3xl font-bold mb-4 text-right">מוצרים</h1>
+          </div>
           <SearchBar 
             initialQuery={query}
             initialCategory={categoryParam}
@@ -330,11 +500,7 @@ export default function SearchPage() {
           </div>
           
           <div className="flex-1 min-w-0">
-            <ProductGrid 
-              products={filteredProducts}
-              loading={loading}
-              viewMode={viewMode}
-            />
+            {renderContent()}
           </div>
         </div>
       </div>
