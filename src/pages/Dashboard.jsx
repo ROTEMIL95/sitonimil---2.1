@@ -75,20 +75,30 @@ export default function SupplierDashboard() {
           return;
         }
         
-        // If this is the first time the user uses the system, set business_type to supplier
-        if (!userData.business_type) {
-          await User.updateMyUserData({ business_type: "supplier" });
-          userData.business_type = "supplier";
-        } else if (userData.business_type !== "supplier" && userData.user_metadata?.business_type !== "supplier") {
+        // Check if user is a supplier
+        const isSupplier = (userData.user_metadata?.business_type === "supplier") || (userData.business_type === "supplier");
+        
+        if (!isSupplier) {
           console.log("User is not a supplier:", userData);
           navigate(createPageUrl("Home"));
           return;
         }
         
-        // If we have business_type in user_metadata but not in the database, synchronize them
-        if (userData.user_metadata?.business_type === "supplier" && userData.business_type !== "supplier") {
+        // Ensure business_type is set in both places
+        if (userData.business_type !== "supplier" || userData.user_metadata?.business_type !== "supplier") {
+          // Update both the database record and user metadata
           await User.updateMyUserData({ business_type: "supplier" });
+          
+          if (userData.user_metadata?.business_type !== "supplier") {
+            await User.updateUserMetadata({ business_type: "supplier" });
+          }
+          
+          // Update local state
           userData.business_type = "supplier";
+          userData.user_metadata = { 
+            ...(userData.user_metadata || {}), 
+            business_type: "supplier" 
+          };
         }
         
         setUser(userData);

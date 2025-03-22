@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
@@ -26,22 +26,38 @@ import {
   UserPlus,
   Settings,
   Star,
+  Upload,
+  Loader2,
+  Camera
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/api/supabaseClient";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const fileInputRef = useRef(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [profileData, setProfileData] = useState({
     full_name: "",
     company_name: "",
     description: "",
     address: "",
     phone: "",
-    website: "",
     logo_url: "",
     business_type: "",
   });
@@ -57,9 +73,8 @@ export default function ProfilePage() {
           description: userData.description || "",
           address: userData.address || "",
           phone: userData.phone || "",
-          website: userData.website || "",
           logo_url: userData.logo_url || "",
-          business_type: userData.user_metadata?.business_type || "",
+          business_type: userData.business_type || userData.user_metadata?.business_type || "",
         });
         setLoading(false);
       } catch (error) {
@@ -122,6 +137,132 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAvatarClick = () => {
+    // Trigger the hidden file input
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Check if file is an image
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        variant: "destructive",
+        title: "סוג קובץ לא נתמך",
+        description: "אנא בחר קובץ תמונה (JPG, PNG, GIF)",
+      });
+      return;
+    }
+
+    // Check file size (max 2MB)
+    const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+    if (file.size > MAX_SIZE) {
+      toast({
+        variant: "destructive",
+        title: "הקובץ גדול מדי",
+        description: "גודל הקובץ המקסימלי הוא 2MB",
+      });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      // Generate a safe filename
+      const safeFileName = file.name.replace(/[^\w.]/gi, "_");
+      // Generate a unique file path
+      const filePath = `${Date.now()}-${safeFileName}`;
+      
+      console.log("Uploading file:", filePath);
+      
+      // Upload the file to Supabase storage
+      const { data, error } = await supabase.storage
+        .from("profile-image")
+        .upload(filePath, file);
+
+      if (error) throw error;
+
+      // Get the public URL - using the same approach as in UploadProduct.jsx
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from("profile-image")
+        .getPublicUrl(filePath);
+      
+      console.log("Image uploaded successfully:", publicUrl);
+
+      // Update the user profile with the new image URL
+      const updatedProfileData = {
+        ...profileData,
+        logo_url: publicUrl
+      };
+
+      await User.updateMyUserData(updatedProfileData);
+
+      // Update local state
+      setProfileData(updatedProfileData);
+      setUser(prev => ({
+        ...prev,
+        logo_url: publicUrl
+      }));
+
+      toast({
+        title: "תמונת הפרופיל עודכנה בהצלחה",
+        description: "התמונה החדשה שלך נשמרה",
+      });
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast({
+        variant: "destructive",
+        title: "שגיאה בהעלאת התמונה",
+        description: "אנא נסה שוב מאוחר יותר",
+      });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleDeleteAccountClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteAccount = async () => {
+    setShowDeleteConfirm(false);
+    setLoading(true);
+    
+    try {
+      // First, delete the user record from the users table
+      const { error: deleteError } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', user.id);
+        
+      if (deleteError) throw deleteError;
+      
+      // Sign out the user
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
+      
+      // Show success message
+      toast({
+        title: "החשבון נמחק בהצלחה",
+        description: "כל הנתונים שלך הוסרו מהמערכת",
+      });
+      
+      // Redirect to home page with page refresh
+      window.location.href = createPageUrl("Home");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      setLoading(false);
+      toast({
+        variant: "destructive",
+        title: "שגיאה במחיקת החשבון",
+        description: "אנא נסה שוב מאוחר יותר",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -130,7 +271,8 @@ export default function ProfilePage() {
     );
   }
 
-  const isBusiness = user.business_type === "supplier";
+  const isBusiness = (user.user_metadata?.business_type === "supplier") || (user.business_type === "supplier");
+  console.log("isBusiness", isBusiness, "user.business_type:", user.business_type, "user.user_metadata?.business_type:", user.user_metadata?.business_type);
 
   return (
     <div className="space-y-8" >
@@ -171,15 +313,43 @@ export default function ProfilePage() {
                 <CardHeader className="relative">
                   <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-blue-600 to-blue-400 rounded-t-lg"></div>
                   <div className="relative mt-12 flex flex-col items-center">
-                    <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                      {profileData.logo_url ? (
-                        <AvatarImage src={profileData.logo_url} alt={profileData.full_name} />
-                      ) : (
-                        <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
-                          {profileData.full_name?.charAt(0) || "U"}
-                        </AvatarFallback>
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                    
+                    {/* Clickable Avatar */}
+                    <div 
+                      className="relative cursor-pointer group"
+                      onClick={handleAvatarClick}
+                    >
+                      <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+                        {profileData.logo_url ? (
+                          <AvatarImage src={profileData.logo_url} alt={profileData.full_name} />
+                        ) : (
+                          <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
+                            {profileData.full_name?.charAt(0) || "U"}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      
+                      {/* Loading overlay */}
+                      {uploadingAvatar && (
+                        <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center">
+                          <Loader2 className="h-8 w-8 text-white animate-spin" />
+                        </div>
                       )}
-                    </Avatar>
+                      
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Camera className="h-8 w-8 text-white" />
+                      </div>
+                    </div>
+                    
                     <div className="mt-4 text-center">
                       <CardTitle className="text-2xl">
                         {isBusiness ? profileData.company_name : profileData.full_name}
@@ -264,25 +434,6 @@ export default function ProfilePage() {
                           <p className="font-medium">{profileData.address || "לא הוגדר"}</p>
                         </div>
                       </div>
-                      
-                      {isBusiness && profileData.website && (
-                        <div className="flex items-start gap-3">
-                          <div className="mt-1 p-2 bg-blue-50 rounded-full">
-                            <Globe className="h-5 w-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">אתר אינטרנט</p>
-                            <a 
-                              href={profileData.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-medium text-blue-600 hover:underline"
-                            >
-                              {profileData.website}
-                            </a>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -389,19 +540,6 @@ export default function ProfilePage() {
                     />
                   </div>
                   
-                  {isBusiness && (
-                    <div className="space-y-2">
-                      <Label htmlFor="website">אתר אינטרנט</Label>
-                      <Input
-                        id="website"
-                        name="website"
-                        value={profileData.website}
-                        onChange={handleInputChange}
-                        placeholder="https://example.com"
-                      />
-                    </div>
-                  )}
-                  
                   <div className="space-y-2">
                     <Label htmlFor="logo_url">קישור לתמונת פרופיל/לוגו</Label>
                     <Input
@@ -423,6 +561,21 @@ export default function ProfilePage() {
                       rows={4}
                       placeholder={isBusiness ? "תאר את העסק שלך והשירותים שאתה מציע..." : "ספר על עצמך..."}
                     />
+                  </div>
+                  
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="business_type">סוג עסק</Label>
+                    <select
+                      id="business_type"
+                      name="business_type"
+                      value={profileData.business_type}
+                      onChange={handleInputChange}
+                      className="w-full border border-gray-300 rounded-md text-right px-3 py-2"
+                    >
+                      <option value="">בחר סוג עסק</option>
+                      <option value="supplier">ספק</option>
+                      <option value="buyer">קונה</option>
+                    </select>
                   </div>
                 </div>
                 
@@ -476,14 +629,51 @@ export default function ProfilePage() {
                     מחיקת חשבון תסיר לצמיתות את כל הנתונים והמידע האישי שלך ואינה ניתנת לביטול.
                   </AlertDescription>
                 </Alert>
-                <Button variant="destructive" className="mt-2">
-                  מחק את החשבון שלי
+                <Button 
+                  variant="destructive" 
+                  className="mt-2"
+                  onClick={handleDeleteAccountClick}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      מוחק...
+                    </>
+                  ) : (
+                    "מחק את החשבון שלי"
+                  )}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent className="max-w-md" dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-right text-red-600 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" />
+              אזהרה
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-right">
+              מחיקת חשבון תסיר לצמיתות את כל הנתונים והמידע האישי שלך ואינה ניתנת לביטול.
+              <br /><br />
+              האם אתה בטוח שברצונך למחוק את החשבון?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse space-x-reverse space-x-2">
+            <AlertDialogCancel className="mt-0">ביטול</AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDeleteAccount}
+            >
+              כן, מחק את החשבון
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 

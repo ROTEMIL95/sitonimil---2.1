@@ -58,17 +58,34 @@ export default function UploadProduct() {
         const userData = await User.me();
         setUser(userData);
         
-        // Check if user is a supplier
-        // Check business_type from user metadata first
-        const isSupplier = 
-          (userData?.user_metadata?.business_type === "supplier") || 
-          (userData?.business_type === "supplier");
+        // Check if user is a supplier using consistent approach
+        const isSupplier = (userData?.user_metadata?.business_type === "supplier") || (userData?.business_type === "supplier");
         
         if (!isSupplier) {
           console.log("User is not a supplier:", userData);
           toast.error("רק ספקים יכולים לפרסם מוצרים");
           navigate(createPageUrl("Home"));
           return;
+        }
+
+        // Ensure business_type is set in both places if user is a supplier
+        if (userData && isSupplier && (userData.business_type !== "supplier" || userData.user_metadata?.business_type !== "supplier")) {
+          try {
+            // Update the database record if needed
+            if (userData.business_type !== "supplier") {
+              await User.updateMyUserData({ business_type: "supplier" });
+            }
+            
+            // Update the metadata if needed
+            if (userData.user_metadata?.business_type !== "supplier") {
+              await User.updateUserMetadata({ business_type: "supplier" });
+            }
+            
+            console.log("Synchronized supplier status in both places");
+          } catch (syncError) {
+            console.error("Failed to synchronize supplier status:", syncError);
+            // Continue anyway since user is already identified as a supplier
+          }
         }
 
         // If editing, load product data

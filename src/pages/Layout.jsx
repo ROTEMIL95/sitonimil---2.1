@@ -45,9 +45,34 @@ export default function Layout({ children }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
+    const loadNotifications = async (userId) => {
+      if (!userId) return;
+      
+      setNotificationsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('is_read', false)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        
+        setNotifications(data || []);
+      } catch (error) {
+        console.error("Error loading notifications:", error);
+        setNotifications([]);
+      } finally {
+        setNotificationsLoading(false);
+      }
+    };
+
     const loadUser = async () => {
       try {
         // Get the authenticated user
@@ -70,12 +95,17 @@ export default function Layout({ children }) {
               const mergedUser = { ...userData, ...userRecord };
               console.log("Merged user data:", mergedUser);
               setUser(mergedUser);
+              
+              // Load notifications after setting the user
+              loadNotifications(mergedUser.id);
             } else {
               setUser(userData);
+              loadNotifications(userData.id);
             }
           } catch (dbError) {
             console.error("Error fetching user record:", dbError);
             setUser(userData);
+            loadNotifications(userData.id);
           }
         }
       } catch (error) {
@@ -152,16 +182,11 @@ export default function Layout({ children }) {
       return;
     }
     
-    // Check business_type from user metadata first
-    if (user.user_metadata && user.user_metadata.business_type === "supplier") {
-      console.log("User is a supplier based on auth metadata");
-      window.location.href = createPageUrl("UploadProduct");
-      return;
-    }
+    // Check if user is a supplier from either metadata or DB record
+    const isSupplier = (user.user_metadata?.business_type === "supplier") || (user.business_type === "supplier");
     
-    // Fallback to DB record business_type
-    if (user.business_type === "supplier") {
-      console.log("User is a supplier based on DB record");
+    if (isSupplier) {
+      console.log("User is a supplier, redirecting to UploadProduct");
       window.location.href = createPageUrl("UploadProduct");
       return;
     }
@@ -169,6 +194,45 @@ export default function Layout({ children }) {
     // If we get here, user is not a supplier
     console.log("User is not a supplier:", user);
     toast.error("רק ספקים יכולים לפרסם מוצרים");
+  };
+
+  // Function to mark a notification as read
+  const markNotificationAsRead = async (notificationId) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId);
+        
+      if (error) throw error;
+      
+      // Update the local state to remove the read notification
+      setNotifications(prevNotifications => 
+        prevNotifications.filter(notification => notification.id !== notificationId)
+      );
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  // Function to mark all notifications as read
+  const markAllNotificationsAsRead = async () => {
+    if (notifications.length === 0) return;
+    
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+        
+      if (error) throw error;
+      
+      // Clear all notifications from the local state
+      setNotifications([]);
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
   };
 
   return (
@@ -197,8 +261,11 @@ export default function Layout({ children }) {
               </Button>
               
               <Link to={createPageUrl("Home")} className="flex items-center gap-4">
-                <ShoppingBag className="w-10 h-10 text-blue-600" />
-                <span className="font-bold text-xl tracking-tight">Sitonim<span className="text-blue-600">il</span></span>
+                <img 
+                  src="/images/logo2.png" 
+                  alt="Sitonimil" 
+                  className="h-9 md:h-11"
+                />
               </Link>
               
               <div className="hidden mr-20 md:flex items-center">
@@ -230,10 +297,68 @@ export default function Layout({ children }) {
             <div className="flex items-center gap-4">
               {user ? (
                 <>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="w-5 h-5" />
-                    <Badge className="absolute -top-1 -right-1 h-4 w-4 bg-blue-600 p-0 flex items-center justify-center">3</Badge>
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="relative">
+                        <Bell className="w-5 h-5" />
+                        {notifications.length > 0 && (
+                          <Badge className="absolute -top-1 -right-1 h-4 w-4 bg-blue-600 p-0 flex items-center justify-center">
+                            {notifications.length}
+                          </Badge>
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-80 mr-1 bg-white rounded-xl shadow-lg p-1" align="end" dir="rtl">
+                      <DropdownMenuLabel className="font-normal px-2 py-2 flex justify-between items-center">
+                        <span className="font-medium">התראות</span>
+                        {notifications.length > 0 && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-xs h-auto py-1 hover:bg-gray-100 text-gray-500"
+                            onClick={markAllNotificationsAsRead}
+                          >
+                            סמן הכל כנקרא
+                          </Button>
+                        )}
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator className="my-1" />
+                      
+                      {notificationsLoading ? (
+                        <div className="flex justify-center items-center py-8">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                        </div>
+                      ) : notifications.length > 0 ? (
+                        <div className="max-h-[300px] overflow-y-auto">
+                          {notifications.map((notification) => (
+                            <DropdownMenuItem key={notification.id} className="px-2 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
+                              <div className="flex items-start gap-2 w-full" onClick={() => markNotificationAsRead(notification.id)}>
+                                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                  <Bell className="h-4 w-4 text-blue-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm line-clamp-2">{notification.message}</p>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {new Date(notification.created_at).toLocaleDateString('he-IL', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                      day: '2-digit',
+                                      month: '2-digit',
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                            </DropdownMenuItem>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="py-8 text-center">
+                          <Bell className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                          <p className="text-gray-500 text-sm">אין התראות חדשות</p>
+                        </div>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   
                   <Button variant="ghost" size="icon" asChild>
                     <Link to={createPageUrl("Messages")}>
@@ -344,7 +469,7 @@ export default function Layout({ children }) {
               exit={{ x: 300, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="p-4">
+              <div className="p-4 flex flex-col h-full">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="font-semibold text-lg">התפריט</h2>
                   <Button
@@ -356,7 +481,7 @@ export default function Layout({ children }) {
                   </Button>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="flex-1 overflow-y-auto pb-6 space-y-4">
                   {user && (
                     <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
                       <Avatar className="h-12 w-12">
@@ -439,7 +564,7 @@ export default function Layout({ children }) {
                         </Link>
                         <Button
                           variant="outline"
-                          className="w-full mt-2 border-red-600 text-red-600"
+                          className="w-full mt-4 border-red-600 text-red-600"
                           onClick={() => {
                             handleLogout();
                             setIsMenuOpen(false);
@@ -450,7 +575,7 @@ export default function Layout({ children }) {
                         </Button>
                       </>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="space-y-2 mt-4">
                         <Button 
                           className="w-full bg-blue-600 hover:bg-blue-700 flex items-center gap-2 justify-center" 
                           asChild
@@ -505,10 +630,11 @@ export default function Layout({ children }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="space-y-4">
               <Link to={createPageUrl("Home")} className="flex items-center gap-2">
-                <ShoppingBag className="w-6 h-6 text-blue-600" />
-                <span className="font-bold text-lg tracking-tight">
-                  Sitonim<span className="text-blue-600">il</span>
-                </span>
+                <img 
+                  src="/images/logo2.png" 
+                  alt="Sitonimil" 
+                  className="h-8 md:h-9"
+                />
               </Link>
               <p className="text-gray-500 text-sm">
                 מחברים סיטונאים וסוחרים ברחבי העולם באמצעות פלטפורמה מאובטחת וידידותית למשתמש.

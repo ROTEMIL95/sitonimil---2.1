@@ -365,6 +365,8 @@ export default function SearchPage() {
       <div className="max-w-7xl mx-auto">
         <div className="max-w-4xl mx-auto mb-8">
           <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold mb-4 text-right">מוצרים</h1>
+
             <Button 
               variant="outline"
               size="sm"
@@ -373,7 +375,6 @@ export default function SearchPage() {
             >
               רענון מוצרים
             </Button>
-            <h1 className="text-3xl font-bold mb-4 text-right">מוצרים</h1>
           </div>
           <SearchBar 
             initialQuery={query}
@@ -384,11 +385,11 @@ export default function SearchPage() {
           
           {/* תצוגת סינונים פעילים */}
           {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-2 mt-4 p-3 bg-muted/40 rounded-lg justify-end">
+            <div className="flex flex-wrap items-center gap-2 mt-4 p-3 bg-muted/40 rounded-lg justify-end" >
               <span className="text-sm font-medium">סינון פעיל:</span>
               
               {filterOptions.categories.map(category => (
-                <Badge key={category} variant="secondary" className="gap-1 bg-background">
+                <Badge key={category} variant="secondary" className="gap-1 bg-background" >
                   {getCategoryLabel(category)}
                   <Button
                     variant="ghost"

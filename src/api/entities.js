@@ -15,16 +15,6 @@ export const User = {
     verified: "boolean",
     created_at: "timestamp",
 
-    async login(email, password) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
-        
-        if (error) throw error;
-        return data;
-    },
-
     async register(email, password, fullName, businessType, supplierData = null) {
         try {
             // Create auth user
@@ -92,9 +82,38 @@ export const User = {
     },
 
     async me() {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) throw error;
-        return user;
+        // Get the authenticated user
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError) throw authError;
+        
+        if (!user) return null;
+        
+        try {
+            // Get additional user data from the users table
+            const { data: userData, error: userDataError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+            
+            if (userDataError && userDataError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+                console.warn("Error fetching user data:", userDataError);
+                // Return just the auth user if we can't get the extended data
+                return user;
+            }
+            
+            // Merge the auth user with the additional data
+            return {
+                ...user,
+                ...(userData || {}),
+                // Ensure user_metadata is not overwritten
+                user_metadata: user.user_metadata
+            };
+        } catch (error) {
+            console.error("Error in me() method:", error);
+            // Fall back to just returning the auth user
+            return user;
+        }
     },
 
     async updateUserMetadata(metadata) {
@@ -110,25 +129,33 @@ export const User = {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError) throw userError;
 
-        const { data, error } = await supabase
-            .from('users')
-            .update(userData)
-            .eq('id', user.id)
-            .select()
-            .single();
-
-        if (error) throw error;
+        // Create a copy of userData for the database update
+        const dbUserData = { ...userData };
         
-        // Also update the user metadata if business_type is being changed
+        // Always update the user metadata if business_type is being changed
         if (userData.business_type) {
             try {
                 await this.updateUserMetadata({
                     business_type: userData.business_type
                 });
+                console.log("User metadata updated with business_type:", userData.business_type);
             } catch (metadataError) {
                 console.error("Error updating user metadata:", metadataError);
                 // Continue even if metadata update fails
             }
+        }
+
+        // Update the user record in the database
+        const { data, error } = await supabase
+            .from('users')
+            .update(dbUserData)
+            .eq('id', user.id)
+            .select()
+            .single();
+
+        if (error) {
+            console.error("Error updating user data in database:", error);
+            throw error;
         }
         
         return data;

@@ -3,7 +3,7 @@ import { User } from "@/api/entities";
 import { Message } from "@/api/entities";
 import { Product } from "@/api/entities";
 import { useToast } from "@/components/ui/use-toast";
-import { createPageUrl } from "@/utils";
+import { createPageUrl, redirectToLogin } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,9 +19,11 @@ import {
   User as UserIcon,
   Package,
   Clock,
-  AlertCircle
+  AlertCircle,
+  LogIn
 } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
 
 export default function MessagesPage() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -34,6 +36,7 @@ export default function MessagesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [relatedProduct, setRelatedProduct] = useState(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // טעינת הנתונים הראשונית
   useEffect(() => {
@@ -43,12 +46,11 @@ export default function MessagesPage() {
         const user = await User.me();
         setCurrentUser(user);
 
-        // בדיקה אם קיימים פרמטרים ב-URL
+        // טעינת הפרטים של המוצר אם יש
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get("product_id");
         const supplierId = urlParams.get("supplier_id");
 
-        // טעינת הפרטים של המוצר אם יש
         if (productId) {
           const products = await Product.list();
           const foundProduct = products.find(p => p.id === productId);
@@ -292,7 +294,15 @@ export default function MessagesPage() {
           <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">לא מחובר</h2>
           <p className="text-gray-600 mb-6">עליך להתחבר כדי להשתמש במערכת ההודעות</p>
-          <Button onClick={() => User.login()} className="w-full">התחברות</Button>
+          <Button 
+            onClick={() => navigate(redirectToLogin("Messages"))} 
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
+          >
+            <span className="flex items-center justify-center gap-2">
+              <LogIn className="h-5 w-5" />
+              התחברות
+            </span>
+          </Button>
         </Card>
       </div>
     );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { createPageUrl, redirectToLogin } from "@/utils";
 import { User } from "@/api/entities";
 import { Product } from "@/api/entities";
 import { Message } from "@/api/entities";
@@ -19,6 +19,7 @@ import {
   Star,
   Truck,
   AlertCircle,
+  LogIn,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -278,10 +279,13 @@ export default function SupplierProfile() {
                     </AlertDescription>
                   </Alert>
                   <Button 
-                    onClick={() => User.login()}
-                    className="w-full"
+                    onClick={() => navigate(redirectToLogin("Supplier"))} 
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
                   >
-                    התחבר כדי ליצור קשר
+                    <span className="flex items-center justify-center gap-2">
+                      <LogIn className="h-5 w-5" />
+                      התחברות
+                    </span>
                   </Button>
                 </div>
               )}

@@ -52,13 +52,13 @@ export default function SearchBar({ onSearch, className = "", initialQuery = "",
       </div>
       
       <Select value={category} onValueChange={setCategory}>
-        <SelectTrigger className="w-[180px] border-blue-100 focus:ring-blue-400">
+        <SelectTrigger className="w-[180px] border-blue-100 focus:ring-blue-400" dir="rtl">
           <SelectValue placeholder="כל הקטגוריות" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={null}>כל הקטגוריות</SelectItem>
+          <SelectItem value={null} dir="rtl">כל הקטגוריות</SelectItem>
           {categories.map((category) => (
-            <SelectItem key={category.value} value={category.value}>
+            <SelectItem key={category.value} value={category.value} dir="rtl">
               {category.label}
             </SelectItem>
           ))}

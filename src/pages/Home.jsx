@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, TrendingUp, Shield, Package, Search, UserPlus } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, TrendingUp, Shield, Package, Search, UserPlus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { createPageUrl } from "@/utils";
+import { createPageUrl, redirectToLogin } from "@/utils";
 import { Product } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Category } from "@/api/entities";
@@ -31,6 +31,7 @@ export default function Home() {
     features: false
   });
   const [popularCategories, setPopularCategories] = useState([]);
+  const navigate = useNavigate();
 
   // Fetch categories from Supabase
   useEffect(() => {
@@ -227,7 +228,7 @@ export default function Home() {
   {/* רקע עדין עם gradient */}
   <div className="absolute inset-0 bg-gradient-to-b from-white to-blue-50"></div>
 
-  <div className="relative container mx-auto px-4 md:px-6 py-16 md:py-24 lg:py-32">
+  <div className="relative container mx-auto px-4 md:px-6 py-8 md:py-12 lg:py-16">
     <motion.div 
       className="max-w-4xl mx-auto text-center md:text-right"
       initial="hidden"
@@ -276,19 +277,42 @@ export default function Home() {
 </motion.div>
 
       {/* קטגוריות פופולריות */}
-      <motion.div variants={fadeIn} className="flex flex-wrap gap-3 mt-6 justify-center md:justify-start">
-        <span className="text-gray-700 text-sm font-medium">פופולרי:</span>
-        {popularCategories.map((category, index) => (
-          <motion.div key={`${category.value}-${index}`} variants={fadeIn} custom={index}>
-            <Link 
-              to={createPageUrl("Search") + `?category=${category.value}`}
-              className="flex items-center bg-white shadow-sm border border-gray-200 hover:shadow-md px-3 py-1.5 rounded-full transition"
+      <motion.div 
+        variants={fadeIn} 
+        className="mt-8 md:mt-10"
+        initial="hidden"
+        animate="visible"
+      >
+        <h3 className="text-lg font-medium text-gray-800 mb-4">קטגוריות פופולריות</h3>
+        <div className="flex flex-wrap gap-3 justify-center md:justify-start overflow-x-auto pb-2">
+          {popularCategories.map((category, index) => (
+            <motion.div 
+              key={`${category.value}-${index}`} 
+              variants={fadeIn} 
+              custom={index} 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <img src={category.image_url} alt={category.label} className="w-6 h-6 ml-2 rounded-full object-cover" />
-              <span className="text-sm text-gray-700">{category.label}</span>
-            </Link>
-          </motion.div>
-        ))}
+              <Link 
+                to={createPageUrl("Search") + `?category=${encodeURIComponent(category.value)}`}
+                className="flex items-center bg-white hover:bg-blue-50 shadow-sm border border-gray-200 hover:border-blue-300 hover:shadow-md px-4 py-2 rounded-full transition-all duration-200"
+              >
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-100 mr-2 flex-shrink-0">
+                  <img 
+                    src={category.image_url} 
+                    alt={category.label} 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://via.placeholder.com/40?text=" + category.label.charAt(0);
+                    }}
+                  />
+                </div>
+                <span className="text-sm font-medium text-gray-700">{category.label}</span>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
       </motion.div>
     </motion.div>
   </div>
@@ -517,7 +541,7 @@ export default function Home() {
                     size="lg"
                     variant="outline"
                     className="bg-white text-blue-600 hover:bg-gray-100"
-                    onClick={() => window.location.href = createPageUrl("Search")}
+                    onClick={() => navigate(redirectToLogin("Home"))}
                   >
                     <Search className="ml-2 h-5 w-5" />
                     התחל לחפש מוצרים
@@ -527,18 +551,10 @@ export default function Home() {
                     <Button
                       size="lg"
                       className="bg-white text-blue-600 hover:bg-gray-100"
-                      onClick={() => User.login()}
+                      onClick={() => navigate(redirectToLogin("Home"))}
                     >
-                      <UserPlus className="ml-2 h-5 w-5" />
-                      הירשם עכשיו
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="bg-white text-blue-600 hover:bg-white/10"
-                      onClick={() => User.login()}
-                    >
-                      כבר יש לך חשבון? התחבר
+                      <LogIn className="ml-2 h-5 w-5" />
+                      התחברות
                     </Button>
                   </>
                 )}

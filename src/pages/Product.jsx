@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { createPageUrl, redirectToLogin } from "@/utils";
 import { Product } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Message } from "@/api/entities";
@@ -24,6 +23,7 @@ import {
   FileBadge,
   ThumbsUp,
   Send,
+  LogIn,
 } from "lucide-react";
 import {
   Sheet,
@@ -449,8 +449,14 @@ export default function ProductPage() {
                   </Dialog>
                 </>
               ) : (
-                <Button onClick={() => User.login()} className="flex-1">
-                  התחבר כדי/create קשר
+                <Button 
+                  onClick={() => navigate(redirectToLogin(`Product?id=${product.id}`))} 
+                  className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <LogIn className="h-5 w-5" />
+                    התחברות
+                  </span>
                 </Button>
               )}
             </div>
