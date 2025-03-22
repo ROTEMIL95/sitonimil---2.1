@@ -350,11 +350,11 @@ export default function SuppliersPage() {
 
       <div className="mb-6">
         <Tabs defaultValue="all" className="w-full" dir="rtl">
-          <TabsList className="mb-4 h-auto flex flex-wrap w-full justify-start overflow-auto">
+          <TabsList className="mb-4 h-auto flex flex-wrap w-full justify-start overflow-auto bg-gray-100 p-1 rounded-xl">
             <TabsTrigger 
               value="all" 
               onClick={() => setSelectedCategory(null)}
-              className={!selectedCategory ? "bg-blue-600 text-white" : ""}
+              className={`rounded-lg font-medium transition-all py-2 px-4 mx-1 ${!selectedCategory ? "bg-white text-[rgb(2,132,199)] shadow-sm border-b-2 border-[rgb(2,132,199)]" : ""}`}
             >
               הכל
             </TabsTrigger>

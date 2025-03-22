@@ -465,10 +465,25 @@ export default function ProductPage() {
       </div>
 
       <Tabs defaultValue="specs" className="mb-10">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="specs">מפרט</TabsTrigger>
-          <TabsTrigger value="supplier">פרטי ספק</TabsTrigger>
-          <TabsTrigger value="reviews">דירוגים וביקורות</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 rounded-xl">
+          <TabsTrigger 
+            value="specs" 
+            className="rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-[rgb(2,132,199)] data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-[rgb(2,132,199)]"
+          >
+            מפרט
+          </TabsTrigger>
+          <TabsTrigger 
+            value="supplier" 
+            className="rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-[rgb(2,132,199)] data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-[rgb(2,132,199)]"
+          >
+            פרטי ספק
+          </TabsTrigger>
+          <TabsTrigger 
+            value="reviews" 
+            className="rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-[rgb(2,132,199)] data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-[rgb(2,132,199)]"
+          >
+            דירוגים וביקורות
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="specs" className="bg-white p-6 rounded-lg shadow-sm">

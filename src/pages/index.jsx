@@ -24,6 +24,8 @@ import Profile from "./Profile";
 
 import MyProducts from "./MyProducts";
 
+import ScrollToTop from "@/components/ScrollToTop";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -74,6 +76,7 @@ function PagesContent() {
     
     return (
         <Layout currentPageName={currentPage}>
+            <ScrollToTop />
             <Routes>            
                 <Route path="/" element={<Home />} />
                 <Route path="/Home" element={<Home />} />

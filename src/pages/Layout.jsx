@@ -235,6 +235,11 @@ export default function Layout({ children }) {
     }
   };
 
+  // Inside the Layout component, add a new function to handle link clicks
+  const handleLinkClick = () => {
+    window.scrollTo(0, 0);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <style>{`
@@ -250,7 +255,7 @@ export default function Layout({ children }) {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <nav className="py-4 flex items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center md:flex-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -260,7 +265,7 @@ export default function Layout({ children }) {
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
               
-              <Link to={createPageUrl("Home")} className="flex items-center gap-4">
+              <Link to={createPageUrl("Home")} className="flex items-center gap-4 md:mr-0 absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none" onClick={handleLinkClick}>
                 <img 
                   src="/images/logo2.png" 
                   alt="Sitonimil" 
@@ -273,6 +278,7 @@ export default function Layout({ children }) {
                   <Link
                     key={link.path}
                     to={link.path}
+                    onClick={handleLinkClick}
                     className={`hover:text-blue-600 text-sm font-medium transition-colors mx-8 relative ${
                       isActive(link.path)
                         ? "text-blue-600 after:content-[''] after:absolute after:bottom-[-10px] after:right-0 after:w-full after:h-0.5 after:bg-blue-600"
@@ -285,8 +291,11 @@ export default function Layout({ children }) {
                 
                 <Link
                   to={createPageUrl("UploadProduct")}
-                  className="mr-4 flex items-center gap-1 rounded-full bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700 transition-colors"
-                  onClick={handlePublishProductClick}
+                  className="mr-4 flex items-center gap-1 rounded-full bg-[rgb(2,132,199)] px-4 py-1.5 text-sm text-gray-50 hover:bg-[rgb(2,132,299)] transition-colors "
+                  onClick={(e) => {
+                    handlePublishProductClick(e);
+                    handleLinkClick();
+                  }}
                 >
                   <PlusCircle className="h-4 w-4" />
                   פרסום מוצר
@@ -435,7 +444,7 @@ export default function Layout({ children }) {
                   <Button 
                     variant="default" 
                     size="sm" 
-                    className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2" 
+                    className="bg-[rgb(2,132,199)] text-gray-50 hover:bg-[rgb(2,132,299)] flex items-center gap-2" 
                     asChild
                   >
                     <Link to={createPageUrl("Auth") + "?tab=login"}>
@@ -446,7 +455,7 @@ export default function Layout({ children }) {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="border-blue-600 text-blue-600 flex items-center gap-2" 
+                    className="border-[rgb(2,132,199)] text-blue-600 flex items-center gap-2" 
                     asChild
                   >
                     <Link to={createPageUrl("Auth") + "?tab=register"}>
@@ -463,14 +472,15 @@ export default function Layout({ children }) {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div 
-              className="md:hidden fixed inset-y-0 right-0 z-50 w-72 bg-white shadow-xl overflow-y-auto"
+              className="md:hidden fixed inset-0 right-0 left-auto z-50 w-72 bg-white shadow-xl"
+              style={{ height: '100vh', top: 0 }}
               initial={{ x: 300, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 300, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="p-4 flex flex-col h-full">
-                <div className="flex justify-between items-center mb-6">
+              <div className="flex flex-col h-full">
+                <div className="p-4 flex justify-between items-center border-b sticky top-0 bg-white z-10">
                   <h2 className="font-semibold text-lg">התפריט</h2>
                   <Button
                     variant="ghost"
@@ -481,7 +491,7 @@ export default function Layout({ children }) {
                   </Button>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto pb-6 space-y-4">
+                <div className="flex-1 overflow-y-auto py-4 px-4 pb-24 space-y-4">
                   {user && (
                     <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
                       <Avatar className="h-12 w-12">
@@ -506,10 +516,13 @@ export default function Layout({ children }) {
                       to={link.path}
                       className={`block px-4 py-2 rounded-md text-sm font-medium ${
                         isActive(link.path)
-                          ? "bg-blue-50 text-blue-600"
+                          ? "bg-blue-50 text-[rgb(2,132,199)]"
                           : "text-gray-700 hover:bg-gray-50"
                       }`}
-                      onClick={() => setIsMenuOpen(false)}
+                      onClick={() => {
+                        handleLinkClick();
+                        setIsMenuOpen(false);
+                      }}
                     >
                       {link.name}
                     </Link>
@@ -517,9 +530,10 @@ export default function Layout({ children }) {
                   
                   <Link
                     to={createPageUrl("UploadProduct")}
-                    className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-blue-50 text-blue-600"
+                    className="flex items-center justify-center gap-1 text-sm font-medium w-full py-2.5 px-4 rounded-full bg-[rgb(2,132,199)] text-gray-50 hover:bg-[rgb(2,132,299)] transition-colors"
                     onClick={(e) => {
                       handlePublishProductClick(e);
+                      handleLinkClick();
                       setIsMenuOpen(false);
                     }}
                   >
@@ -527,13 +541,16 @@ export default function Layout({ children }) {
                     פרסום מוצר
                   </Link>
                   
-                  <div className="pt-2 border-t border-gray-200">
+                  <div className="pt-2 border-t border-gray-400">
                     {user ? (
                       <>
                         <Link
                           to={createPageUrl("Messages")}
                           className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
+                          onClick={() => {
+                            handleLinkClick();
+                            setIsMenuOpen(false);
+                          }}
                         >
                           <MessageSquare className="w-5 h-5 ml-3" />
                           <span>הודעות</span>
@@ -541,7 +558,10 @@ export default function Layout({ children }) {
                         <Link
                           to={createPageUrl("Profile")}
                           className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
+                          onClick={() => {
+                            handleLinkClick();
+                            setIsMenuOpen(false);
+                          }}
                         >
                           <UserIcon className="w-5 h-5 ml-3" />
                           <span>הפרופיל שלי</span>
@@ -549,7 +569,10 @@ export default function Layout({ children }) {
                         <Link
                           to={createPageUrl("Settings")}
                           className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
+                          onClick={() => {
+                            handleLinkClick();
+                            setIsMenuOpen(false);
+                          }}
                         >
                           <Settings className="w-5 h-5 ml-3" />
                           <span>הגדרות</span>
@@ -557,7 +580,10 @@ export default function Layout({ children }) {
                         <Link
                           to={createPageUrl("Help")}
                           className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
+                          onClick={() => {
+                            handleLinkClick();
+                            setIsMenuOpen(false);
+                          }}
                         >
                           <HelpCircle className="w-5 h-5 ml-3" />
                           <span>עזרה ותמיכה</span>
@@ -577,25 +603,31 @@ export default function Layout({ children }) {
                     ) : (
                       <div className="space-y-2 mt-4">
                         <Button 
-                          className="w-full bg-blue-600 hover:bg-blue-700 flex items-center gap-2 justify-center" 
+                          className="w-full bg-[rgb(2,132,199)] text-gray-50 hover:bg-[rgb(2,132,299)] flex items-center gap-2 justify-center" 
                           asChild
                         >
                           <Link 
                             to={createPageUrl("Auth") + "?tab=login"}
-                            onClick={() => setIsMenuOpen(false)}
+                            onClick={() => {
+                              handleLinkClick();
+                              setIsMenuOpen(false);
+                            }}
                           >
                             <LogIn className="h-4 w-4" />
                             להתחברות
                           </Link>
                         </Button>
                         <Button 
-                          className="w-full border-blue-600 text-blue-600" 
+                          className="w-full border-[rgb(2,132,199)] text-blue-600" 
                           variant="outline" 
                           asChild
                         >
                           <Link 
                             to={createPageUrl("Auth") + "?tab=register"}
-                            onClick={() => setIsMenuOpen(false)}
+                            onClick={() => {
+                              handleLinkClick();
+                              setIsMenuOpen(false);
+                            }}
                           >
                             <UserPlus className="h-4 w-4 ml-2" />
                             הרשמה
@@ -629,11 +661,11 @@ export default function Layout({ children }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="space-y-4">
-              <Link to={createPageUrl("Home")} className="flex items-center gap-2">
+              <Link to={createPageUrl("Home")} className="flex items-center gap-2" onClick={handleLinkClick}>
                 <img 
                   src="/images/logo2.png" 
                   alt="Sitonimil" 
-                  className="h-8 md:h-9"
+                  className="h-9 md:h-11"
                 />
               </Link>
               <p className="text-gray-500 text-sm">

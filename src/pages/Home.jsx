@@ -238,13 +238,13 @@ export default function Home() {
       {/* כותרת ראשית */}
       <motion.h1 variants={fadeIn} className="text-blue-600 leading-tight text-4xl sm:text-5xl lg:text-6xl font-extrabold">
         הפלטפורמה <span className="text-blue-500">הראשונה והגדולה</span> בישראל  
-        <br className="hidden md:inline" /> לחיבור <span className="text-blue-400">סיטונאים וסוחרים</span>
+        <br className="hidden md:inline" /> לחיבור <span className="text-[rgba(41,110,145,0.86)]">סיטונאים וסוחרים</span>
         <span className="block h-1 bg-blue-300 w-24 mt-2 mx-auto md:mx-0"></span>
       </motion.h1>
 
       {/* תת-כותרת */}
       <motion.h2 variants={fadeIn} className="text-lg text-gray-700 font-semibold mt-3">
-        מצאו מוצרים וספקים וגלו <span className="text-blue-500">הזדמנויות עסקיות חדשות</span> עכשיו!  
+        מצאו מוצרים וספקים וגלו <span className="text-blue-600">הזדמנויות עסקיות חדשות</span> עכשיו!  
       </motion.h2>
 
       {/* שדה חיפוש */}
@@ -252,8 +252,7 @@ export default function Home() {
   <div className="relative w-full max-w-2xl">
     {/* שדה החיפוש עם עיצוב מתקדם */}
     <div className="bg-white p-3 rounded-full shadow-lg flex items-center border border-gray-200 focus-within:border-blue-500 transition">
-      {/* אייקון זכוכית מגדלת */}
-      <Search className="text-blue-500 w-6 h-6 ml-3" />
+      
 
       {/* שדה החיפוש עם אפקטים מתקדמים */}
       <input
@@ -267,7 +266,7 @@ export default function Home() {
       {/* כפתור חיפוש מעוגל עם אייקון */}
       <Button
         type="submit"
-        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full flex items-center transition-all"
+        className="bg-[rgb(2,132,199)] hover:bg-[rgb(2,132,299)] text-white px-5 py-2 rounded-full flex items-center transition-all"
       >
         <span className="hidden sm:inline">חיפוש</span>
         <Search className="w-5 h-5 ml-2 sm:ml-3" />

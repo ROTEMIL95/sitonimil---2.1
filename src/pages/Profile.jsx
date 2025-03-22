@@ -293,15 +293,21 @@ export default function ProfilePage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="profile" className="w-full" dir="rtl">
-        <TabsList className="mb-6">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <UserIcon className="h-4 w-4" />
-            <span>פרופיל</span>
+      <Tabs defaultValue="profile">
+        <TabsList className="mb-6 bg-gray-100 p-1 rounded-xl">
+          <TabsTrigger 
+            value="profile" 
+            className="flex items-center gap-2 rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-[rgb(2,132,199)] data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-[rgb(2,132,199)]"
+          >
+            <User className="h-4 w-4" />
+            פרופיל
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="settings" 
+            className="flex items-center gap-2 rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-[rgb(2,132,199)] data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-[rgb(2,132,199)]"
+          >
             <Settings className="h-4 w-4" />
-            <span>הגדרות</span>
+            הגדרות
           </TabsTrigger>
         </TabsList>
 
