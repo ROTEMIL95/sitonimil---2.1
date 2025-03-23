@@ -122,28 +122,47 @@ export default function CategoryBanner() {
 
   useEffect(() => {
     checkScrollButtons();
+    
+    // Add a small delay after resizing or loading to check again
+    const timeout = setTimeout(() => {
+      checkScrollButtons();
+    }, 200);
+    
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollButtons);
+    }
+    
     window.addEventListener('resize', checkScrollButtons);
-    return () => window.removeEventListener('resize', checkScrollButtons);
+    
+    return () => {
+      window.removeEventListener('resize', checkScrollButtons);
+      if (container) {
+        container.removeEventListener('scroll', checkScrollButtons);
+      }
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleScrollLeft = () => {
     if (scrollContainerRef.current) {
-      const scrollAmount = isMobile ? -120 : -200;
+      const scrollAmount = isMobile ? -150 : -240;
       scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      setTimeout(checkScrollButtons, 400); // Check after animation completes
     }
   };
 
   const handleScrollRight = () => {
     if (scrollContainerRef.current) {
-      const scrollAmount = isMobile ? 120 : 200;
+      const scrollAmount = isMobile ? 150 : 240;
       scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      setTimeout(checkScrollButtons, 400); // Check after animation completes
     }
   };
 
   // Touch event handlers for mobile swipe
   const handleTouchStart = (e) => {
     if (!scrollContainerRef.current) return;
-    
     setStartX(e.touches[0].clientX);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     setIsDragging(true);
@@ -152,66 +171,111 @@ export default function CategoryBanner() {
   const handleTouchMove = (e) => {
     if (!isDragging || !scrollContainerRef.current) return;
     
-    // Prevent default to disable native scrolling
-    e.preventDefault();
-    
     const x = e.touches[0].clientX;
     const distance = startX - x;
     scrollContainerRef.current.scrollLeft = scrollLeft + distance;
+    
+    // Check scroll buttons during drag
+    checkScrollButtons();
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
+    // Recheck scroll state after momentum scrolling
+    setTimeout(checkScrollButtons, 300);
+  };
+
+  // Mouse drag for desktop browsers
+  const handleMouseDown = (e) => {
+    if (!scrollContainerRef.current) return;
+    setStartX(e.pageX);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+    setIsDragging(true);
+    scrollContainerRef.current.style.cursor = 'grabbing';
+    // Prevent text selection during drag
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    const x = e.pageX;
+    const distance = startX - x;
+    scrollContainerRef.current.scrollLeft = scrollLeft + distance;
+    checkScrollButtons();
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.style.cursor = '';
+    }
+    setTimeout(checkScrollButtons, 150);
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.style.cursor = '';
+      }
+    }
   };
 
   return (
-    <section className="py-6 md:py-8 bg-gray-50">
+    <section className="py-4 sm:py-6 md:py-8 bg-gray-50">
       <div className="container mx-auto px-2 md:px-4">
         <motion.div 
-          className="text-center mb-4 md:mb-8"
+          className="text-center mb-3 sm:mb-4 md:mb-6"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
         >
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 md:mb-2">קטגוריות מובילות</h2>
-          <p className="text-sm md:text-base text-gray-600">גלו את המוצרים המובילים בתחומים השונים</p>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1 md:mb-2">קטגוריות מובילות</h2>
+          <p className="text-xs sm:text-sm md:text-base text-gray-600">גלו את המוצרים המובילים בתחומים השונים</p>
         </motion.div>
 
         <div className="relative group">
-          {!isMobile && canScrollLeft && (
+          {canScrollLeft && (
             <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20">
               <Button 
                 onClick={handleScrollLeft} 
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white/90 shadow-lg hover:bg-white hover:shadow-xl transition-all transform active:scale-95"
+                aria-label="scroll left"
               >
-                <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 text-gray-700" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
               </Button>
             </div>
           )}
           
-          {!isMobile && canScrollRight && (
+          {canScrollRight && (
             <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
               <Button 
                 onClick={handleScrollRight} 
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white/90 shadow-lg hover:bg-white hover:shadow-xl transition-all transform active:scale-95"
+                aria-label="scroll right"
               >
-                <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-gray-700" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
               </Button>
             </div>
           )}
 
           <div 
             ref={scrollContainerRef}
-            className="flex overflow-x-auto pb-4 pt-2 px-2 md:px-8 -mx-2 hide-scrollbar scroll-smooth touch-pan-x snap-x snap-mandatory"
+            className="flex overflow-x-auto pb-4 pt-2 px-2 md:px-6 -mx-2 hide-scrollbar scroll-smooth touch-pan-x snap-x snap-mandatory"
             onScroll={checkScrollButtons}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
           >
             {categories.map((category, index) => {
               const IconComponent = iconMap[category.icon] || Home;
@@ -225,13 +289,14 @@ export default function CategoryBanner() {
                   viewport={{ once: true }}
                   custom={index}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="transform transition-all duration-300 flex-shrink-0 px-1.5 md:px-2 snap-start"
+                  className="transform transition-all duration-300 flex-shrink-0 px-1 sm:px-1.5 md:px-2 snap-start"
                 >
                   <Link 
                     to={createPageUrl("Search") + `?category=${category.value}`}
                     className="block"
+                    draggable="false"
                   >
-                    <div className="relative overflow-hidden rounded-lg md:rounded-xl h-20 w-20 sm:h-24 sm:w-24 md:h-32 md:w-32 bg-gradient-to-br from-white to-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div className="relative overflow-hidden rounded-lg md:rounded-xl h-16 w-16 sm:h-20 sm:w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 bg-gradient-to-br from-white to-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
                       <div 
                         className="absolute inset-0 bg-cover bg-center" 
                         style={{ backgroundImage: `url(${category.image})` }}
@@ -240,10 +305,10 @@ export default function CategoryBanner() {
                       </div>
                       
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-1 md:p-2 text-center">
-                        <div className="bg-white/20 backdrop-blur-sm p-1.5 md:p-2 rounded-full mb-1 md:mb-2 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
-                          <IconComponent className="h-4 w-4 md:h-6 md:w-6 text-white" />
+                        <div className="bg-white/20 backdrop-blur-sm p-1 sm:p-1.5 md:p-2 rounded-full mb-0.5 sm:mb-1 md:mb-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 flex items-center justify-center">
+                          <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white" />
                         </div>
-                        <h3 className="font-medium text-xs md:text-sm text-white drop-shadow-md">
+                        <h3 className="font-medium text-[10px] sm:text-xs md:text-sm text-white drop-shadow-md">
                           {category.label}
                         </h3>
                       </div>
@@ -253,40 +318,7 @@ export default function CategoryBanner() {
               );
             })}
           </div>
-
-          {canScrollLeft && (
-            <div className="absolute left-0 top-0 bottom-0 w-4 md:w-12 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-10" />
-          )}
-          {canScrollRight && (
-            <div className="absolute right-0 top-0 bottom-0 w-4 md:w-12 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-10" />
-          )}
         </div>
-
-        {/* Mobile indicators */}
-        {isMobile && (
-          <div className="flex justify-center mt-2 space-x-1 rtl:space-x-reverse">
-            <button 
-              onClick={handleScrollLeft} 
-              disabled={!canScrollLeft}
-              className={`w-8 h-1 rounded-full transition-colors ${canScrollLeft ? 'bg-blue-400' : 'bg-gray-300'}`}
-            />
-            <button 
-              onClick={handleScrollRight} 
-              disabled={!canScrollRight}
-              className={`w-8 h-1 rounded-full transition-colors ${canScrollRight ? 'bg-blue-400' : 'bg-gray-300'}`}
-            />
-          </div>
-        )}
-
-        <style jsx global>{`
-          .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-          }
-          .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-        `}</style>
       </div>
     </section>
   );

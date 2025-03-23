@@ -210,9 +210,9 @@ export default function ProductCard({ product, variant = "default", className = 
   if (variant === "list") {
     return (
       <Card className="overflow-hidden hover:shadow-md transition-shadow">
-        <div className="flex">
-          <div className="w-1/4">
-            <div className="h-full">
+        <div className="flex flex-col sm:flex-row">
+          <div className="w-full sm:w-1/4">
+            <div className="h-40 sm:h-full">
               {product.images && product.images.length > 0 ? (
                 <img
                   src={product.images[0]}
@@ -224,14 +224,14 @@ export default function ProductCard({ product, variant = "default", className = 
               ) : (
                 <div className="w-full h-full bg-gray-200 flex items-center justify-center"
                   onClick={handleProductClick}>
-                  <Package className="h-8 w-8 text-gray-400" />
+                  <Package className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                 </div>
               )}
             </div>
           </div>
-          <div className="w-3/4 p-4">
+          <div className="w-full sm:w-3/4 p-3 sm:p-4">
             <div className="flex justify-between">
-              <h3 className="font-medium mb-1 text-lg cursor-pointer hover:text-blue-600"
+              <h3 className="font-medium mb-1 text-base sm:text-lg cursor-pointer hover:text-blue-600"
                 onClick={handleProductClick}>
                 {product.title}
               </h3>
@@ -239,11 +239,11 @@ export default function ProductCard({ product, variant = "default", className = 
             </div>
             <div className="flex items-center text-sm mb-2">
               <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-              <span className="font-medium mr-1">{product.rating?.toFixed(1) || "0.0"}</span>
+              <span className="font-medium mr-1 text-xs sm:text-sm">{product.rating?.toFixed(1) || "0.0"}</span>
             </div>
-            <p className="text-gray-500 text-sm mb-3 line-clamp-2">{product.description}</p>
+            <p className="text-gray-500 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{product.description}</p>
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-blue-600">₪{product.price?.toFixed(2) || "0.00"}+</span>
+              <span className="font-semibold text-blue-600 text-sm sm:text-base">₪{product.price?.toFixed(2) || "0.00"}+</span>
               <span className="text-xs text-gray-500">MOQ: {product.minimum_order || 1}</span>
             </div>
           </div>
@@ -259,28 +259,28 @@ export default function ProductCard({ product, variant = "default", className = 
           to={createPageUrl("Product") + `?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`} 
           className="block h-full flex flex-col"
         >
-          <div className="relative aspect-video md:aspect-[4/3]">
+          <div className="relative aspect-square sm:aspect-video md:aspect-[4/3]">
             <ProductImage 
               src={product.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
               alt={product.title} 
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
             />
             {product.category && (
-              <Badge className="absolute top-2 right-2 bg-blue-600">{getCategoryLabel(product.category)}</Badge>
+              <Badge className="absolute top-2 right-2 bg-blue-600 text-xs">{getCategoryLabel(product.category)}</Badge>
             )}
             <Button
               size="icon"
               variant="ghost"
               className={cn(
-                "absolute top-2 left-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white",
+                "absolute top-2 left-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white h-7 w-7 sm:h-8 sm:w-8",
                 isLiked ? "text-red-500" : "text-gray-500"
               )}
               onClick={handleLike}
             >
-              <Heart className={cn("h-4 w-4", isLiked ? "fill-current" : "")} />
+              <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isLiked ? "fill-current" : "")} />
             </Button>
             {product.discount_percent > 0 && (
-              <Badge className="absolute bottom-2 right-2 bg-red-500 hover:bg-red-600 text-white">
+              <Badge className="absolute bottom-2 right-2 bg-red-500 hover:bg-red-600 text-white text-xs">
                 {product.discount_percent}% הנחה
               </Badge>
             )}
@@ -291,34 +291,34 @@ export default function ProductCard({ product, variant = "default", className = 
             )}
           </div>
           
-          <CardContent className="p-4 flex flex-col flex-grow">
+          <CardContent className="p-3 sm:p-4 flex flex-col flex-grow">
             {product.supplier_name && (
-              <div className="flex items-center gap-2 mb-2">
-                <Avatar className="h-6 w-6">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
                   <AvatarImage src={product.supplier_logo} alt={product.supplier_name} />
                   <AvatarFallback>{product.supplier_name.substring(0, 2)}</AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-gray-500">{product.supplier_name}</span>
+                <span className="text-xs text-gray-500 line-clamp-1">{product.supplier_name}</span>
               </div>
             )}
             
-            <h3 className="font-medium line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors text-right">
+            <h3 className="font-medium line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors text-right text-sm sm:text-base">
               {product.title}
             </h3>
             
             {product.description && (
-              <p className="text-sm line-clamp-2 text-gray-500 mb-3 text-right">
+              <p className="text-xs sm:text-sm line-clamp-2 text-gray-500 mb-2 sm:mb-3 text-right">
                 {product.description}
               </p>
             )}
             
-            <div className="flex items-center justify-between mt-auto">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-between mt-auto gap-y-2">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-3">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center text-amber-500">
-                        <Star className="fill-current h-4 w-4" />
+                        <Star className="fill-current h-3.5 w-3.5 sm:h-4 sm:w-4" />
                         <span className="text-xs mr-1">
                           {product.rating?.toFixed(1) || "N/A"}{" "}
                           {product.review_count ? `(${product.review_count})` : ""}
@@ -334,18 +334,18 @@ export default function ProductCard({ product, variant = "default", className = 
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="text-xs rounded-full px-3 py-1.5 ml-2 hover:bg-blue-50 hover:text-blue-600 transition-colors border-blue-200 hover:border-blue-400 shadow-sm"
+                  className="text-xs rounded-full h-7 px-2 sm:px-3 py-0 sm:py-1.5 hover:bg-blue-50 hover:text-blue-600 transition-colors border-blue-200 hover:border-blue-400 shadow-sm"
                   onClick={handleContactClick}
                 >
-                  <MessageSquare className="h-3.5 w-3.5 ml-1.5" />
-                  <span className="mx-0.5">יצירת קשר</span>
+                  <MessageSquare className="h-3 w-3 sm:h-3.5 sm:w-3.5 ml-1" />
+                  <span className="mx-0.5">צור קשר</span>
                 </Button>
               </div>
               
               <div>
-                <p className="font-semibold text-right">{formatPrice(product.price)}</p>
+                <p className="font-semibold text-right text-sm sm:text-base">{formatPrice(product.price)}</p>
                 <p className="text-xs text-gray-500 text-right">
-                  הזמנה מינימלית: {product.minimum_order || 1} יחידות
+                  מינימום: {product.minimum_order || 1} יח׳
                 </p>
               </div>
             </div>

@@ -288,25 +288,25 @@ export default function Auth() {
 
   const renderUserTypeSelection = () => (
     <div className="space-y-3">
-      <div className="text-center mb-3">
+      <div className="text-center mb-2 sm:mb-3">
         <h2 className="text-lg font-bold mb-0.5">הרשמה לאתר</h2>
         <p className="text-gray-500 text-xs">בחר את סוג המשתמש שלך להמשך התהליך</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto">
         <motion.div 
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <button
             onClick={() => handleUserTypeSelect("buyer")}
-            className="w-full h-36 flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
+            className="w-full h-auto py-4 sm:h-36 flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
           >
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-              <ShoppingBag className="h-6 w-6 text-blue-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+              <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
             </div>
-            <h3 className="text-base font-semibold mb-0.5">אני קונה / קמעונאי</h3>
-            <p className="text-gray-500 text-xs text-center">אני מעוניין לחפש ולרכוש מוצרים מסיטונאים</p>
+            <h3 className="text-sm sm:text-base font-semibold mb-0.5">אני קונה / קמעונאי</h3>
+            <p className="text-gray-500 text-xs text-center line-clamp-2">אני מעוניין לחפש ולרכוש מוצרים מסיטונאים</p>
           </button>
         </motion.div>
         
@@ -316,13 +316,13 @@ export default function Auth() {
         >
           <button
             onClick={() => handleUserTypeSelect("supplier")}
-            className="w-full h-36 flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
+            className="w-full h-auto py-4 sm:h-36 flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
           >
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-              <Store className="h-6 w-6 text-blue-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+              <Store className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
             </div>
-            <h3 className="text-base font-semibold mb-0.5">אני ספק / סיטונאי</h3>
-            <p className="text-gray-500 text-xs text-center">אני מעוניין להציע את המוצרים שלי למכירה סיטונאית</p>
+            <h3 className="text-sm sm:text-base font-semibold mb-0.5">אני ספק / סיטונאי</h3>
+            <p className="text-gray-500 text-xs text-center line-clamp-2">אני מעוניין להציע את המוצרים שלי למכירה סיטונאית</p>
           </button>
         </motion.div>
       </div>
@@ -331,20 +331,20 @@ export default function Auth() {
 
   const renderBuyerForm = () => (
     <>
-      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-sm">
+      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-xs sm:text-sm">
         <ArrowLeft className="h-3 w-3 ml-1" />
         חזרה לבחירת סוג משתמש
       </button>
       
-      <div className="space-y-3">
-        <div className="text-center mb-3">
-          <h2 className="text-lg font-bold mb-0.5">הרשמה כקונה</h2>
+      <div className="space-y-2 sm:space-y-3">
+        <div className="text-center mb-2 sm:mb-3">
+          <h2 className="text-base sm:text-lg font-bold mb-0.5">הרשמה כקונה</h2>
           <p className="text-gray-500 text-xs">צור חשבון קונה חדש בסיטונאות ישראל</p>
         </div>
         
-        <div className="max-w-sm mx-auto space-y-2">
+        <div className="w-full max-w-sm mx-auto space-y-2">
           <div className="space-y-0.5">
-            <Label htmlFor="fullName" className="text-sm text-right">שם מלא</Label>
+            <Label htmlFor="fullName" className="text-xs sm:text-sm text-right">שם מלא</Label>
             <div className="relative">
               <UserIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
               <Input 
@@ -359,7 +359,7 @@ export default function Auth() {
           </div>
           
           <div className="space-y-0.5">
-            <Label htmlFor="register-email" className="text-sm text-right">אימייל</Label>
+            <Label htmlFor="register-email" className="text-xs sm:text-sm text-right">אימייל</Label>
             <div className="relative">
               <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
               <Input 
@@ -375,7 +375,7 @@ export default function Auth() {
           </div>
           
           <div className="space-y-0.5">
-            <Label htmlFor="register-password" className="text-sm text-right">סיסמה</Label>
+            <Label htmlFor="register-password" className="text-xs sm:text-sm text-right">סיסמה</Label>
             <div className="relative">
               <Button
                 type="button"
@@ -397,7 +397,7 @@ export default function Auth() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 space-x-reverse mt-1">
+          <div className="flex items-start sm:items-center space-x-2 space-x-reverse mt-1">
             <Checkbox 
               id="terms" 
               checked={formData.agreeTerms}
@@ -405,7 +405,7 @@ export default function Auth() {
                 setFormData({...formData, agreeTerms: checked === true})
               }
               disabled={loading}
-              className="h-3.5 w-3.5"
+              className="h-3.5 w-3.5 mt-0.5 sm:mt-0"
             />
             <Label htmlFor="terms" className="text-xs text-right">
               אני מסכים ל
@@ -427,7 +427,7 @@ export default function Auth() {
 
           <Button 
             onClick={handleRegister}
-            className="w-full h-9 mt-2 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-sm"
+            className="w-full h-8 sm:h-9 mt-2 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-xs sm:text-sm"
             disabled={
               !formData.email || 
               !formData.password || 
@@ -438,12 +438,12 @@ export default function Auth() {
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                <span className="h-3 w-3 sm:h-4 sm:w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
                 מבצע הרשמה...
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
+                <UserPlus className="h-3 w-3 sm:h-4 sm:w-4" />
                 הרשמה
               </span>
             )}
@@ -460,11 +460,11 @@ export default function Auth() {
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto">
+      <div className="grid grid-cols-2 gap-2 w-full max-w-sm mx-auto">
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-sm"
+          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
           disabled={loading}
         >
           <GoogleLogo />
@@ -473,10 +473,10 @@ export default function Auth() {
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-sm"
+          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
           disabled={loading}
         >
-          <Facebook className="h-4 w-4 text-blue-600" />
+          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
           <span>Facebook</span>
         </Button>
       </div>
@@ -497,21 +497,21 @@ export default function Auth() {
 
   const renderSupplierForm = () => (
     <>
-      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-sm">
+      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-xs sm:text-sm">
         <ArrowLeft className="h-3 w-3 ml-1" />
         חזרה לבחירת סוג משתמש
       </button>
       
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         <div className="text-center mb-2">
-          <h2 className="text-lg font-bold mb-0.5">הרשמה כספק / סיטונאי</h2>
+          <h2 className="text-base sm:text-lg font-bold mb-0.5">הרשמה כספק / סיטונאי</h2>
           <p className="text-gray-500 text-xs">צור חשבון ספק חדש בסיטונאות ישראל</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 w-full max-w-2xl mx-auto">
           <div className="space-y-2">
             <div className="space-y-0.5">
-              <Label htmlFor="fullName" className="text-sm text-right">שם מלא</Label>
+              <Label htmlFor="fullName" className="text-xs sm:text-sm text-right">שם מלא</Label>
               <div className="relative">
                 <UserIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
@@ -526,7 +526,7 @@ export default function Auth() {
             </div>
             
             <div className="space-y-0.5">
-              <Label htmlFor="register-email" className="text-sm text-right">אימייל</Label>
+              <Label htmlFor="register-email" className="text-xs sm:text-sm text-right">אימייל</Label>
               <div className="relative">
                 <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
@@ -542,7 +542,7 @@ export default function Auth() {
             </div>
             
             <div className="space-y-0.5">
-              <Label htmlFor="register-password" className="text-sm text-right">סיסמה</Label>
+              <Label htmlFor="register-password" className="text-xs sm:text-sm text-right">סיסמה</Label>
               <div className="relative">
                 <Button
                   type="button"
@@ -565,7 +565,7 @@ export default function Auth() {
             </div>
 
             <div className="space-y-0.5">
-              <Label htmlFor="companyName" className="text-sm text-right">שם העסק</Label>
+              <Label htmlFor="companyName" className="text-xs sm:text-sm text-right">שם העסק</Label>
               <div className="relative">
                 <Building className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
@@ -582,7 +582,7 @@ export default function Auth() {
 
           <div className="space-y-2">
             <div className="space-y-0.5">
-              <Label htmlFor="description" className="text-sm text-right">תיאור העסק</Label>
+              <Label htmlFor="description" className="text-xs sm:text-sm text-right">תיאור העסק</Label>
               <Textarea 
                 id="description" 
                 placeholder="תאר את העסק שלך..." 
@@ -595,7 +595,7 @@ export default function Auth() {
             </div>
 
             <div className="space-y-0.5">
-              <Label htmlFor="address" className="text-sm text-right">כתובת העסק</Label>
+              <Label htmlFor="address" className="text-xs sm:text-sm text-right">כתובת העסק</Label>
               <div className="relative">
                 <MapPin className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
@@ -610,7 +610,7 @@ export default function Auth() {
             </div>
 
             <div className="space-y-0.5">
-              <Label htmlFor="phone" className="text-sm text-right">טלפון</Label>
+              <Label htmlFor="phone" className="text-xs sm:text-sm text-right">טלפון</Label>
               <div className="relative">
                 <Phone className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
@@ -627,7 +627,7 @@ export default function Auth() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 space-x-reverse mt-1 max-w-xl mx-auto">
+        <div className="flex items-start sm:items-center space-x-2 space-x-reverse mt-1 w-full max-w-xl mx-auto">
           <Checkbox 
             id="supplier-terms" 
             checked={formData.agreeTerms}
@@ -635,7 +635,7 @@ export default function Auth() {
               setFormData({...formData, agreeTerms: checked === true})
             }
             disabled={loading}
-            className="h-3.5 w-3.5"
+            className="h-3.5 w-3.5 mt-0.5 sm:mt-0"
           />
           <Label htmlFor="supplier-terms" className="text-xs text-right">
             אני מסכים ל
@@ -650,15 +650,15 @@ export default function Auth() {
         </div>
         
         {error && (
-          <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium max-w-md mx-auto">
+          <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium w-full max-w-md mx-auto">
             {error}
           </div>
         )}
 
-        <div className="mt-2 max-w-md mx-auto">
+        <div className="mt-2 w-full max-w-md mx-auto">
           <Button 
             onClick={handleRegister}
-            className="w-full h-9 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-sm"
+            className="w-full h-8 sm:h-9 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-xs sm:text-sm"
             disabled={
               !formData.email || 
               !formData.password || 
@@ -673,12 +673,12 @@ export default function Auth() {
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                <span className="h-3 w-3 sm:h-4 sm:w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
                 מבצע הרשמה...
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <Store className="h-4 w-4" />
+                <Store className="h-3 w-3 sm:h-4 sm:w-4" />
                 הרשמה כספק
               </span>
             )}
@@ -707,11 +707,11 @@ export default function Auth() {
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
+      <div className="grid grid-cols-2 gap-2 w-full max-w-md mx-auto">
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-sm"
+          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
           onClick={() => handleSocialLogin('google')}
           disabled={loading}
         >
@@ -721,11 +721,11 @@ export default function Auth() {
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-sm"
+          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
           onClick={() => handleSocialLogin('facebook')}
           disabled={loading}
         >
-          <Facebook className="h-4 w-4 text-blue-600" />
+          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
           <span>Facebook</span>
         </Button>
       </div>
@@ -743,11 +743,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen py-4 bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen py-3 sm:py-4 bg-gradient-to-b from-blue-50 to-white">
       <BackgroundShapes />
       
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-3xl mx-auto px-3 sm:px-4">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4">
           <Button 
             variant="outline" 
             size="sm" 
@@ -766,18 +766,18 @@ export default function Auth() {
         >
           <Card className="shadow-md border-0 bg-white/90 backdrop-blur-sm overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
-            <CardContent className="pt-4 px-3 md:px-5 pb-5">
+            <CardContent className="pt-3 sm:pt-4 px-2 sm:px-3 md:px-5 pb-4 sm:pb-5">
               {activeTab === "login" && (
                 <div className="mt-0">
-                  <div className="space-y-3">
-                    <div className="text-center mb-3">
-                      <h2 className="text-lg font-bold mb-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">ברוכים הבאים</h2>
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="text-center mb-2 sm:mb-3">
+                      <h2 className="text-base sm:text-lg font-bold mb-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">ברוכים הבאים</h2>
                       <p className="text-gray-500 text-xs">התחבר כדי להמשיך</p>
                     </div>
                     
-                    <div className="max-w-sm mx-auto space-y-3" dir="rtl">
+                    <div className="w-full max-w-sm mx-auto space-y-2 sm:space-y-3" dir="rtl">
                       <div className="space-y-0.5">
-                        <Label htmlFor="email" className="text-sm">כתובת אימייל</Label>
+                        <Label htmlFor="email" className="text-xs sm:text-sm">כתובת אימייל</Label>
                         <div className="relative">
                           <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                           <Input 
@@ -794,7 +794,7 @@ export default function Auth() {
                       
                       <div className="space-y-0.5">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="password" className="text-sm">סיסמה</Label>
+                          <Label htmlFor="password" className="text-xs sm:text-sm">סיסמה</Label>
                           <Link to="/" className="text-blue-600 hover:text-blue-700 text-xs font-medium hover:underline">
                             שכחת סיסמה?
                           </Link>
@@ -827,17 +827,17 @@ export default function Auth() {
                       
                       <Button 
                         onClick={handleLogin}
-                        className="w-full h-9 mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 text-sm"
+                        className="w-full h-8 sm:h-9 mt-2 sm:mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 text-xs sm:text-sm"
                         disabled={!formData.email || !formData.password || loading}
                       >
                         {loading ? (
                           <span className="flex items-center gap-2">
-                            <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                            <span className="h-3 w-3 sm:h-4 sm:w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
                             מתחבר...
                           </span>
                         ) : (
                           <span className="flex items-center gap-2">
-                            <LogIn className="h-4 w-4" />
+                            <LogIn className="h-3 w-3 sm:h-4 sm:w-4" />
                             התחבר
                           </span>
                         )}
@@ -856,7 +856,7 @@ export default function Auth() {
                         <Button 
                           type="button" 
                           variant="outline" 
-                          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-sm"
+                          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
                           disabled={loading}
                         >
                           <GoogleLogo />
@@ -865,10 +865,10 @@ export default function Auth() {
                         <Button 
                           type="button" 
                           variant="outline" 
-                          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-sm"
+                          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
                           disabled={loading}
                         >
-                          <Facebook className="h-4 w-4 text-blue-600" />
+                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                           <span>Facebook</span>
                         </Button>
                       </div>

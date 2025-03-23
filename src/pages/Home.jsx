@@ -248,28 +248,28 @@ export default function Home() {
       </motion.h2>
 
       {/* שדה חיפוש */}
-      <motion.div variants={fadeIn} className="mt-6">
-  <div className="relative w-full max-w-2xl">
+      <motion.div variants={fadeIn} className="mt-4 sm:mt-6">
+  <div className="relative w-full max-w-xl sm:max-w-2xl mx-auto">
     {/* שדה החיפוש עם עיצוב מתקדם */}
-    <div className="bg-white p-3 rounded-full shadow-lg flex items-center border border-gray-200 focus-within:border-blue-500 transition">
+    <div className="bg-white p-2 sm:p-3 rounded-full shadow-lg flex items-center border border-gray-200 focus-within:border-blue-500 transition">
       
 
       {/* שדה החיפוש עם אפקטים מתקדמים */}
       <input
         type="text"
-        placeholder=" חפשו מוצרים, קטגוריות או ספקים..."
+        placeholder=" חפשו מוצרים או ספקים..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full bg-transparent border-none py-2 px-4 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
+        className="w-full bg-transparent border-none py-1.5 sm:py-2 px-2 sm:px-4 text-sm sm:text-base text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
       />
 
       {/* כפתור חיפוש מעוגל עם אייקון */}
       <Button
         type="submit"
-        className="bg-[rgb(2,132,199)] hover:bg-[rgb(2,132,299)] text-white px-5 py-2 rounded-full flex items-center transition-all"
+        className="bg-[rgb(2,132,199)] hover:bg-[rgb(2,132,299)] text-white px-3 sm:px-5 py-1.5 sm:py-2 rounded-full flex items-center transition-all text-sm sm:text-base"
       >
         <span className="hidden sm:inline">חיפוש</span>
-        <Search className="w-5 h-5 ml-2 sm:ml-3" />
+        <Search className="w-4 h-4 sm:w-5 sm:h-5 ml-0 sm:ml-2"  />
       </Button>
     </div>
   </div>
@@ -354,13 +354,13 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <motion.div className="flex justify-between items-center mb-8" variants={fadeIn}>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר :</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר :</h2>
               </div>
               <div>
                 <Button variant="ghost" asChild>
                   <Link to={createPageUrl("Search")} className="flex items-center gap-1 group">
-                    צפייה בכל המוצרים
-                    <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                    <span className="text-sm sm:text-base">צפייה בכל המוצרים</span>
+                    <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 group-hover:-translate-x-1 transition-transform" />
                   </Link>
                 </Button>
               </div>
@@ -413,26 +413,26 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-2xl mx-auto text-center">
             <motion.div
-              className="flex flex-col items-center gap-4 bg-white p-6 rounded-xl shadow-xl"
+              className="flex flex-col items-center gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-xl shadow-xl"
               variants={fadeIn}
             >
-              <div className="bg-blue-500 p-3 rounded-full shadow-md">
-                <Package className="h-6 w-6 text-white" />
+              <div className="bg-blue-500 p-2 sm:p-3 rounded-full shadow-md">
+                <Package className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
               
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                ספקים? 
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex flex-wrap items-center justify-center gap-1 sm:gap-2">
+                <span>ספקים?</span>
                 <span className="animate-bounce">🚀</span>
                 <span className="text-blue-600">זה הזמן שלכם לפרוץ</span>
               </h2>
 
-              <p className="text-base text-gray-600 max-w-xl">
+              <p className="text-sm sm:text-base md:text-lg text-gray-600">
                 פרסמו את המוצרים שלכם והגיעו לאלפי סוחרים בישראל – תוך דקות!
               </p>
 
               <Button 
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200 text-sm sm:text-base"
                 onClick={(e) => {
                   if (!currentUser) {
                     toast({
@@ -448,8 +448,8 @@ export default function Home() {
                   }
                 }}
               >
-                <div className="flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
                   פרסום מוצר חדש
                 </div>
               </Button>
@@ -532,10 +532,10 @@ export default function Home() {
               className="text-center max-w-3xl mx-auto mb-12"
               variants={fadeIn}
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">למה להצטרף לקהילת Sitonimil ?</h2>
-              <p className="text-lg text-gray-600">
-              הצטרפו לאלפי סוחרים וספקים שכבר נהנים מחיבורים, הזדמנויות עסקיות ומכירות בקנה מידה ארצי
-</p>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">למה להצטרף לקהילת Sitonimil ?</h2>
+              <p className="text-sm sm:text-base md:text-lg text-gray-600">
+                הצטרפו לאלפי סוחרים וספקים שכבר נהנים מחיבורים, הזדמנויות עסקיות ומכירות בקנה מידה ארצי
+              </p>
             </motion.div>
             
             <motion.div 
