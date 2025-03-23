@@ -44,6 +44,16 @@ const GoogleLogo = () => (
   </svg>
 );
 
+// Background shapes component
+const BackgroundShapes = () => (
+  <div className="absolute inset-0 overflow-hidden -z-10">
+    <div className="absolute -top-[30%] -right-[20%] w-[600px] h-[600px] bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
+    <div className="absolute top-[60%] -left-[10%] w-[500px] h-[500px] bg-indigo-300 rounded-full opacity-20 blur-3xl"></div>
+    <div className="absolute top-[10%] left-[20%] w-[400px] h-[400px] bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
+    <div className="absolute -bottom-[10%] right-[30%] w-[450px] h-[450px] bg-cyan-200 rounded-full opacity-20 blur-3xl"></div>
+  </div>
+);
+
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -277,42 +287,42 @@ export default function Auth() {
   };
 
   const renderUserTypeSelection = () => (
-    <div className="space-y-4">
-      <div className="text-center mb-4 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-bold mb-1">הרשמה לאתר</h2>
-        <p className="text-gray-500 text-sm">בחר את סוג המשתמש שלך להמשך התהליך</p>
+    <div className="space-y-3">
+      <div className="text-center mb-3">
+        <h2 className="text-lg font-bold mb-0.5">הרשמה לאתר</h2>
+        <p className="text-gray-500 text-xs">בחר את סוג המשתמש שלך להמשך התהליך</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-xl mx-auto">
         <motion.div 
-          whileHover={{ scale: 1.03 }}
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <button
             onClick={() => handleUserTypeSelect("buyer")}
-            className="w-full h-48 md:h-60 flex flex-col items-center justify-center p-4 md:p-6 rounded-xl border-2 border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all"
+            className="w-full h-36 flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
           >
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-100 flex items-center justify-center mb-3 md:mb-4">
-              <ShoppingBag className="h-8 w-8 md:h-10 md:w-10 text-blue-600" />
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+              <ShoppingBag className="h-6 w-6 text-blue-600" />
             </div>
-            <h3 className="text-lg md:text-xl font-semibold mb-1 md:mb-2">אני קונה / קמעונאי</h3>
-            <p className="text-gray-500 text-sm text-center">אני מעוניין לחפש ולרכוש מוצרים מסיטונאים</p>
+            <h3 className="text-base font-semibold mb-0.5">אני קונה / קמעונאי</h3>
+            <p className="text-gray-500 text-xs text-center">אני מעוניין לחפש ולרכוש מוצרים מסיטונאים</p>
           </button>
         </motion.div>
         
         <motion.div 
-          whileHover={{ scale: 1.03 }}
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <button
             onClick={() => handleUserTypeSelect("supplier")}
-            className="w-full h-48 md:h-60 flex flex-col items-center justify-center p-4 md:p-6 rounded-xl border-2 border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all"
+            className="w-full h-36 flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
           >
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-100 flex items-center justify-center mb-3 md:mb-4">
-              <Store className="h-8 w-8 md:h-10 md:w-10 text-blue-600" />
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+              <Store className="h-6 w-6 text-blue-600" />
             </div>
-            <h3 className="text-lg md:text-xl font-semibold mb-1 md:mb-2">אני ספק / סיטונאי</h3>
-            <p className="text-gray-500 text-sm text-center">אני מעוניין להציע את המוצרים שלי למכירה סיטונאית</p>
+            <h3 className="text-base font-semibold mb-0.5">אני ספק / סיטונאי</h3>
+            <p className="text-gray-500 text-xs text-center">אני מעוניין להציע את המוצרים שלי למכירה סיטונאית</p>
           </button>
         </motion.div>
       </div>
@@ -321,73 +331,73 @@ export default function Auth() {
 
   const renderBuyerForm = () => (
     <>
-      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-3 flex items-center">
-        <ArrowLeft className="h-4 w-4 ml-1" />
+      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-sm">
+        <ArrowLeft className="h-3 w-3 ml-1" />
         חזרה לבחירת סוג משתמש
       </button>
       
-      <div className="space-y-4 md:space-y-6">
-        <div className="text-center mb-4 md:mb-6">
-          <h2 className="text-xl md:text-2xl font-bold mb-1">הרשמה כקונה</h2>
-          <p className="text-gray-500 text-sm">צור חשבון קונה חדש בסיטונאות ישראל</p>
+      <div className="space-y-3">
+        <div className="text-center mb-3">
+          <h2 className="text-lg font-bold mb-0.5">הרשמה כקונה</h2>
+          <p className="text-gray-500 text-xs">צור חשבון קונה חדש בסיטונאות ישראל</p>
         </div>
         
-        <div className="max-w-md mx-auto space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="fullName" className="text-base text-right">שם מלא</Label>
+        <div className="max-w-sm mx-auto space-y-2">
+          <div className="space-y-0.5">
+            <Label htmlFor="fullName" className="text-sm text-right">שם מלא</Label>
             <div className="relative">
-              <UserIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-600" />
+              <UserIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
               <Input 
                 id="fullName" 
                 placeholder="ישראל ישראלי" 
                 value={formData.fullName}
                 onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                className="pr-10 text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                 disabled={loading}
               />
             </div>
           </div>
           
-          <div className="space-y-1">
-            <Label htmlFor="register-email" className="text-base text-right">אימייל</Label>
+          <div className="space-y-0.5">
+            <Label htmlFor="register-email" className="text-sm text-right">אימייל</Label>
             <div className="relative">
-              <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-600" />
+              <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
               <Input 
                 id="register-email" 
                 type="email" 
                 placeholder="email@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="pr-10 text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                 disabled={loading}
               />
             </div>
           </div>
           
-          <div className="space-y-1">
-            <Label htmlFor="register-password" className="text-base text-right">סיסמה</Label>
+          <div className="space-y-0.5">
+            <Label htmlFor="register-password" className="text-sm text-right">סיסמה</Label>
             <div className="relative">
               <Button
                 type="button"
                 variant="ghost"
-                className="absolute left-0 top-0 h-full px-3 py-2 text-blue-600 hover:text-blue-700"
+                className="absolute left-0 top-0 h-full px-2 py-1 text-blue-600 hover:text-blue-700"
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1}
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
               <Input 
                 id="register-password" 
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                className="text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                 disabled={loading}
               />
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 space-x-reverse mt-2">
+          <div className="flex items-center space-x-2 space-x-reverse mt-1">
             <Checkbox 
               id="terms" 
               checked={formData.agreeTerms}
@@ -395,8 +405,9 @@ export default function Auth() {
                 setFormData({...formData, agreeTerms: checked === true})
               }
               disabled={loading}
+              className="h-3.5 w-3.5"
             />
-            <Label htmlFor="terms" className="text-sm text-right">
+            <Label htmlFor="terms" className="text-xs text-right">
               אני מסכים ל
               <Link to="/" className="text-blue-600 hover:underline mx-1">
                 תנאי השימוש
@@ -409,14 +420,14 @@ export default function Auth() {
           </div>
           
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-md mt-3 text-center text-sm font-medium">
+            <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium">
               {error}
             </div>
           )}
 
           <Button 
             onClick={handleRegister}
-            className="w-full h-11 mt-3 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
+            className="w-full h-9 mt-2 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-sm"
             disabled={
               !formData.email || 
               !formData.password || 
@@ -427,12 +438,12 @@ export default function Auth() {
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="h-5 w-5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
                 מבצע הרשמה...
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5" />
+                <UserPlus className="h-4 w-4" />
                 הרשמה
               </span>
             )}
@@ -440,21 +451,20 @@ export default function Auth() {
         </div>
       </div>
 
-      <div className="relative my-6">
+      <div className="relative my-3">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-300"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">או הרשם באמצעות</span>
+          <span className="px-2 bg-white text-gray-500 text-xs">או הרשם באמצעות</span>
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto">
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-2 h-11 border-2 border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-xl"
-          // onClick={() => handleSocialLogin('google')}
+          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-sm"
           disabled={loading}
         >
           <GoogleLogo />
@@ -463,154 +473,153 @@ export default function Auth() {
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-2 h-11 border-2 border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-xl"
-          // onClick={() => handleSocialLogin('facebook')}
+          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-sm"
           disabled={loading}
         >
-          <Facebook className="h-5 w-5 text-blue-600" />
+          <Facebook className="h-4 w-4 text-blue-600" />
           <span>Facebook</span>
         </Button>
       </div>
 
-      <div className="text-center mt-4">
-            <p className="text-sm text-gray-500">
-              כבר יש לך חשבון?{" "}
-              <Link 
-                to={createPageUrl("Auth") + "?tab=login"}
-                className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
-              >
-                התחבר כאן
-              </Link>
-            </p>
-          </div>
+      <div className="text-center mt-3">
+        <p className="text-xs text-gray-500">
+          כבר יש לך חשבון?{" "}
+          <Link 
+            to={createPageUrl("Auth") + "?tab=login"}
+            className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
+          >
+            התחבר כאן
+          </Link>
+        </p>
+      </div>
     </>
   );
 
   const renderSupplierForm = () => (
     <>
-      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-3 flex items-center">
-        <ArrowLeft className="h-4 w-4 ml-1" />
+      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-sm">
+        <ArrowLeft className="h-3 w-3 ml-1" />
         חזרה לבחירת סוג משתמש
       </button>
       
-      <div className="space-y-4 md:space-y-6">
-        <div className="text-center mb-4 md:mb-6">
-          <h2 className="text-xl md:text-2xl font-bold mb-1">הרשמה כספק / סיטונאי</h2>
-          <p className="text-gray-500 text-sm">צור חשבון ספק חדש בסיטונאות ישראל</p>
+      <div className="space-y-3">
+        <div className="text-center mb-2">
+          <h2 className="text-lg font-bold mb-0.5">הרשמה כספק / סיטונאי</h2>
+          <p className="text-gray-500 text-xs">צור חשבון ספק חדש בסיטונאות ישראל</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="fullName" className="text-base text-right">שם מלא</Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+          <div className="space-y-2">
+            <div className="space-y-0.5">
+              <Label htmlFor="fullName" className="text-sm text-right">שם מלא</Label>
               <div className="relative">
-                <UserIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-600" />
+                <UserIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
                   id="fullName" 
                   placeholder="ישראל ישראלי" 
                   value={formData.fullName}
                   onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="pr-10 text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
                 />
               </div>
             </div>
             
-            <div className="space-y-1">
-              <Label htmlFor="register-email" className="text-base text-right">אימייל</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="register-email" className="text-sm text-right">אימייל</Label>
               <div className="relative">
-                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-600" />
+                <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
                   id="register-email" 
                   type="email" 
                   placeholder="email@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="pr-10 text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
                 />
               </div>
             </div>
             
-            <div className="space-y-1">
-              <Label htmlFor="register-password" className="text-base text-right" >סיסמה</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="register-password" className="text-sm text-right">סיסמה</Label>
               <div className="relative">
                 <Button
                   type="button"
                   variant="ghost"
-                  className="absolute left-0 top-0 h-full px-3 py-2 text-blue-600 hover:text-blue-700"
+                  className="absolute left-0 top-0 h-full px-2 py-1 text-blue-600 hover:text-blue-700"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
                 <Input 
                   id="register-password" 
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                  className="text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="companyName" className="text-base text-right">שם העסק</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="companyName" className="text-sm text-right">שם העסק</Label>
               <div className="relative">
-                <Building className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-600" />
+                <Building className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
                   id="companyName" 
                   placeholder="שם העסק המלא" 
                   value={formData.companyName}
                   onChange={(e) => setFormData({...formData, companyName: e.target.value})}
-                  className="pr-10 text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
                 />
               </div>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="description" className="text-base text-right">תיאור העסק</Label>
+          <div className="space-y-2">
+            <div className="space-y-0.5">
+              <Label htmlFor="description" className="text-sm text-right">תיאור העסק</Label>
               <Textarea 
                 id="description" 
-                placeholder="תאר את העסק שלך, המוצרים שאתה מציע והיתרונות שלך כספק..." 
+                placeholder="תאר את העסק שלך..." 
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
-                rows={3}
-                className="text-right border-blue-200 focus-visible:ring-blue-500"
+                rows={2}
+                className="text-right border-blue-200 focus-visible:ring-blue-500 text-sm"
                 disabled={loading}
               />
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="address" className="text-base text-right">כתובת העסק</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="address" className="text-sm text-right">כתובת העסק</Label>
               <div className="relative">
-                <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-600" />
+                <MapPin className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
                   id="address" 
                   placeholder="כתובת מלאה" 
                   value={formData.address}
                   onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  className="pr-10 text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="phone" className="text-base text-right">טלפון</Label>
+            <div className="space-y-0.5">
+              <Label htmlFor="phone" className="text-sm text-right">טלפון</Label>
               <div className="relative">
-                <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-600" />
+                <Phone className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                 <Input 
                   id="phone" 
                   type="tel" 
                   placeholder="מספר טלפון" 
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="pr-10 text-right h-11 border-blue-200 focus-visible:ring-blue-500"
+                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
                 />
               </div>
@@ -618,7 +627,7 @@ export default function Auth() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 space-x-reverse mt-2 md:mt-3 max-w-md mx-auto">
+        <div className="flex items-center space-x-2 space-x-reverse mt-1 max-w-xl mx-auto">
           <Checkbox 
             id="supplier-terms" 
             checked={formData.agreeTerms}
@@ -626,8 +635,9 @@ export default function Auth() {
               setFormData({...formData, agreeTerms: checked === true})
             }
             disabled={loading}
+            className="h-3.5 w-3.5"
           />
-          <Label htmlFor="supplier-terms" className="text-sm text-right">
+          <Label htmlFor="supplier-terms" className="text-xs text-right">
             אני מסכים ל
             <Link to="/" className="text-blue-600 hover:underline mx-1">
               תנאי השימוש
@@ -640,15 +650,15 @@ export default function Auth() {
         </div>
         
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-md mt-3 text-center text-sm font-medium max-w-md mx-auto">
+          <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium max-w-md mx-auto">
             {error}
           </div>
         )}
 
-        <div className="mt-4 max-w-md mx-auto">
+        <div className="mt-2 max-w-md mx-auto">
           <Button 
             onClick={handleRegister}
-            className="w-full h-11 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
+            className="w-full h-9 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-sm"
             disabled={
               !formData.email || 
               !formData.password || 
@@ -663,19 +673,19 @@ export default function Auth() {
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="h-5 w-5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
                 מבצע הרשמה...
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <Store className="h-5 w-5" />
+                <Store className="h-4 w-4" />
                 הרשמה כספק
               </span>
             )}
           </Button>
           
-          <div className="text-center mt-4">
-            <p className="text-sm text-gray-500">
+          <div className="text-center mt-3">
+            <p className="text-xs text-gray-500">
               כבר יש לך חשבון?{" "}
               <Link 
                 to={createPageUrl("Auth") + "?tab=login"}
@@ -688,20 +698,20 @@ export default function Auth() {
         </div>
       </div>
 
-      <div className="relative my-6">
+      <div className="relative my-3">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-300"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">או הרשם באמצעות</span>
+          <span className="px-2 bg-white text-gray-500 text-xs">או הרשם באמצעות</span>
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-2 h-11 border-2 border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-lg"
+          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-sm"
           onClick={() => handleSocialLogin('google')}
           disabled={loading}
         >
@@ -711,11 +721,11 @@ export default function Auth() {
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-2 h-11 border-2 border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-lg"
+          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-sm"
           onClick={() => handleSocialLogin('facebook')}
           disabled={loading}
         >
-          <Facebook className="h-5 w-5 text-blue-600" />
+          <Facebook className="h-4 w-4 text-blue-600" />
           <span>Facebook</span>
         </Button>
       </div>
@@ -733,152 +743,161 @@ export default function Auth() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-4 md:py-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => navigate(-1)}
-          className="gap-1"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          חזרה
-        </Button>
-      </div>
+    <div className="min-h-screen py-4 bg-gradient-to-b from-blue-50 to-white">
+      <BackgroundShapes />
       
-      <Card className="shadow-lg border-0">
-        <CardContent className="pt-4 md:pt-6">
-          {activeTab === "login" && (
-            <div className="mt-0">
-              <div className="space-y-4 md:space-y-6">
-                <div className="text-center mb-4 md:mb-6">
-                  <h2 className="text-xl md:text-2xl font-bold mb-1">ברוכים הבאים</h2>
-                  <p className="text-gray-500 text-sm">התחבר כדי להמשיך</p>
-                </div>
-                
-                <div className="max-w-md mx-auto space-y-4" dir="rtl">
-                  <div className="space-y-1">
-                    <Label htmlFor="email" className="text-base">כתובת אימייל</Label>
-                    <div className="relative">
-                      <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-600" />
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="name@example.com" 
-                        value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        className="pr-10 text-right h-11 border-blue-200 focus-visible:ring-blue-500"
-                        disabled={loading}
-                      />
+      <div className="max-w-3xl mx-auto px-4">
+        <div className="flex items-center gap-2 mb-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate(-1)}
+            className="gap-1 bg-white/80 backdrop-blur-sm hover:bg-white text-xs h-7"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            חזרה
+          </Button>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="shadow-md border-0 bg-white/90 backdrop-blur-sm overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+            <CardContent className="pt-4 px-3 md:px-5 pb-5">
+              {activeTab === "login" && (
+                <div className="mt-0">
+                  <div className="space-y-3">
+                    <div className="text-center mb-3">
+                      <h2 className="text-lg font-bold mb-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">ברוכים הבאים</h2>
+                      <p className="text-gray-500 text-xs">התחבר כדי להמשיך</p>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                       <Label htmlFor="password" className="text-base">סיסמה</Label>
-                      <Link to="/" className="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline">
-                        שכחת סיסמה?
-                      </Link>
-                    </div>
-                    <div className="relative">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="absolute left-0 top-0 h-full px-3 py-2 text-blue-600 hover:text-blue-700"
-                        onClick={() => setShowPassword(!showPassword)}
-                        tabIndex={-1}
+                    
+                    <div className="max-w-sm mx-auto space-y-3" dir="rtl">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="email" className="text-sm">כתובת אימייל</Label>
+                        <div className="relative">
+                          <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                          <Input 
+                            id="email" 
+                            type="email" 
+                            placeholder="name@example.com" 
+                            value={formData.email}
+                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 bg-white/70 text-sm"
+                            disabled={loading}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="password" className="text-sm">סיסמה</Label>
+                          <Link to="/" className="text-blue-600 hover:text-blue-700 text-xs font-medium hover:underline">
+                            שכחת סיסמה?
+                          </Link>
+                        </div>
+                        <div className="relative">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="absolute left-0 top-0 h-full px-2 py-1 text-blue-600 hover:text-blue-700"
+                            onClick={() => setShowPassword(!showPassword)}
+                            tabIndex={-1}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                          <Input 
+                            id="password" 
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                            className="text-right h-9 border-blue-200 focus-visible:ring-blue-500 bg-white/70 text-sm"
+                            disabled={loading}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 space-x-reverse">
+                        <Checkbox id="remember" className="h-3.5 w-3.5" />
+                        <Label htmlFor="remember" className="text-xs">זכור אותי</Label>
+                      </div>
+                      
+                      <Button 
+                        onClick={handleLogin}
+                        className="w-full h-9 mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 text-sm"
+                        disabled={!formData.email || !formData.password || loading}
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {loading ? (
+                          <span className="flex items-center gap-2">
+                            <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                            מתחבר...
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            <LogIn className="h-4 w-4" />
+                            התחבר
+                          </span>
+                        )}
                       </Button>
-                      <Input 
-                        id="password" 
-                        type={showPassword ? "text" : "password"}
-                        value={formData.password}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})}
-                        className="text-right h-11 border-blue-200 focus-visible:ring-blue-500"
-                        disabled={loading}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 space-x-reverse">
-                    <Checkbox id="remember" />
-                    <Label htmlFor="remember" className="text-sm">זכור אותי</Label>
-                  </div>
-                  
-                  <Button 
-                    onClick={handleLogin}
-                    className="w-full h-11 mt-4 bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                    disabled={!formData.email || !formData.password || loading}
-                  >
-                    {loading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-5 w-5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
-                        מתחבר...
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <LogIn className="h-5 w-5" />
-                        התחבר
-                      </span>
-                    )}
-                  </Button>
 
-                  <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">או התחבר באמצעות</span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="flex items-center justify-center gap-2 h-11 border-2 border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-lg"
-                      // onClick={() => handleSocialLogin('google')}
-                      disabled={loading}
-                    >
-                      <GoogleLogo />
-                      <span>Google</span>
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="flex items-center justify-center gap-2 h-11 border-2 border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-lg"
-                      // onClick={() => handleSocialLogin('facebook')}
-                      disabled={loading}
-                    >
-                      <Facebook className="h-5 w-5 text-blue-600" />
-                      <span>Facebook</span>
-                    </Button>
-                  </div>
+                      <div className="relative my-3">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                          <span className="px-2 bg-white text-gray-500 text-xs rounded-full">או התחבר באמצעות</span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-sm"
+                          disabled={loading}
+                        >
+                          <GoogleLogo />
+                          <span>Google</span>
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="flex items-center justify-center gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-sm"
+                          disabled={loading}
+                        >
+                          <Facebook className="h-4 w-4 text-blue-600" />
+                          <span>Facebook</span>
+                        </Button>
+                      </div>
 
-                  <div className="text-center mt-6">
-                    <p className="text-sm text-gray-500">
-                      אין לך חשבון?{" "}
-                      <Link 
-                        to={`${createPageUrl("Auth")}?tab=register`}
-                        className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
-                      >
-                        הרשם עכשיו
-                      </Link>
-                    </p>
+                      <div className="text-center mt-3">
+                        <p className="text-xs text-gray-500">
+                          אין לך חשבון?{" "}
+                          <Link 
+                            to={`${createPageUrl("Auth")}?tab=register`}
+                            className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
+                          >
+                            הרשם עכשיו
+                          </Link>
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-          
-          {activeTab === "register" && (
-            <div className="mt-0" dir="rtl">
-              {renderRegistrationForm()}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              )}
+              
+              {activeTab === "register" && (
+                <div className="mt-0" dir="rtl">
+                  {renderRegistrationForm()}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   );
 }

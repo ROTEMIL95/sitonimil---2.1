@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, TrendingUp, Shield, Package, Search, UserPlus, LogIn, ShoppingBag, Store, Building } from "lucide-react";
+import { ArrowLeft, TrendingUp, Shield, Package, Search, UserPlus, LogIn, ShoppingBag, Store, Building, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createPageUrl, redirectToLogin } from "@/utils";
@@ -354,7 +354,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <motion.div className="flex justify-between items-center mb-8" variants={fadeIn}>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">מוצרים מובחרים</h2>
+                <h2 className="text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר :</h2>
               </div>
               <div>
                 <Button variant="ghost" asChild>
@@ -402,7 +402,61 @@ export default function Home() {
       </section>
       
       <ExpandedCategoryBanner />
-      
+
+      <motion.section 
+        className="py-16"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeIn}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-2xl mx-auto text-center">
+            <motion.div
+              className="flex flex-col items-center gap-4 bg-white p-6 rounded-xl shadow-xl"
+              variants={fadeIn}
+            >
+              <div className="bg-blue-500 p-3 rounded-full shadow-md">
+                <Package className="h-6 w-6 text-white" />
+              </div>
+              
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                ספקים? 
+                <span className="animate-bounce">🚀</span>
+                <span className="text-blue-600">זה הזמן שלכם לפרוץ</span>
+              </h2>
+
+              <p className="text-base text-gray-600 max-w-xl">
+                פרסמו את המוצרים שלכם והגיעו לאלפי סוחרים בישראל – תוך דקות!
+              </p>
+
+              <Button 
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200"
+                onClick={(e) => {
+                  if (!currentUser) {
+                    toast({
+                      title: "נדרשת התחברות",
+                      description: "עליך להתחבר או להירשם לפני פרסום מוצר",
+                      duration: 5000,
+                    });
+                    localStorage.setItem("preferredUserType", "supplier");
+                    localStorage.setItem("redirectAfterAuth", createPageUrl("UploadProduct"));
+                    navigate(createPageUrl("Auth") + "?tab=register");
+                  } else {
+                    navigate(createPageUrl("UploadProduct"));
+                  }
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  פרסום מוצר חדש
+                </div>
+              </Button>
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
       <section data-section="suppliers" className={`transition-opacity duration-500 ${isContentVisible.suppliers ? 'opacity-100' : 'opacity-0'}`}>
         <motion.section 
           className="bg-blue-50 py-16"
@@ -478,10 +532,10 @@ export default function Home() {
               className="text-center max-w-3xl mx-auto mb-12"
               variants={fadeIn}
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">למה לבחור בסיטונאות ישראל</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">למה להצטרף לקהילת Sitonimil ?</h2>
               <p className="text-lg text-gray-600">
-                הפלטפורמה שלנו מציעה חיבור יעיל בין ספקים וסוחרים, עם תכונות שנועדו להפוך את הרכש הסיטונאי ליעיל ומאובטח.
-              </p>
+              הצטרפו לאלפי סוחרים וספקים שכבר נהנים מחיבורים, הזדמנויות עסקיות ומכירות בקנה מידה ארצי
+</p>
             </motion.div>
             
             <motion.div 
@@ -508,9 +562,9 @@ export default function Home() {
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                       <Shield className="h-6 w-6 text-blue-600" />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2">מסחר מאובטח</h3>
+                    <h3 className="font-semibold text-lg mb-2">פרסום מוצרים בקנה מידה ארצי</h3>
                     <p className="text-gray-600">
-                      אנו מציעים סביבת מסחר מאובטחת עם הגנות על עסקאות ומערכת לפתרון סכסוכים להבטחת חוויית קנייה חלקה.
+                    פרסום חופשי, חשיפה אמיתית – Sitonimil זה המקום להתחיל בו
                     </p>
                   </CardContent>
                 </Card>
@@ -522,9 +576,9 @@ export default function Home() {
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                       <Package className="h-6 w-6 text-blue-600" />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2">משלחים ארציים</h3>
+                    <h3 className="font-semibold text-lg mb-2"> כל מה שצריך בעסק הסיטונאי שלך</h3>
                     <p className="text-gray-600">
-                      גישה לפתרונות לוגיסטיקה ומשלחים בכל רחבי הארץ, עם אפשרויות מעקב משלוחים וניהול מלאי.
+                    מערכת מתקדמת שתוכננה במיוחד למסחר סיטונאי – פשוטה, מהירה ונגישה                
                     </p>
                   </CardContent>
                 </Card>

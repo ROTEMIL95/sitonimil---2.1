@@ -14,8 +14,20 @@ import {
   DialogTrigger,
   DialogClose
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
 import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
+import { cn } from "@/lib/utils";
 
 // תמונת ברירת מחדל קבועה למוצרים
 const DEFAULT_PRODUCT_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=300";
@@ -242,72 +254,101 @@ export default function ProductCard({ product, variant = "default", className = 
 
   return (
     <>
-      <Card className={`group overflow-hidden transition-all hover:shadow-md h-full ${className}`}>
+      <Card className={cn("group overflow-hidden transition-all hover:shadow-md h-full", className)}>
         <Link 
           to={createPageUrl("Product") + `?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`} 
-          className="block h-full"
+          className="block h-full flex flex-col"
         >
-          <div className="relative aspect-square">
+          <div className="relative aspect-video md:aspect-[4/3]">
             <ProductImage 
               src={product.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
               alt={product.title} 
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
             />
+            {product.category && (
+              <Badge className="absolute top-2 right-2 bg-blue-600">{getCategoryLabel(product.category)}</Badge>
+            )}
             <Button
               size="icon"
               variant="ghost"
-              className={`absolute top-2 left-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white ${
+              className={cn(
+                "absolute top-2 left-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white",
                 isLiked ? "text-red-500" : "text-gray-500"
-              }`}
+              )}
               onClick={handleLike}
             >
-              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+              <Heart className={cn("h-4 w-4", isLiked ? "fill-current" : "")} />
             </Button>
             {product.discount_percent > 0 && (
-              <Badge className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white">
+              <Badge className="absolute bottom-2 right-2 bg-red-500 hover:bg-red-600 text-white">
                 {product.discount_percent}% הנחה
               </Badge>
             )}
             {product.minimum_order > 1 && (
-              <Badge className="absolute bottom-2 right-2 bg-blue-600/85 hover:bg-blue-700 text-white text-xs">
+              <Badge className="absolute bottom-2 left-2 bg-blue-600/85 hover:bg-blue-700 text-white text-xs rounded-full">
                 מינימום: {product.minimum_order} יח׳
               </Badge>
             )}
           </div>
-          <CardContent className="p-3">
-            <h3 className="font-medium line-clamp-1 text-right">{product.title}</h3>
-            <div className="flex items-center justify-between mt-2 mb-1">
-              <div className="flex items-center text-amber-500">
-                <Star className="fill-current h-3 w-3" />
-                <span className="text-xs mr-1">{product.rating?.toFixed(1) || "אין דירוג"}</span>
-              </div>
-              <p className="font-semibold text-sm">{formatPrice(product.price)}</p>
-            </div>
-            <div className="flex justify-between items-center mt-3">
-              {product.category && (
-                <Badge variant="outline" className="text-xs font-normal">
-                  {getCategoryLabel(product.category)}
-                </Badge>
-              )}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-blue-600 hover:bg-blue-50 p-1 h-7 "
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleContactClick(e); 
-                }}
-              >
-                <MessageSquare className="h-3.5 w-3.5 ml-1" />
-                <span className="text-xs">צור קשר עם הספק </span>
-              </Button>
-            </div>
+          
+          <CardContent className="p-4 flex flex-col flex-grow">
             {product.supplier_name && (
-              <p className="text-xs text-gray-500 mt-1.5 text-right">
-                {product.supplier_name}
+              <div className="flex items-center gap-2 mb-2">
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={product.supplier_logo} alt={product.supplier_name} />
+                  <AvatarFallback>{product.supplier_name.substring(0, 2)}</AvatarFallback>
+                </Avatar>
+                <span className="text-xs text-gray-500">{product.supplier_name}</span>
+              </div>
+            )}
+            
+            <h3 className="font-medium line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors text-right">
+              {product.title}
+            </h3>
+            
+            {product.description && (
+              <p className="text-sm line-clamp-2 text-gray-500 mb-3 text-right">
+                {product.description}
               </p>
             )}
+            
+            <div className="flex items-center justify-between mt-auto">
+              <div className="flex items-center gap-3">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center text-amber-500">
+                        <Star className="fill-current h-4 w-4" />
+                        <span className="text-xs mr-1">
+                          {product.rating?.toFixed(1) || "N/A"}{" "}
+                          {product.review_count ? `(${product.review_count})` : ""}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{product.review_count || 0} ביקורות</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs rounded-full px-3 py-1.5 ml-2 hover:bg-blue-50 hover:text-blue-600 transition-colors border-blue-200 hover:border-blue-400 shadow-sm"
+                  onClick={handleContactClick}
+                >
+                  <MessageSquare className="h-3.5 w-3.5 ml-1.5" />
+                  <span className="mx-0.5">יצירת קשר</span>
+                </Button>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-right">{formatPrice(product.price)}</p>
+                <p className="text-xs text-gray-500 text-right">
+                  הזמנה מינימלית: {product.minimum_order || 1} יחידות
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Link>
       </Card>
