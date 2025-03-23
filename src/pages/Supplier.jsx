@@ -296,7 +296,7 @@ export default function SupplierProfile() {
         
         {/* Main Content - Products */}
         <div className="lg:col-span-2">
-          <Tabs defaultValue="products">
+          <Tabs defaultValue="products" dir="rtl">
             <TabsList className="mb-6 bg-gray-100 p-1 rounded-xl">
               <TabsTrigger 
                 value="products" 

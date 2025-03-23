@@ -381,7 +381,28 @@ export const Review = {
     rating: "number",
     comment: "text",
     product_id: "uuid",
-    created_at: "timestamp"
+    created_at: "timestamp",
+    
+    async list() {
+        const { data, error } = await supabase
+            .from('reviews')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data;
+    },
+    
+    async create(reviewData) {
+        const { data, error } = await supabase
+            .from('reviews')
+            .insert([reviewData])
+            .select()
+            .single();
+            
+        if (error) throw error;
+        return data;
+    }
 };
 
 export const Category = {

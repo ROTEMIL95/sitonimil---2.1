@@ -49,9 +49,45 @@ function ProductImage({ src, alt, className }) {
   );
 }
 
-export default function ProductCard({ product, variant = "default" }) {
+// Contact popup component
+function ContactPopup({ isOpen, onClose, product }) {
+  if (!isOpen) return null;
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>יצירת קשר עם הספק</DialogTitle>
+          <DialogDescription>
+            בחר את אופן יצירת הקשר המועדף עליך
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <Button onClick={(e) => {
+            e.preventDefault();
+            const phoneNumber = product.supplier_phone || "972500000000"; 
+            window.open(`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}`, '_blank');
+          }} className="flex items-center gap-2">
+            <Send className="h-4 w-4" />
+            <span>וואטסאפ</span>
+          </Button>
+          <Button onClick={(e) => {
+            e.preventDefault();
+            window.location.href = createPageUrl("Messages") + `?product_id=${product.id}&supplier_id=${product.supplier_id || ""}`;
+          }} variant="outline" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            <span>הודעה באתר</span>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default function ProductCard({ product, variant = "default", className = "" }) {
   const [isLiked, setIsLiked] = useState(false);
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
+  const [showContactPopup, setShowContactPopup] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -101,7 +137,7 @@ export default function ProductCard({ product, variant = "default" }) {
       return;
     }
     
-    setIsContactDialogOpen(true);
+    setShowContactPopup(true);
   };
 
   const handleContactWhatsapp = (e) => {
@@ -156,7 +192,7 @@ export default function ProductCard({ product, variant = "default" }) {
   };
 
   const handleProductClick = () => {
-    navigate(createPageUrl("Product") + `?id=${product.id}`);
+    navigate(createPageUrl("Product") + `?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`);
   };
 
   if (variant === "list") {
@@ -205,42 +241,82 @@ export default function ProductCard({ product, variant = "default" }) {
   }
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <div
-        className="h-40 overflow-hidden relative cursor-pointer"
-        onClick={handleProductClick}
-      >
-        {product.images && product.images.length > 0 ? (
-          <img
-            src={product.images[0]}
-            alt={product.title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <Package className="h-8 w-8 text-gray-400" />
+    <>
+      <Card className={`group overflow-hidden transition-all hover:shadow-md h-full ${className}`}>
+        <Link 
+          to={createPageUrl("Product") + `?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`} 
+          className="block h-full"
+        >
+          <div className="relative aspect-square">
+            <ProductImage 
+              src={product.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
+              alt={product.title} 
+              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+            />
+            <Button
+              size="icon"
+              variant="ghost"
+              className={`absolute top-2 left-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white ${
+                isLiked ? "text-red-500" : "text-gray-500"
+              }`}
+              onClick={handleLike}
+            >
+              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+            </Button>
+            {product.discount_percent > 0 && (
+              <Badge className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white">
+                {product.discount_percent}% הנחה
+              </Badge>
+            )}
+            {product.minimum_order > 1 && (
+              <Badge className="absolute bottom-2 right-2 bg-blue-600/85 hover:bg-blue-700 text-white text-xs">
+                מינימום: {product.minimum_order} יח׳
+              </Badge>
+            )}
           </div>
-        )}
-      </div>
-      <div className="p-4">
-        <div className="flex justify-between">
-          <h3 className="font-medium mb-1 truncate cursor-pointer hover:text-blue-600"
-            onClick={handleProductClick}>
-            {product.title}
-          </h3>
-          {product.customActions}
-        </div>
-        <div className="flex items-center text-sm">
-          <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-          <span className="font-medium mr-1">{product.rating?.toFixed(1) || "0.0"}</span>
-        </div>
-        <p className="text-gray-500 text-sm mt-2 mb-3 line-clamp-2">{product.description}</p>
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-blue-600">₪{product.price?.toFixed(2) || "0.00"}+</span>
-          <span className="text-xs text-gray-500">MOQ: {product.minimum_order || 1}</span>
-        </div>
-      </div>
-    </Card>
+          <CardContent className="p-3">
+            <h3 className="font-medium line-clamp-1 text-right">{product.title}</h3>
+            <div className="flex items-center justify-between mt-2 mb-1">
+              <div className="flex items-center text-amber-500">
+                <Star className="fill-current h-3 w-3" />
+                <span className="text-xs mr-1">{product.rating?.toFixed(1) || "אין דירוג"}</span>
+              </div>
+              <p className="font-semibold text-sm">{formatPrice(product.price)}</p>
+            </div>
+            <div className="flex justify-between items-center mt-3">
+              {product.category && (
+                <Badge variant="outline" className="text-xs font-normal">
+                  {getCategoryLabel(product.category)}
+                </Badge>
+              )}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-blue-600 hover:bg-blue-50 p-1 h-7 "
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleContactClick(e); 
+                }}
+              >
+                <MessageSquare className="h-3.5 w-3.5 ml-1" />
+                <span className="text-xs">צור קשר עם הספק </span>
+              </Button>
+            </div>
+            {product.supplier_name && (
+              <p className="text-xs text-gray-500 mt-1.5 text-right">
+                {product.supplier_name}
+              </p>
+            )}
+          </CardContent>
+        </Link>
+      </Card>
+      
+      <ContactPopup 
+        isOpen={showContactPopup} 
+        onClose={() => setShowContactPopup(false)} 
+        product={product}
+      />
+    </>
   );
 }

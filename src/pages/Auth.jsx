@@ -74,6 +74,19 @@ export default function Auth() {
     if (tab === "register") {
       setActiveTab("register");
       setShowLoginTab(false);
+      
+      // Check if we have a preferred user type stored in localStorage
+      const preferredUserType = localStorage.getItem("preferredUserType");
+      if (preferredUserType === "buyer" || preferredUserType === "supplier") {
+        // Set the user type automatically
+        setUserType(preferredUserType);
+        setFormData({
+          ...formData,
+          businessType: preferredUserType
+        });
+        // Clear the preference after using it
+        localStorage.removeItem("preferredUserType");
+      }
     } else {
       setActiveTab("login");
       setShowLoginTab(true);

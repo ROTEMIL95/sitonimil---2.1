@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, TrendingUp, Shield, Package, Search, UserPlus, LogIn } from "lucide-react";
+import { ArrowLeft, TrendingUp, Shield, Package, Search, UserPlus, LogIn, ShoppingBag, Store, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createPageUrl, redirectToLogin } from "@/utils";
@@ -275,42 +275,66 @@ export default function Home() {
   </div>
 </motion.div>
 
-      {/* קטגוריות פופולריות */}
+      {/* כפתורי הרשמה */}
       <motion.div 
         variants={fadeIn} 
         className="mt-8 md:mt-10"
         initial="hidden"
         animate="visible"
       >
-        <h3 className="text-lg font-medium text-gray-800 mb-4">קטגוריות פופולריות</h3>
-        <div className="flex flex-wrap gap-3 justify-center md:justify-start overflow-x-auto pb-2">
-          {popularCategories.map((category, index) => (
-            <motion.div 
-              key={`${category.value}-${index}`} 
-              variants={fadeIn} 
-              custom={index} 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+        <h3 className="text-lg font-medium text-gray-800 mb-4">הצטרפו לקהילה שלנו</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl mx-auto">
+          <motion.div 
+            variants={fadeIn} 
+            custom={0} 
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            className="shadow-md rounded-lg overflow-hidden"
+          >
+            <Link 
+              to={createPageUrl("Auth") + "?tab=register"}
+              className="block h-full"
+              onClick={() => localStorage.setItem("preferredUserType", "buyer")}
             >
-              <Link 
-                to={createPageUrl("Search") + `?category=${encodeURIComponent(category.value)}`}
-                className="flex items-center bg-white hover:bg-blue-50 shadow-sm border border-gray-200 hover:border-blue-300 hover:shadow-md px-4 py-2 rounded-full transition-all duration-200"
-              >
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-100 mr-2 flex-shrink-0">
-                  <img 
-                    src={category.image_url} 
-                    alt={category.label} 
-                    className="w-full h-full object-cover" 
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "https://via.placeholder.com/40?text=" + category.label.charAt(0);
-                    }}
-                  />
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 transition-colors p-4 flex flex-col items-center text-center h-full border border-blue-200 rounded-lg">
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2 border-2 border-blue-300">
+                  <ShoppingBag className="h-6 w-6 text-blue-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">{category.label}</span>
-              </Link>
-            </motion.div>
-          ))}
+                <h3 className="text-base font-semibold mb-1 text-gray-800">הרשמה כקונה</h3>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">הרשם כקונה כדי לחפש ולרכוש מוצרים מספקים מובילים</p>
+                <div className="mt-auto bg-blue-600 text-white py-1.5 px-3 rounded-lg text-sm font-medium inline-flex items-center gap-1.5 hover:bg-blue-700 transition-colors">
+                  <UserPlus className="h-4 w-4" />
+                  <span>הרשם עכשיו</span>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+
+          <motion.div 
+            variants={fadeIn} 
+            custom={1} 
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            className="shadow-md rounded-lg overflow-hidden"
+          >
+            <Link 
+              to={createPageUrl("Auth") + "?tab=register"}
+              className="block h-full"
+              onClick={() => localStorage.setItem("preferredUserType", "supplier")}
+            >
+              <div className="bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-colors p-4 flex flex-col items-center text-center h-full border border-green-200 rounded-lg">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-2 border-2 border-green-300">
+                  <Store className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="text-base font-semibold mb-1 text-gray-800">הרשמה כספק</h3>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">הצג את המוצרים שלך וחבר בין העסק שלך לקונים פוטנציאליים</p>
+                <div className="mt-auto bg-green-600 text-white py-1.5 px-3 rounded-lg text-sm font-medium inline-flex items-center gap-1.5 hover:bg-green-700 transition-colors">
+                  <Building className="h-4 w-4" />
+                  <span>הרשם כספק</span>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
         </div>
       </motion.div>
     </motion.div>
