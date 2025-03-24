@@ -3,20 +3,16 @@ import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User, Product, Message, Review } from "@/api/entities";
 import { 
-  Search, 
   Menu, 
   X, 
-  ShoppingBag, 
   MessageSquare, 
   User as UserIcon,
   Bell,
   LogIn,
   UserPlus,
-  Building,
   Settings,
   HelpCircle,
   LogOut,
-  ShoppingCart,
   Facebook,
   Twitter,
   Instagram,
@@ -263,9 +259,7 @@ export default function Layout({ children }) {
         }
       `}</style>
       
-      <a href="#main-content" className="skip-to-content focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-        דלג לתוכן העמוד
-      </a>
+     
       
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/80 backdrop-blur-lg shadow-sm" : "bg-white"}`}
@@ -277,7 +271,7 @@ export default function Layout({ children }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2"
+                className="md:hidden focus:ring-2 focus-visible:ring-offset-2"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
@@ -286,7 +280,7 @@ export default function Layout({ children }) {
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
               
-              <Link to={createPageUrl("Home")} className="flex items-center gap-4 md:mr-0 absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md" onClick={handleLinkClick} aria-label="דף הבית">
+              <Link to={createPageUrl("Home")} className="flex items-center gap-4 md:mr-0 absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none rounded-md" onClick={handleLinkClick} aria-label="דף הבית">
                 <img 
                   src="/images/logo2.png" 
                   alt="Sitonimil" 
@@ -300,7 +294,7 @@ export default function Layout({ children }) {
                     key={link.path}
                     to={link.path}
                     onClick={handleLinkClick}
-                    className={`hover:text-blue-600 text-sm font-medium transition-colors mx-8 relative focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm ${
+                    className={`hover:text-blue-600 text-sm font-medium transition-colors mx-8 relative focus:outline-none focus:ring-2  focus:ring-offset-2 rounded-sm ${
                       isActive(link.path)
                         ? "text-blue-600 after:content-[''] after:absolute after:bottom-[-10px] after:right-0 after:w-full after:h-0.5 after:bg-blue-600"
                         : "text-gray-700 hover:text-gray-900"
@@ -313,7 +307,7 @@ export default function Layout({ children }) {
                 
                 <Link
                   to={createPageUrl("UploadProduct")}
-                  className="mr-4 flex items-center gap-1 rounded-full bg-blue-700 px-4 py-1.5 text-sm text-gray-50 hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="mr-4 flex items-center gap-1 rounded-full bg-blue-700 px-4 py-1.5 text-sm text-gray-50 hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2  focus:ring-offset-2"
                   onClick={(e) => {
                     handlePublishProductClick(e);
                     handleLinkClick();
@@ -331,7 +325,7 @@ export default function Layout({ children }) {
                 <>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="relative focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2" aria-label="התראות">
+                      <Button variant="ghost" size="icon" className="relative focus:ring-2  focus-visible:ring-offset-2" aria-label="התראות">
                         <Bell className="w-5 h-5" />
                         {notifications.length > 0 && (
                           <Badge className="absolute -top-1 -right-1 h-4 w-4 bg-blue-600 p-0 flex items-center justify-center">
@@ -347,7 +341,7 @@ export default function Layout({ children }) {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-xs h-auto py-1 hover:bg-gray-100 text-gray-500 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2"
+                            className="text-xs h-auto py-1 hover:bg-gray-100 text-gray-500 focus:ring-2  focus-visible:ring-offset-2"
                             onClick={markAllNotificationsAsRead}
                           >
                             סמן הכל כנקרא
@@ -392,7 +386,7 @@ export default function Layout({ children }) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   
-                  <Button variant="ghost" size="icon" asChild className="focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
+                  <Button variant="ghost" size="icon" asChild className="focus:ring-2  focus-visible:ring-offset-2">
                     <Link to={createPageUrl("Messages")} aria-label="הודעות">
                       <MessageSquare className="w-5 h-5" />
                     </Link>
@@ -400,7 +394,7 @@ export default function Layout({ children }) {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="rounded-full focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2" aria-label="תפריט משתמש">
+                      <Button variant="ghost" size="icon" className="rounded-full focus:ring-2  focus-visible:ring-offset-2" aria-label="תפריט משתמש">
                         <Avatar className="h-9 w-9 transition-transform hover:scale-105">
                           {user.logo_url ? (
                             <AvatarImage src={user.logo_url} alt={user.company_name || user.full_name} />
@@ -467,7 +461,7 @@ export default function Layout({ children }) {
                   <Button 
                     variant="default" 
                     size="sm" 
-                    className="bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                    className="bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 focus:ring-2  focus:ring-offset-2" 
                     asChild
                   >
                     <Link to={createPageUrl("Auth") + "?tab=login"}>
@@ -478,7 +472,7 @@ export default function Layout({ children }) {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="border-blue-700 text-blue-700 flex items-center gap-2 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                    className="border-blue-700 text-blue-700 flex items-center gap-2 hover:bg-blue-50 focus:ring-2  focus:ring-offset-2" 
                     asChild
                   >
                     <Link to={createPageUrl("Auth") + "?tab=register"}>
@@ -512,7 +506,7 @@ export default function Layout({ children }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsMenuOpen(false)}
-                    className="focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2"
+                    className="focus:ring-2  focus-visible:ring-offset-2"
                     aria-label="סגור תפריט"
                   >
                     <X className="h-5 w-5" />
@@ -542,7 +536,7 @@ export default function Layout({ children }) {
                     <Link
                       key={link.path}
                       to={link.path}
-                      className={`block px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`block px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2  ${
                         isActive(link.path)
                           ? "bg-blue-50 text-blue-700"
                           : "text-gray-700 hover:bg-gray-50"
@@ -559,7 +553,7 @@ export default function Layout({ children }) {
                   
                   <Link
                     to={createPageUrl("UploadProduct")}
-                    className="flex items-center justify-center gap-1 text-sm font-medium w-full py-2.5 px-4 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex items-center justify-center gap-1 text-sm font-medium w-full py-2.5 px-4 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 "
                     onClick={(e) => {
                       handlePublishProductClick(e);
                       handleLinkClick();
@@ -633,7 +627,7 @@ export default function Layout({ children }) {
                     ) : (
                       <div className="space-y-2 mt-4">
                         <Button 
-                          className="w-full bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2" 
+                          className="w-full bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 justify-center focus:outline-none focus:ring-2  focus-visible:ring-offset-2" 
                           asChild
                         >
                           <Link 
@@ -648,7 +642,7 @@ export default function Layout({ children }) {
                           </Link>
                         </Button>
                         <Button 
-                          className="w-full border-blue-700 text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2" 
+                          className="w-full border-blue-700 text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2  focus-visible:ring-offset-2" 
                           variant="outline" 
                           asChild
                         >
@@ -702,16 +696,16 @@ export default function Layout({ children }) {
                 מחברים סיטונאים וסוחרים ברחבי העולם באמצעות פלטפורמה מאובטחת וידידותית למשתמש.
               </p>
               <div className="flex space-x-3" aria-label="קישורים לרשתות חברתיות">
-                <Button variant="ghost" size="icon" aria-label="Facebook" className="text-gray-700 hover:text-blue-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
+                <Button variant="ghost" size="icon" aria-label="Facebook" className="text-gray-700 hover:text-blue-700 hover:bg-blue-50 focus:ring-2  focus-visible:ring-offset-2">
                   <Facebook className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label="Twitter" className="text-gray-700 hover:text-blue-500 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
+                <Button variant="ghost" size="icon" aria-label="Twitter" className="text-gray-700 hover:text-blue-500 hover:bg-blue-50 focus:ring-2  focus-visible:ring-offset-2">
                   <Twitter className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label="Instagram" className="text-gray-700 hover:text-pink-600 hover:bg-pink-50 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
+                <Button variant="ghost" size="icon" aria-label="Instagram" className="text-gray-700 hover:text-pink-600 hover:bg-pink-50 focus:ring-2  focus-visible:ring-offset-2">
                   <Instagram className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label="LinkedIn" className="text-gray-700 hover:text-blue-800 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
+                <Button variant="ghost" size="icon" aria-label="LinkedIn" className="text-gray-700 hover:text-blue-800 hover:bg-blue-50 focus:ring-2  focus-visible:ring-offset-2">
                   <Linkedin className="w-5 h-5" />
                 </Button>
               </div>
@@ -721,22 +715,22 @@ export default function Layout({ children }) {
               <h4 className="font-medium text-base mb-4 text-gray-900">קישורים מהירים</h4>
               <ul className="space-y-3" aria-label="ניווט מהיר">
                 <li>
-                  <Link to={createPageUrl("Home")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Home")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     דף הבית
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Search")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Search")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     חיפוש מוצרים
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Suppliers")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Suppliers")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     מציאת ספקים
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Auth")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Auth")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     התחברות / הרשמה
                   </Link>
                 </li>
@@ -747,27 +741,27 @@ export default function Layout({ children }) {
               <h4 className="font-medium text-base mb-4 text-gray-900">עזרה ותמיכה</h4>
               <ul className="space-y-3" aria-label="עזרה ותמיכה">
                 <li>
-                  <Link to={createPageUrl("Help")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Help")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     איך זה עובד
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=faq"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Help") + "?tab=faq"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     שאלות נפוצות
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=contact"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Help") + "?tab=contact"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     צור קשר
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=terms"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Help") + "?tab=terms"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     תנאי שימוש
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=privacy"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Help") + "?tab=privacy"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     מדיניות פרטיות
                   </Link>
                 </li>
@@ -797,14 +791,14 @@ export default function Layout({ children }) {
                   <Input 
                     type="email" 
                     placeholder="האימייל שלך" 
-                    className="h-10 bg-white text-right border-gray-300 focus:border-blue-500 focus:ring-blue-500 focus:ring-offset-2 text-gray-800" 
+                    className="h-10 bg-white text-right border-gray-300 focus:border-blue-500  focus:ring-offset-2 text-gray-800" 
                     aria-label="כתובת האימייל שלך"
                     required
                   />
                 </div>
                 <Button 
                   type="submit"
-                  className="bg-blue-700 hover:bg-blue-800 text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="bg-blue-700 hover:bg-blue-800 text-white focus:ring-2  focus:ring-offset-2"
                   aria-label="הרשמה לניוזלטר"
                 >
                   <Mail className="w-4 h-4" />
