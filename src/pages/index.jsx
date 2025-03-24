@@ -26,7 +26,7 @@ import MyProducts from "./MyProducts";
 
 import ScrollToTop from "@/components/ScrollToTop";
 
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation , Navigate  } from 'react-router-dom';
 
 const PAGES = {
     
@@ -79,7 +79,7 @@ function PagesContent() {
             <ScrollToTop />
             <Routes>            
                 <Route path="/" element={<Home />} />
-                <Route path="/Home" element={<Home />} />
+                <Route path="/Home" element={<Navigate to="/" />} />
                 <Route path="/Search" element={<Search />} />
                 <Route path="/Product" element={<Product />} />
                 <Route path="/Dashboard" element={<Dashboard />} />

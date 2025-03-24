@@ -237,14 +237,13 @@ export default function Home() {
     >
       {/* כותרת ראשית */}
       <motion.h1 variants={fadeIn} className="text-blue-600 leading-tight text-4xl sm:text-5xl lg:text-6xl font-extrabold">
-        הפלטפורמה <span className="text-blue-500">הראשונה והגדולה</span> בישראל  
-        <br className="hidden md:inline" /> לחיבור <span className="text-[rgba(41,110,145,0.86)]">סיטונאים וסוחרים</span>
+        הבית של <span className="text-blue-500">הסיטונאים והסוחרים</span> בישראל  
         <span className="block h-1 bg-blue-300 w-24 mt-2 mx-auto md:mx-0"></span>
       </motion.h1>
 
       {/* תת-כותרת */}
       <motion.h2 variants={fadeIn} className="text-lg text-gray-700 font-semibold mt-3">
-        מצאו מוצרים וספקים וגלו <span className="text-blue-600">הזדמנויות עסקיות חדשות</span> עכשיו!  
+      התחברו לספקים<span className="text-blue-600"> וגדלו יחד עם קהילת המסחר הגדולה בישראל</span> 
       </motion.h2>
 
       {/* שדה חיפוש */}
@@ -282,7 +281,7 @@ export default function Home() {
         initial="hidden"
         animate="visible"
       >
-        <h3 className="text-lg font-medium text-gray-800 mb-4">הצטרפו לקהילה שלנו</h3>
+        <h3 className="text-lg font-medium text-gray-800 mb-4"> הצטרפו לקהילה שלנו עכשיו :</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl mx-auto">
           <motion.div 
             variants={fadeIn} 
