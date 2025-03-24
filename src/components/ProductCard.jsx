@@ -271,6 +271,7 @@ export default function ProductCard({ product, variant = "default", className = 
             <Button
               size="icon"
               variant="ghost"
+              aria-label="הוספה למועדפים"
               className={cn(
                 "absolute top-2 left-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white h-7 w-7 sm:h-8 sm:w-8",
                 isLiked ? "text-red-500" : "text-gray-500"

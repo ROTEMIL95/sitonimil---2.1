@@ -5,6 +5,33 @@
     <link rel="icon" type="image/svg+xml" href="public/images/logo2.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sitonimil</title>
+    
+    <!-- Preload critical assets for LCP optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Add font-display:swap to ensure text displays while fonts load -->
+    <style>
+      /* Ensure text is visible during web font load */
+      html { font-display: swap; }
+      
+      /* Critical path CSS for LCP element */
+      .hero-heading {
+        display: block;
+        color: #2563EB;
+        font-weight: 800;
+        font-size: clamp(2.25rem, 5vw, 3.75rem);
+        line-height: 1.2;
+        text-align: center;
+        margin-top: 0;
+      }
+      
+      /* Optimize CSS content visibility */
+      .content-visibility-auto {
+        content-visibility: auto;
+        contain-intrinsic-size: 0 500px;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

@@ -248,10 +248,28 @@ export default function Layout({ children }) {
                       'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
                       'Noto Color Emoji';
         }
+        .skip-to-content {
+          position: absolute;
+          top: -100%;
+          left: 0;
+          z-index: 9999;
+          padding: 0.5rem 1rem;
+          background: #1d4ed8;
+          color: white;
+          transition: top 0.2s;
+        }
+        .skip-to-content:focus {
+          top: 0;
+        }
       `}</style>
+      
+      <a href="#main-content" className="skip-to-content focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        דלג לתוכן העמוד
+      </a>
       
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/80 backdrop-blur-lg shadow-sm" : "bg-white"}`}
+        role="banner"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <nav className="py-4 flex items-center justify-between">
@@ -259,13 +277,16 @@ export default function Layout({ children }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-menu"
+                aria-label={isMenuOpen ? "סגור תפריט" : "פתח תפריט"}
               >
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
               
-              <Link to={createPageUrl("Home")} className="flex items-center gap-4 md:mr-0 absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none" onClick={handleLinkClick}>
+              <Link to={createPageUrl("Home")} className="flex items-center gap-4 md:mr-0 absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md" onClick={handleLinkClick} aria-label="דף הבית">
                 <img 
                   src="/images/logo2.png" 
                   alt="Sitonimil" 
@@ -279,11 +300,12 @@ export default function Layout({ children }) {
                     key={link.path}
                     to={link.path}
                     onClick={handleLinkClick}
-                    className={`hover:text-blue-600 text-sm font-medium transition-colors mx-8 relative ${
+                    className={`hover:text-blue-600 text-sm font-medium transition-colors mx-8 relative focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm ${
                       isActive(link.path)
                         ? "text-blue-600 after:content-[''] after:absolute after:bottom-[-10px] after:right-0 after:w-full after:h-0.5 after:bg-blue-600"
                         : "text-gray-700 hover:text-gray-900"
                     }`}
+                    aria-current={isActive(link.path) ? "page" : undefined}
                   >
                     {link.name}
                   </Link>
@@ -291,11 +313,12 @@ export default function Layout({ children }) {
                 
                 <Link
                   to={createPageUrl("UploadProduct")}
-                  className="mr-4 flex items-center gap-1 rounded-full bg-[rgb(2,132,199)] px-4 py-1.5 text-sm text-gray-50 hover:bg-[rgb(2,132,299)] transition-colors "
+                  className="mr-4 flex items-center gap-1 rounded-full bg-blue-700 px-4 py-1.5 text-sm text-gray-50 hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   onClick={(e) => {
                     handlePublishProductClick(e);
                     handleLinkClick();
                   }}
+                  aria-label="פרסום מוצר חדש"
                 >
                   <PlusCircle className="h-4 w-4" />
                   פרסום מוצר
@@ -308,7 +331,7 @@ export default function Layout({ children }) {
                 <>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="relative">
+                      <Button variant="ghost" size="icon" className="relative focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2" aria-label="התראות">
                         <Bell className="w-5 h-5" />
                         {notifications.length > 0 && (
                           <Badge className="absolute -top-1 -right-1 h-4 w-4 bg-blue-600 p-0 flex items-center justify-center">
@@ -324,7 +347,7 @@ export default function Layout({ children }) {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-xs h-auto py-1 hover:bg-gray-100 text-gray-500"
+                            className="text-xs h-auto py-1 hover:bg-gray-100 text-gray-500 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2"
                             onClick={markAllNotificationsAsRead}
                           >
                             סמן הכל כנקרא
@@ -369,15 +392,15 @@ export default function Layout({ children }) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link to={createPageUrl("Messages")}>
+                  <Button variant="ghost" size="icon" asChild className="focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
+                    <Link to={createPageUrl("Messages")} aria-label="הודעות">
                       <MessageSquare className="w-5 h-5" />
                     </Link>
                   </Button>
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="rounded-full">
+                      <Button variant="ghost" size="icon" className="rounded-full focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2" aria-label="תפריט משתמש">
                         <Avatar className="h-9 w-9 transition-transform hover:scale-105">
                           {user.logo_url ? (
                             <AvatarImage src={user.logo_url} alt={user.company_name || user.full_name} />
@@ -444,7 +467,7 @@ export default function Layout({ children }) {
                   <Button 
                     variant="default" 
                     size="sm" 
-                    className="bg-[rgb(2,132,199)] text-gray-50 hover:bg-[rgb(2,132,299)] flex items-center gap-2" 
+                    className="bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
                     asChild
                   >
                     <Link to={createPageUrl("Auth") + "?tab=login"}>
@@ -455,7 +478,7 @@ export default function Layout({ children }) {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="border-[rgb(2,132,199)] text-blue-600 flex items-center gap-2" 
+                    className="border-blue-700 text-blue-700 flex items-center gap-2 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
                     asChild
                   >
                     <Link to={createPageUrl("Auth") + "?tab=register"}>
@@ -478,6 +501,9 @@ export default function Layout({ children }) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 300, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
+              id="mobile-menu"
+              role="navigation"
+              aria-label="תפריט נייד"
             >
               <div className="flex flex-col h-full">
                 <div className="p-4 flex justify-between items-center border-b sticky top-0 bg-white z-10">
@@ -486,6 +512,8 @@ export default function Layout({ children }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsMenuOpen(false)}
+                    className="focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2"
+                    aria-label="סגור תפריט"
                   >
                     <X className="h-5 w-5" />
                   </Button>
@@ -514,15 +542,16 @@ export default function Layout({ children }) {
                     <Link
                       key={link.path}
                       to={link.path}
-                      className={`block px-4 py-2 rounded-md text-sm font-medium ${
+                      className={`block px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         isActive(link.path)
-                          ? "bg-blue-50 text-[rgb(2,132,199)]"
+                          ? "bg-blue-50 text-blue-700"
                           : "text-gray-700 hover:bg-gray-50"
                       }`}
                       onClick={() => {
                         handleLinkClick();
                         setIsMenuOpen(false);
                       }}
+                      aria-current={isActive(link.path) ? "page" : undefined}
                     >
                       {link.name}
                     </Link>
@@ -530,12 +559,13 @@ export default function Layout({ children }) {
                   
                   <Link
                     to={createPageUrl("UploadProduct")}
-                    className="flex items-center justify-center gap-1 text-sm font-medium w-full py-2.5 px-4 rounded-full bg-[rgb(2,132,199)] text-gray-50 hover:bg-[rgb(2,132,299)] transition-colors"
+                    className="flex items-center justify-center gap-1 text-sm font-medium w-full py-2.5 px-4 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                     onClick={(e) => {
                       handlePublishProductClick(e);
                       handleLinkClick();
                       setIsMenuOpen(false);
                     }}
+                    aria-label="פרסום מוצר חדש"
                   >
                     <PlusCircle className="h-4 w-4" />
                     פרסום מוצר
@@ -603,7 +633,7 @@ export default function Layout({ children }) {
                     ) : (
                       <div className="space-y-2 mt-4">
                         <Button 
-                          className="w-full bg-[rgb(2,132,199)] text-gray-50 hover:bg-[rgb(2,132,299)] flex items-center gap-2 justify-center" 
+                          className="w-full bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2" 
                           asChild
                         >
                           <Link 
@@ -618,7 +648,7 @@ export default function Layout({ children }) {
                           </Link>
                         </Button>
                         <Button 
-                          className="w-full border-[rgb(2,132,199)] text-blue-600" 
+                          className="w-full border-blue-700 text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2" 
                           variant="outline" 
                           asChild
                         >
@@ -655,58 +685,58 @@ export default function Layout({ children }) {
         </AnimatePresence>
       </header>
 
-      <main className="max-w-8xl mx-auto px-4 sm:px-6 py-8 pt-24">{children}</main>
+      <main id="main-content" className="max-w-8xl mx-auto px-4 sm:px-6 py-8 pt-24">{children}</main>
 
-      <footer className="bg-gray-100 border-t mt-auto">
+      <footer className="bg-gray-100 border-t mt-auto" role="contentinfo" aria-label="אזור תחתון">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="space-y-4">
-              <Link to={createPageUrl("Home")} className="flex items-center gap-2" onClick={handleLinkClick}>
+              <Link to={createPageUrl("Home")} className="flex items-center gap-2" onClick={handleLinkClick} aria-label="דף הבית">
                 <img 
                   src="/images/logo2.png" 
                   alt="Sitonimil" 
                   className="h-9 md:h-11"
                 />
               </Link>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-700 text-sm">
                 מחברים סיטונאים וסוחרים ברחבי העולם באמצעות פלטפורמה מאובטחת וידידותית למשתמש.
               </p>
-              <div className="flex space-x-3">
-                <Button variant="ghost" size="icon" aria-label="Facebook">
+              <div className="flex space-x-3" aria-label="קישורים לרשתות חברתיות">
+                <Button variant="ghost" size="icon" aria-label="Facebook" className="text-gray-700 hover:text-blue-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
                   <Facebook className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label="Twitter">
+                <Button variant="ghost" size="icon" aria-label="Twitter" className="text-gray-700 hover:text-blue-500 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
                   <Twitter className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label="Instagram">
+                <Button variant="ghost" size="icon" aria-label="Instagram" className="text-gray-700 hover:text-pink-600 hover:bg-pink-50 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
                   <Instagram className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label="LinkedIn">
+                <Button variant="ghost" size="icon" aria-label="LinkedIn" className="text-gray-700 hover:text-blue-800 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2">
                   <Linkedin className="w-5 h-5" />
                 </Button>
               </div>
             </div>
 
             <div>
-              <h4 className="font-medium text-base mb-4">קישורים מהירים</h4>
-              <ul className="space-y-2">
+              <h4 className="font-medium text-base mb-4 text-gray-900">קישורים מהירים</h4>
+              <ul className="space-y-3" aria-label="ניווט מהיר">
                 <li>
-                  <Link to={createPageUrl("Home")} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Home")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     דף הבית
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Search")} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Search")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     חיפוש מוצרים
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Suppliers")} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Suppliers")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     מציאת ספקים
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Auth")} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Auth")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     התחברות / הרשמה
                   </Link>
                 </li>
@@ -714,30 +744,30 @@ export default function Layout({ children }) {
             </div>
 
             <div>
-              <h4 className="font-medium text-base mb-4">עזרה ותמיכה</h4>
-              <ul className="space-y-2">
+              <h4 className="font-medium text-base mb-4 text-gray-900">עזרה ותמיכה</h4>
+              <ul className="space-y-3" aria-label="עזרה ותמיכה">
                 <li>
-                  <Link to={createPageUrl("Help")} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Help")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     איך זה עובד
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=faq"} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Help") + "?tab=faq"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     שאלות נפוצות
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=contact"} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Help") + "?tab=contact"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     צור קשר
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=terms"} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Help") + "?tab=terms"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     תנאי שימוש
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=privacy"} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                  <Link to={createPageUrl("Help") + "?tab=privacy"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     מדיניות פרטיות
                   </Link>
                 </li>
@@ -745,25 +775,46 @@ export default function Layout({ children }) {
             </div>
 
             <div>
-              <h4 className="font-medium text-base mb-4">הרשמה לניוזלטר</h4>
-              <p className="text-sm text-gray-500 mb-4">
+              <h4 className="font-medium text-base mb-4 text-gray-900" id="newsletter-heading">הרשמה לניוזלטר</h4>
+              <p className="text-sm text-gray-700 mb-4">
                 הישארו מעודכנים במוצרים החדשים ובמגמות בתעשייה
               </p>
-              <div className="flex space-x-2">
-                <Input 
-                  type="email" 
-                  placeholder="האימייל שלך" 
-                  className="h-10 bg-white text-right" 
-                />
-                <Button className="bg-blue-600 hover:bg-blue-700">
+              <form 
+                role="form" 
+                aria-labelledby="newsletter-heading" 
+                className="flex space-x-2 space-x-reverse rtl:space-x-reverse"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  // Here you would handle the newsletter submission
+                  toast({
+                    title: "תודה על ההרשמה",
+                    description: "נרשמת בהצלחה לניוזלטר שלנו",
+                    duration: 3000,
+                  });
+                }}
+              >
+                <div className="relative flex-grow">
+                  <Input 
+                    type="email" 
+                    placeholder="האימייל שלך" 
+                    className="h-10 bg-white text-right border-gray-300 focus:border-blue-500 focus:ring-blue-500 focus:ring-offset-2 text-gray-800" 
+                    aria-label="כתובת האימייל שלך"
+                    required
+                  />
+                </div>
+                <Button 
+                  type="submit"
+                  className="bg-blue-700 hover:bg-blue-800 text-white focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  aria-label="הרשמה לניוזלטר"
+                >
                   <Mail className="w-4 h-4" />
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
 
           <div className="mt-12 pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-500 text-center">
+            <p className="text-sm text-gray-800 text-center font-medium">
               © {new Date().getFullYear()} Sitonimil. כל הזכויות שמורות.
             </p>
           </div>
