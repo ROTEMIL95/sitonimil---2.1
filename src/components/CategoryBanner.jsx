@@ -100,12 +100,25 @@ export default function CategoryBanner() {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [itemWidth, setItemWidth] = useState(0);
 
   const checkScrollButtons = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5); // 5px buffer
+      setCanScrollLeft(scrollLeft > 10); // Add some buffer for better UX
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10); // Add some buffer for better UX
+    }
+  };
+
+  // Calculate item width for proper scrolling
+  const calculateItemWidth = () => {
+    if (scrollContainerRef.current && scrollContainerRef.current.children.length > 0) {
+      const firstItem = scrollContainerRef.current.children[0];
+      const itemWidthWithMargin = firstItem.offsetWidth + 
+        parseInt(window.getComputedStyle(firstItem).marginLeft) + 
+        parseInt(window.getComputedStyle(firstItem).marginRight);
+      setItemWidth(itemWidthWithMargin);
     }
   };
 
@@ -122,10 +135,21 @@ export default function CategoryBanner() {
 
   useEffect(() => {
     checkScrollButtons();
+    calculateItemWidth();
+    
+    const updateContainerWidth = () => {
+      if (scrollContainerRef.current) {
+        setContainerWidth(scrollContainerRef.current.clientWidth);
+      }
+    };
+    
+    updateContainerWidth();
     
     // Add a small delay after resizing or loading to check again
     const timeout = setTimeout(() => {
       checkScrollButtons();
+      calculateItemWidth();
+      updateContainerWidth();
     }, 200);
     
     const container = scrollContainerRef.current;
@@ -133,10 +157,16 @@ export default function CategoryBanner() {
       container.addEventListener('scroll', checkScrollButtons);
     }
     
-    window.addEventListener('resize', checkScrollButtons);
+    const handleResize = () => {
+      checkScrollButtons();
+      calculateItemWidth();
+      updateContainerWidth();
+    };
+    
+    window.addEventListener('resize', handleResize);
     
     return () => {
-      window.removeEventListener('resize', checkScrollButtons);
+      window.removeEventListener('resize', handleResize);
       if (container) {
         container.removeEventListener('scroll', checkScrollButtons);
       }
@@ -144,19 +174,36 @@ export default function CategoryBanner() {
     };
   }, []);
 
+  const scrollToPosition = (position) => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        left: position,
+        behavior: 'smooth'
+      });
+      setTimeout(checkScrollButtons, 400); // Check after animation completes
+    }
+  };
+
   const handleScrollLeft = () => {
     if (scrollContainerRef.current) {
-      const scrollAmount = isMobile ? -150 : -240;
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      setTimeout(checkScrollButtons, 400); // Check after animation completes
+      const visibleItems = Math.floor(containerWidth / itemWidth);
+      const scrollAmount = Math.max(itemWidth * Math.floor(visibleItems / 2), itemWidth);
+      
+      // Calculate centered position for scrolled items
+      const newPosition = Math.max(0, scrollContainerRef.current.scrollLeft - scrollAmount);
+      scrollToPosition(newPosition);
     }
   };
 
   const handleScrollRight = () => {
     if (scrollContainerRef.current) {
-      const scrollAmount = isMobile ? 150 : 240;
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      setTimeout(checkScrollButtons, 400); // Check after animation completes
+      const visibleItems = Math.floor(containerWidth / itemWidth);
+      const scrollAmount = Math.max(itemWidth * Math.floor(visibleItems / 2), itemWidth);
+      
+      // Calculate centered position for scrolled items
+      const maxScroll = scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth;
+      const newPosition = Math.min(maxScroll, scrollContainerRef.current.scrollLeft + scrollAmount);
+      scrollToPosition(newPosition);
     }
   };
 
@@ -177,6 +224,7 @@ export default function CategoryBanner() {
     
     // Check scroll buttons during drag
     checkScrollButtons();
+    e.preventDefault(); // Prevent page scrolling while dragging categories
   };
 
   const handleTouchEnd = () => {
@@ -187,7 +235,7 @@ export default function CategoryBanner() {
 
   // Mouse drag for desktop browsers
   const handleMouseDown = (e) => {
-    if (!scrollContainerRef.current) return;
+    if (!scrollContainerRef.current || e.button !== 0) return; // Only handle left mouse button
     setStartX(e.pageX);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     setIsDragging(true);
@@ -207,7 +255,7 @@ export default function CategoryBanner() {
   const handleMouseUp = () => {
     setIsDragging(false);
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.style.cursor = '';
+      scrollContainerRef.current.style.cursor = 'grab';
     }
     setTimeout(checkScrollButtons, 150);
   };
@@ -216,7 +264,7 @@ export default function CategoryBanner() {
     if (isDragging) {
       setIsDragging(false);
       if (scrollContainerRef.current) {
-        scrollContainerRef.current.style.cursor = '';
+        scrollContainerRef.current.style.cursor = 'grab';
       }
     }
   };
@@ -235,88 +283,93 @@ export default function CategoryBanner() {
           <p className="text-xs sm:text-sm md:text-base text-gray-600">גלו את המוצרים המובילים בתחומים השונים</p>
         </motion.div>
 
-        <div className="relative group">
-          {canScrollLeft && (
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20">
+        <div className="relative">
+          {/* Navigation buttons - positioned outside the scroll area with fixed width */}
+          <div className="flex justify-between mb-2 sm:mb-0">
+            <div className={`absolute left-0 top-1/2 -translate-y-1/2 z-30 pl-1 sm:pl-2 md:pl-3 lg:pl-4 ${!canScrollLeft ? 'invisible' : ''}`}>
               <Button 
                 onClick={handleScrollLeft} 
-                variant="ghost"
+                variant="secondary"
                 size="icon"
-                className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white/90 shadow-lg hover:bg-white hover:shadow-xl transition-all transform active:scale-95"
+                className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
                 aria-label="scroll left"
               >
                 <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
               </Button>
             </div>
-          )}
-          
-          {canScrollRight && (
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
+            
+            <div className={`absolute right-0 top-1/2 -translate-y-1/2 z-30 pr-1 sm:pr-2 md:pr-3 lg:pr-4 ${!canScrollRight ? 'invisible' : ''}`}>
               <Button 
                 onClick={handleScrollRight} 
-                variant="ghost"
+                variant="secondary"
                 size="icon"
-                className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white/90 shadow-lg hover:bg-white hover:shadow-xl transition-all transform active:scale-95"
+                className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
                 aria-label="scroll right"
               >
                 <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
               </Button>
             </div>
-          )}
+          </div>
 
-          <div 
-            ref={scrollContainerRef}
-            className="flex overflow-x-auto pb-4 pt-2 px-2 md:px-6 -mx-2 hide-scrollbar scroll-smooth touch-pan-x snap-x snap-mandatory"
-            onScroll={checkScrollButtons}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-          >
-            {categories.map((category, index) => {
-              const IconComponent = iconMap[category.icon] || Home;
-              
-              return (
-                <motion.div
-                  key={category.value}
-                  variants={fadeInUp}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  custom={index}
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="transform transition-all duration-300 flex-shrink-0 px-1 sm:px-1.5 md:px-2 snap-start"
-                >
-                  <Link 
-                    to={createPageUrl("Search") + `?category=${category.value}`}
-                    className="block"
-                    draggable="false"
-                  >
-                    <div className="relative overflow-hidden rounded-lg md:rounded-xl h-16 w-16 sm:h-20 sm:w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 bg-gradient-to-br from-white to-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
-                      <div 
-                        className="absolute inset-0 bg-cover bg-center" 
-                        style={{ backgroundImage: `url(${category.image})` }}
+          {/* Scroll container with padding to accommodate the buttons */}
+          <div className="mx-auto overflow-hidden px-6 sm:px-8 md:px-10 lg:px-12">
+            <div 
+              ref={scrollContainerRef}
+              className="flex overflow-x-auto pb-4 pt-2 hide-scrollbar scroll-smooth touch-pan-x snap-x snap-mandatory"
+              onScroll={checkScrollButtons}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            >
+              {/* Center the categories on desktop */}
+              <div className="mx-auto flex justify-center sm:justify-start">
+                {categories.map((category, index) => {
+                  const IconComponent = iconMap[category.icon] || Home;
+                  
+                  return (
+                    <motion.div
+                      key={category.value}
+                      variants={fadeInUp}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                      custom={index}
+                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                      className="transform transition-all duration-300 flex-shrink-0 px-1 sm:px-1.5 md:px-2 snap-start"
+                    >
+                      <Link 
+                        to={createPageUrl("Search") + `?category=${category.value}`}
+                        className="block"
+                        draggable="false"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60"></div>
-                      </div>
-                      
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-1 md:p-2 text-center">
-                        <div className="bg-white/20 backdrop-blur-sm p-1 sm:p-1.5 md:p-2 rounded-full mb-0.5 sm:mb-1 md:mb-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 flex items-center justify-center">
-                          <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white" />
+                        <div className="relative overflow-hidden rounded-lg md:rounded-xl h-16 w-16 sm:h-20 sm:w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 bg-gradient-to-br from-white to-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                          <div 
+                            className="absolute inset-0 bg-cover bg-center" 
+                            style={{ backgroundImage: `url(${category.image})` }}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60"></div>
+                          </div>
+                          
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-1 md:p-2 text-center">
+                            <div className="bg-white/20 backdrop-blur-sm p-1 sm:p-1.5 md:p-2 rounded-full mb-0.5 sm:mb-1 md:mb-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 flex items-center justify-center">
+                              <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white" />
+                            </div>
+                            <h3 className="font-medium text-[10px] sm:text-xs md:text-sm text-white drop-shadow-md">
+                              {category.label}
+                            </h3>
+                          </div>
                         </div>
-                        <h3 className="font-medium text-[10px] sm:text-xs md:text-sm text-white drop-shadow-md">
-                          {category.label}
-                        </h3>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </div>

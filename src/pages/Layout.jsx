@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User, Product, Message, Review } from "@/api/entities";
 import { 
@@ -44,6 +44,7 @@ export default function Layout({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadNotifications = async (userId) => {
@@ -271,16 +272,21 @@ export default function Layout({ children }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden focus:ring-2 focus-visible:ring-offset-2"
+                className="md:hidden focus:ring-2 focus-visible:ring-offset-2 p-2 h-auto w-auto"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
                 aria-label={isMenuOpen ? "סגור תפריט" : "פתח תפריט"}
               >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {isMenuOpen ? <X className="h-9 w-9 text-gray-900" /> : <Menu className="h-9 w-9 text-gray-900" />}
               </Button>
               
-              <Link to={createPageUrl("Home")} className="flex items-center gap-4 md:mr-0 absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none rounded-md" onClick={handleLinkClick} aria-label="דף הבית">
+              <Link 
+                to={createPageUrl("Home")} 
+                className={`flex items-center gap-4 md:mr-0 absolute left-1/2 transform ${user ? '-translate-x-[10%] md:-translate-x-1/2' : '-translate-x-1/2'} md:relative md:left-0 md:transform-none rounded-md`} 
+                onClick={handleLinkClick} 
+                aria-label="דף הבית"
+              >
                 <img 
                   src="/images/logo2.png" 
                   alt="Sitonimil" 
@@ -426,8 +432,29 @@ export default function Layout({ children }) {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator className="my-1" />
                       <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer px-2 py-1.5">
-                        <Link to={createPageUrl("Profile")} className="flex items-center gap-2">
-                          <UserIcon className="h-4 w-4" />
+                        <Link
+                          to={createPageUrl("Profile")}
+                          className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent immediate navigation
+                            handleLinkClick();
+                            setIsMenuOpen(false);
+                            
+                            // Check if user is authenticated before navigating
+                            if (user) {
+                              navigate(createPageUrl("Profile"));
+                            } else {
+                              // If not authenticated, redirect to login page with redirect parameter
+                              navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
+                              toast({
+                                title: "נדרשת התחברות",
+                                description: "עליך להתחבר כדי לצפות בפרופיל",
+                                duration: 3000,
+                              });
+                            }
+                          }}
+                        >
+                          <UserIcon className="w-5 h-5 ml-3" />
                           <span>הפרופיל שלי</span>
                         </Link>
                       </DropdownMenuItem>
@@ -506,10 +533,10 @@ export default function Layout({ children }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsMenuOpen(false)}
-                    className="focus:ring-2  focus-visible:ring-offset-2"
+                    className="focus:ring-2 focus-visible:ring-offset-2 p-1.5 h-auto w-auto"
                     aria-label="סגור תפריט"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-7 w-7 text-blue-700" />
                   </Button>
                 </div>
                 
@@ -582,9 +609,23 @@ export default function Layout({ children }) {
                         <Link
                           to={createPageUrl("Profile")}
                           className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent immediate navigation
                             handleLinkClick();
                             setIsMenuOpen(false);
+                            
+                            // Check if user is authenticated before navigating
+                            if (user) {
+                              navigate(createPageUrl("Profile"));
+                            } else {
+                              // If not authenticated, redirect to login page with redirect parameter
+                              navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
+                              toast({
+                                title: "נדרשת התחברות",
+                                description: "עליך להתחבר כדי לצפות בפרופיל",
+                                duration: 3000,
+                              });
+                            }
                           }}
                         >
                           <UserIcon className="w-5 h-5 ml-3" />
