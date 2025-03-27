@@ -282,7 +282,7 @@ export default function Auth() {
     } catch (error) {
       console.error(`${provider} login failed:`, error);
       toast.error(error.message || `התחברות באמצעות ${provider} נכשלה`);
-      setLoading(false);
+    setLoading(false);
     }
   };
 
@@ -340,8 +340,8 @@ export default function Auth() {
         <div className="text-center mb-2 sm:mb-3">
           <h2 className="text-base sm:text-lg font-bold mb-0.5">הרשמה כקונה</h2>
           <p className="text-gray-500 text-xs">צור חשבון קונה חדש בסיטונאות ישראל</p>
-        </div>
-        
+              </div>
+              
         <div className="w-full max-w-sm mx-auto space-y-2">
           <div className="space-y-0.5">
             <Label htmlFor="fullName" className="text-xs sm:text-sm text-right">שם מלא</Label>
@@ -353,27 +353,27 @@ export default function Auth() {
                 value={formData.fullName}
                 onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                 className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
-                disabled={loading}
+                  disabled={loading}
               />
-            </div>
-          </div>
-          
+                  </div>
+                </div>
+                
           <div className="space-y-0.5">
             <Label htmlFor="register-email" className="text-xs sm:text-sm text-right">אימייל</Label>
             <div className="relative">
               <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
-              <Input 
+                    <Input 
                 id="register-email" 
-                type="email" 
-                placeholder="email@example.com"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      type="email" 
+                      placeholder="email@example.com" 
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
                 className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                 disabled={loading}
-              />
+                    />
             </div>
-          </div>
-          
+                  </div>
+                  
           <div className="space-y-0.5">
             <Label htmlFor="register-password" className="text-xs sm:text-sm text-right">סיסמה</Label>
             <div className="relative">
@@ -386,17 +386,17 @@ export default function Auth() {
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
-              <Input 
+                    <Input 
                 id="register-password" 
                 type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
                 className="text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                 disabled={loading}
-              />
+                    />
             </div>
-          </div>
-
+                  </div>
+                  
           <div className="flex items-start sm:items-center space-x-2 space-x-reverse mt-1">
             <Checkbox 
               id="terms" 
@@ -417,15 +417,15 @@ export default function Auth() {
                 מדיניות הפרטיות
               </Link>
             </Label>
-          </div>
+                  </div>
           
           {error && (
             <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium">
               {error}
             </div>
           )}
-
-          <Button 
+                  
+                  <Button 
             onClick={handleRegister}
             className="w-full h-8 sm:h-9 mt-2 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-xs sm:text-sm"
             disabled={
@@ -447,9 +447,9 @@ export default function Auth() {
                 הרשמה
               </span>
             )}
-          </Button>
-        </div>
-      </div>
+                  </Button>
+                </div>
+              </div>
 
       <div className="relative my-3">
         <div className="absolute inset-0 flex items-center">
@@ -458,8 +458,8 @@ export default function Auth() {
         <div className="relative flex justify-center text-sm">
           <span className="px-2 bg-white text-gray-500 text-xs">או הרשם באמצעות</span>
         </div>
-      </div>
-      
+              </div>
+              
       <div className="grid grid-cols-2 gap-2 w-full max-w-sm mx-auto">
         <Button 
           type="button" 
@@ -470,15 +470,15 @@ export default function Auth() {
           <GoogleLogo />
           <span>Google</span>
         </Button>
-        <Button 
+                <Button
           type="button" 
           variant="outline" 
           className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-          disabled={loading}
-        >
+                  disabled={loading}
+                >
           <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
           <span>Facebook</span>
-        </Button>
+                </Button>
       </div>
 
       <div className="text-center mt-3">
@@ -491,7 +491,7 @@ export default function Auth() {
             התחבר כאן
           </Link>
         </p>
-      </div>
+                  </div>
     </>
   );
 
@@ -506,41 +506,41 @@ export default function Auth() {
         <div className="text-center mb-2">
           <h2 className="text-base sm:text-lg font-bold mb-0.5">הרשמה כספק / סיטונאי</h2>
           <p className="text-gray-500 text-xs">צור חשבון ספק חדש בסיטונאות ישראל</p>
-        </div>
-        
+                </div>
+                
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 w-full max-w-2xl mx-auto">
-          <div className="space-y-2">
+                  <div className="space-y-2">
             <div className="space-y-0.5">
               <Label htmlFor="fullName" className="text-xs sm:text-sm text-right">שם מלא</Label>
               <div className="relative">
                 <UserIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
-                <Input 
-                  id="fullName" 
-                  placeholder="ישראל ישראלי" 
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    <Input 
+                      id="fullName" 
+                      placeholder="ישראל ישראלי" 
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                   className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
-                />
+                    />
               </div>
-            </div>
-            
+                  </div>
+                  
             <div className="space-y-0.5">
               <Label htmlFor="register-email" className="text-xs sm:text-sm text-right">אימייל</Label>
               <div className="relative">
                 <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
-                <Input 
-                  id="register-email" 
-                  type="email" 
-                  placeholder="email@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    <Input 
+                      id="register-email" 
+                      type="email" 
+                      placeholder="email@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
-                />
+                    />
               </div>
-            </div>
-            
+                  </div>
+                  
             <div className="space-y-0.5">
               <Label htmlFor="register-password" className="text-xs sm:text-sm text-right">סיסמה</Label>
               <div className="relative">
@@ -553,11 +553,11 @@ export default function Auth() {
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
-                <Input 
-                  id="register-password" 
+                    <Input 
+                      id="register-password" 
                   type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
                   disabled={loading}
                 />
@@ -591,9 +591,9 @@ export default function Auth() {
                 rows={2}
                 className="text-right border-blue-200 focus-visible:ring-blue-500 text-sm"
                 disabled={loading}
-              />
-            </div>
-
+                    />
+                  </div>
+                  
             <div className="space-y-0.5">
               <Label htmlFor="address" className="text-xs sm:text-sm text-right">כתובת העסק</Label>
               <div className="relative">
@@ -625,30 +625,30 @@ export default function Auth() {
               </div>
             </div>
           </div>
-        </div>
-
+                  </div>
+                  
         <div className="flex items-start sm:items-center space-x-2 space-x-reverse mt-1 w-full max-w-xl mx-auto">
-          <Checkbox 
+                    <Checkbox 
             id="supplier-terms" 
-            checked={formData.agreeTerms}
-            onCheckedChange={(checked) => 
-              setFormData({...formData, agreeTerms: checked === true})
-            }
+                      checked={formData.agreeTerms}
+                      onCheckedChange={(checked) => 
+                        setFormData({...formData, agreeTerms: checked === true})
+                      }
             disabled={loading}
             className="h-3.5 w-3.5 mt-0.5 sm:mt-0"
-          />
+                    />
           <Label htmlFor="supplier-terms" className="text-xs text-right">
-            אני מסכים ל
-            <Link to="/" className="text-blue-600 hover:underline mx-1">
-              תנאי השימוש
-            </Link>
-            ו
-            <Link to="/" className="text-blue-600 hover:underline mx-1">
-              מדיניות הפרטיות
-            </Link>
-          </Label>
-        </div>
-        
+                      אני מסכים ל
+                      <Link to="/" className="text-blue-600 hover:underline mx-1">
+                        תנאי השימוש
+                      </Link>
+                      ו
+                      <Link to="/" className="text-blue-600 hover:underline mx-1">
+                        מדיניות הפרטיות
+                      </Link>
+                    </Label>
+                  </div>
+                  
         {error && (
           <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium w-full max-w-md mx-auto">
             {error}
@@ -656,21 +656,21 @@ export default function Auth() {
         )}
 
         <div className="mt-2 w-full max-w-md mx-auto">
-          <Button 
+                  <Button 
             onClick={handleRegister}
             className="w-full h-8 sm:h-9 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-xs sm:text-sm"
-            disabled={
-              !formData.email || 
-              !formData.password || 
-              !formData.fullName || 
+                    disabled={
+                      !formData.email || 
+                      !formData.password || 
+                      !formData.fullName || 
               !formData.companyName ||
               !formData.description ||
               !formData.address ||
               !formData.phone ||
-              !formData.agreeTerms ||
-              loading
-            }
-          >
+                      !formData.agreeTerms ||
+                      loading
+                    }
+                  >
             {loading ? (
               <span className="flex items-center gap-2">
                 <span className="h-3 w-3 sm:h-4 sm:w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
@@ -870,7 +870,7 @@ export default function Auth() {
                         >
                           <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                           <span>Facebook</span>
-                        </Button>
+                  </Button>
                       </div>
 
                       <div className="text-center mt-3">
@@ -892,10 +892,10 @@ export default function Auth() {
               {activeTab === "register" && (
                 <div className="mt-0" dir="rtl">
                   {renderRegistrationForm()}
-                </div>
+              </div>
               )}
-            </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
         </motion.div>
       </div>
     </div>

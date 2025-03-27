@@ -65,6 +65,23 @@ function ProductImage({ src, alt, className }) {
 function ContactPopup({ isOpen, onClose, product }) {
   if (!isOpen) return null;
   
+  const formatPhoneForWhatsApp = (phone) => {
+    // Remove any non-digit characters
+    let cleaned = (phone || "").replace(/\D/g, "");
+    
+    // If number starts with 0, replace it with 972
+    if (cleaned.startsWith("0")) {
+      cleaned = "972" + cleaned.substring(1);
+    }
+    
+    // If number doesn't start with 972, add it
+    if (!cleaned.startsWith("972")) {
+      cleaned = "972" + cleaned;
+    }
+    
+    return cleaned;
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -77,15 +94,16 @@ function ContactPopup({ isOpen, onClose, product }) {
         <div className="grid gap-4 py-4">
           <Button onClick={(e) => {
             e.preventDefault();
-            const phoneNumber = product.supplier_phone || "972500000000"; 
-            window.open(`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}`, '_blank');
+            const phoneNumber = formatPhoneForWhatsApp(product.supplier_phone || "0500000000");
+            const message = `שלום, אני מעוניין במוצר ${product.title} (מק״ט: ${product.id})`;
+            window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
           }} className="flex items-center gap-2">
             <Send className="h-4 w-4" />
             <span>וואטסאפ</span>
           </Button>
           <Button onClick={(e) => {
             e.preventDefault();
-            window.location.href = createPageUrl("Messages") + `?product_id=${product.id}&supplier_id=${product.supplier_id || ""}`;
+            window.location.href = createPageUrl("Messages") + `?product_id=${product.id}&supplier_id=${product.supplier_id || ""}&guest=true`;
           }} variant="outline" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
             <span>הודעה באתר</span>
@@ -143,12 +161,6 @@ export default function ProductCard({ product, variant = "default", className = 
   const handleContactClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (!currentUser) {
-      window.location.href = createPageUrl("Auth") + "?tab=login&redirect=" + createPageUrl("Product") + `?id=${product.id}`;
-      return;
-    }
-    
     setShowContactPopup(true);
   };
 
@@ -157,10 +169,10 @@ export default function ProductCard({ product, variant = "default", className = 
     e.stopPropagation();
     setIsContactDialogOpen(false);
     
-    const phoneNumber = product.supplier_phone || "972500000000"; 
+    const phoneNumber = formatPhoneForWhatsApp(product.supplier_phone || "0500000000");
     const message = `שלום, אני מעוניין במוצר ${product.title} (מק״ט: ${product.id})`;
     
-    window.open(`https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
     
     toast({
       title: "פתיחת וואטסאפ",
@@ -174,7 +186,7 @@ export default function ProductCard({ product, variant = "default", className = 
     e.stopPropagation();
     setIsContactDialogOpen(false);
     
-    const messagesUrl = createPageUrl("Messages") + `?product_id=${product.id}&supplier_id=${product.supplier_id || ""}`;
+    const messagesUrl = createPageUrl("Messages") + `?product_id=${product.id}&supplier_id=${product.supplier_id || ""}&guest=true`;
     
     window.location.href = messagesUrl;
     

@@ -112,15 +112,15 @@ export default function PrivacyPage() {
               <ul className="list-none space-y-2 text-gray-700">
                 <li className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-blue-600" />
-                  <span>privacy@wholesale-hub.co.il</span>
+                  <span>sitonim@gmail.com</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-blue-600" />
-                  <span>03-1234567</span>
+                  <span>0523976448</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Building className="h-4 w-4 text-blue-600" />
-                  <span>רחוב העסקים 123, תל אביב</span>
+                  <span>רחוב רוטשילד 22, תל אביב</span>
                 </li>
               </ul>
             </section>
