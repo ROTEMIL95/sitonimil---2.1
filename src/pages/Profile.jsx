@@ -18,19 +18,20 @@ import {
   Phone,
   MapPin,
   Mail,
-  Globe,
-  ShoppingBag,
   AlertCircle,
   Check,
   Pencil,
-  UserPlus,
   Settings,
   Star,
   Upload,
   Loader2,
-  Camera
+  Camera,
+  Shield,
+  Bell,
+  Key,
+  Trash2
 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/api/supabaseClient";
 import {
   AlertDialog,
@@ -45,7 +46,6 @@ import {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [user, setUser] = useState(null);
@@ -79,6 +79,7 @@ export default function ProfilePage() {
         setLoading(false);
       } catch (error) {
         console.error("User not authenticated:", error);
+        toast.error("נדרשת התחברות לצפייה בפרופיל");
         navigate(createPageUrl("Auth"));
       }
     };
@@ -99,16 +100,10 @@ export default function ProfilePage() {
       setLoading(true);
       const updatedUser = await User.updateMyUserData(profileData);
       
-      // Also update user metadata with business_type if it has changed
       if (user.user_metadata?.business_type !== profileData.business_type) {
-        try {
-          await User.updateUserMetadata({
-            business_type: profileData.business_type
-          });
-          console.log("User metadata updated with business_type:", profileData.business_type);
-        } catch (err) {
-          console.error("Failed to update user metadata:", err);
-        }
+        await User.updateUserMetadata({
+          business_type: profileData.business_type
+        });
       }
       
       setUser((prev) => ({
@@ -121,24 +116,16 @@ export default function ProfilePage() {
       }));
       
       setEditMode(false);
-      toast({
-        title: "הפרופיל עודכן בהצלחה",
-        description: "השינויים שלך נשמרו",
-      });
+      toast.success("הפרופיל עודכן בהצלחה");
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast({
-        variant: "destructive",
-        title: "שגיאה בעדכון הפרופיל",
-        description: "אנא נסה שוב מאוחר יותר",
-      });
+      toast.error("שגיאה בעדכון הפרופיל");
     } finally {
       setLoading(false);
     }
   };
 
   const handleAvatarClick = () => {
-    // Trigger the hidden file input
     fileInputRef.current.click();
   };
 
@@ -146,85 +133,53 @@ export default function ProfilePage() {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Check if file is an image
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
-      toast({
-        variant: "destructive",
-        title: "סוג קובץ לא נתמך",
-        description: "אנא בחר קובץ תמונה (JPG, PNG, GIF)",
-      });
+      toast.error("אנא בחר קובץ תמונה (JPG, PNG, GIF)");
       return;
     }
 
-    // Check file size (max 2MB)
-    const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+    const MAX_SIZE = 2 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
-      toast({
-        variant: "destructive",
-        title: "הקובץ גדול מדי",
-        description: "גודל הקובץ המקסימלי הוא 2MB",
-      });
+      toast.error("גודל הקובץ המקסימלי הוא 2MB");
       return;
     }
 
     setUploadingAvatar(true);
     try {
-      // Generate a safe filename
       const safeFileName = file.name.replace(/[^\w.]/gi, "_");
-      // Generate a unique file path
       const filePath = `${Date.now()}-${safeFileName}`;
       
-      console.log("Uploading file:", filePath);
-      
-      // Upload the file to Supabase storage
       const { data, error } = await supabase.storage
         .from("profile-image")
         .upload(filePath, file);
 
       if (error) throw error;
 
-      // Get the public URL - using the same approach as in UploadProduct.jsx
       const { data: { publicUrl } } = supabase
         .storage
         .from("profile-image")
         .getPublicUrl(filePath);
-      
-      console.log("Image uploaded successfully:", publicUrl);
 
-      // Update the user profile with the new image URL
       const updatedProfileData = {
         ...profileData,
         logo_url: publicUrl
       };
 
       await User.updateMyUserData(updatedProfileData);
-
-      // Update local state
       setProfileData(updatedProfileData);
       setUser(prev => ({
         ...prev,
         logo_url: publicUrl
       }));
 
-      toast({
-        title: "תמונת הפרופיל עודכנה בהצלחה",
-        description: "התמונה החדשה שלך נשמרה",
-      });
+      toast.success("תמונת הפרופיל עודכנה בהצלחה");
     } catch (error) {
       console.error("Error uploading avatar:", error);
-      toast({
-        variant: "destructive",
-        title: "שגיאה בהעלאת התמונה",
-        description: "אנא נסה שוב מאוחר יותר",
-      });
+      toast.error("שגיאה בהעלאת התמונה");
     } finally {
       setUploadingAvatar(false);
     }
-  };
-
-  const handleDeleteAccountClick = () => {
-    setShowDeleteConfirm(true);
   };
 
   const handleDeleteAccount = async () => {
@@ -232,34 +187,19 @@ export default function ProfilePage() {
     setLoading(true);
     
     try {
-      // First, delete the user record from the users table
-      const { error: deleteError } = await supabase
+      await supabase
         .from('users')
         .delete()
         .eq('id', user.id);
-        
-      if (deleteError) throw deleteError;
       
-      // Sign out the user
-      const { error: signOutError } = await supabase.auth.signOut();
-      if (signOutError) throw signOutError;
+      await supabase.auth.signOut();
       
-      // Show success message
-      toast({
-        title: "החשבון נמחק בהצלחה",
-        description: "כל הנתונים שלך הוסרו מהמערכת",
-      });
-      
-      // Redirect to home page with page refresh
+      toast.success("החשבון נמחק בהצלחה");
       window.location.href = createPageUrl("Home");
     } catch (error) {
       console.error("Error deleting account:", error);
       setLoading(false);
-      toast({
-        variant: "destructive",
-        title: "שגיאה במחיקת החשבון",
-        description: "אנא נסה שוב מאוחר יותר",
-      });
+      toast.error("שגיאה במחיקת החשבון");
     }
   };
 
@@ -272,19 +212,16 @@ export default function ProfilePage() {
   }
 
   const isBusiness = (user.user_metadata?.business_type === "supplier") || (user.business_type === "supplier");
-  console.log("isBusiness", isBusiness, "user.business_type:", user.business_type, "user.user_metadata?.business_type:", user.user_metadata?.business_type);
 
   return (
-    <div className="space-y-8" >
+    <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">הפרופיל שלי</h1>
         <Button 
           onClick={() => setEditMode(!editMode)}
           variant={editMode ? "outline" : "default"}
         >
-          {editMode ? (
-            <>בטל עריכה</>
-          ) : (
+          {editMode ? "בטל עריכה" : (
             <>
               <Pencil className="ml-2 h-4 w-4" />
               ערוך פרופיל
@@ -293,210 +230,152 @@ export default function ProfilePage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="profile">
-        <TabsList className="mb-6 bg-gray-100 p-1 rounded-xl">
+      <Tabs defaultValue="profile" className="space-y-6" dir="rtl">
+        <TabsList className="bg-gray-100 p-1 rounded-xl">
           <TabsTrigger 
             value="profile" 
-            className="flex items-center gap-2 rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-[rgb(2,132,199)] data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-[rgb(2,132,199)]"
+            className="flex items-center gap-2 rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
           >
-            <User className="h-4 w-4" />
+            <UserIcon className="h-4 w-4" />
             פרופיל
           </TabsTrigger>
           <TabsTrigger 
             value="settings" 
-            className="flex items-center gap-2 rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-[rgb(2,132,199)] data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-[rgb(2,132,199)]"
+            className="flex items-center gap-2 rounded-lg font-medium transition-all py-2 px-4 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
           >
             <Settings className="h-4 w-4" />
             הגדרות
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile" className="space-y-6" dir="rtl">
+        <TabsContent value="profile" className="space-y-6">
           {!editMode ? (
-            // View Mode
-            <div className="space-y-6">
-              <Card>
-                <CardHeader className="relative">
-                  <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-blue-600 to-blue-400 rounded-t-lg"></div>
-                  <div className="relative mt-12 flex flex-col items-center">
-                    {/* Hidden file input */}
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
-                    
-                    {/* Clickable Avatar */}
-                    <div 
-                      className="relative cursor-pointer group"
-                      onClick={handleAvatarClick}
-                    >
-                      <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                        {profileData.logo_url ? (
-                          <AvatarImage src={profileData.logo_url} alt={profileData.full_name} />
-                        ) : (
-                          <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
-                            {profileData.full_name?.charAt(0) || "U"}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                      
-                      {/* Loading overlay */}
-                      {uploadingAvatar && (
-                        <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center">
-                          <Loader2 className="h-8 w-8 text-white animate-spin" />
-                        </div>
+            <Card>
+              <CardHeader className="relative">
+                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-blue-600 to-blue-400 rounded-t-lg"></div>
+                <div className="relative mt-12 flex flex-col items-center">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                  
+                  <div 
+                    className="relative cursor-pointer group"
+                    onClick={handleAvatarClick}
+                  >
+                    <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+                      {profileData.logo_url ? (
+                        <AvatarImage src={profileData.logo_url} alt={profileData.full_name} />
+                      ) : (
+                        <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
+                          {profileData.full_name?.charAt(0) || "U"}
+                        </AvatarFallback>
                       )}
-                      
-                      {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Camera className="h-8 w-8 text-white" />
-                      </div>
-                    </div>
+                    </Avatar>
                     
-                    <div className="mt-4 text-center">
-                      <CardTitle className="text-2xl">
-                        {isBusiness ? profileData.company_name : profileData.full_name}
-                      </CardTitle>
-                      <CardDescription className="text-sm">{user.email}</CardDescription>
-                      
-                      <div className="flex justify-center mt-2">
-                        <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
-                          {isBusiness ? "ספק" : "קונה"}
-                        </Badge>
-                        {isBusiness && (
-                          <Badge className="bg-green-100 text-green-700 hover:bg-green-200 mr-2 flex items-center">
-                            <Check className="h-3 w-3 ml-1" />
-                            מאומת
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-4">
-                  <div className="space-y-6">
-                    {profileData.description && (
-                      <div>
-                        <h3 className="text-lg font-medium mb-2">אודות</h3>
-                        <p className="text-gray-600">{profileData.description}</p>
+                    {uploadingAvatar && (
+                      <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 text-white animate-spin" />
                       </div>
                     )}
                     
-                    <Separator />
+                    <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Camera className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 text-center">
+                    <CardTitle className="text-2xl">
+                      {isBusiness ? profileData.company_name : profileData.full_name}
+                    </CardTitle>
+                    <CardDescription className="text-sm">{user.email}</CardDescription>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1 p-2 bg-blue-50 rounded-full">
-                          <UserIcon className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">שם מלא</p>
-                          <p className="font-medium">{profileData.full_name || "לא הוגדר"}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1 p-2 bg-blue-50 rounded-full">
-                          <Mail className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">דואר אלקטרוני</p>
-                          <p className="font-medium">{user.email}</p>
-                        </div>
-                      </div>
-                      
+                    <div className="flex justify-center mt-2">
+                      <Badge className="bg-blue-100 text-blue-700">
+                        {isBusiness ? "ספק" : "קונה"}
+                      </Badge>
                       {isBusiness && (
-                        <div className="flex items-start gap-3">
-                          <div className="mt-1 p-2 bg-blue-50 rounded-full">
-                            <Building className="h-5 w-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">שם חברה</p>
-                            <p className="font-medium">{profileData.company_name || "לא הוגדר"}</p>
-                          </div>
-                        </div>
+                        <Badge className="bg-green-100 text-green-700 mr-2 flex items-center">
+                          <Check className="h-3 w-3 ml-1" />
+                          מאומת
+                        </Badge>
                       )}
-                      
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="pt-4">
+                <div className="space-y-6">
+                  {profileData.description && (
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">אודות</h3>
+                      <p className="text-gray-600">{profileData.description}</p>
+                    </div>
+                  )}
+                  
+                  <Separator />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 p-2 bg-blue-50 rounded-full">
+                        <UserIcon className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">שם מלא</p>
+                        <p className="font-medium">{profileData.full_name || "לא הוגדר"}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 p-2 bg-blue-50 rounded-full">
+                        <Mail className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">דואר אלקטרוני</p>
+                        <p className="font-medium">{user.email}</p>
+                      </div>
+                    </div>
+                    
+                    {isBusiness && (
                       <div className="flex items-start gap-3">
                         <div className="mt-1 p-2 bg-blue-50 rounded-full">
-                          <Phone className="h-5 w-5 text-blue-600" />
+                          <Building className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-500">טלפון</p>
-                          <p className="font-medium">{profileData.phone || "לא הוגדר"}</p>
+                          <p className="text-sm text-gray-500">שם חברה</p>
+                          <p className="font-medium">{profileData.company_name || "לא הוגדר"}</p>
                         </div>
                       </div>
-                      
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1 p-2 bg-blue-50 rounded-full">
-                          <MapPin className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">כתובת</p>
-                          <p className="font-medium">{profileData.address || "לא הוגדר"}</p>
-                        </div>
+                    )}
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 p-2 bg-blue-50 rounded-full">
+                        <Phone className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">טלפון</p>
+                        <p className="font-medium">{profileData.phone || "לא הוגדר"}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 p-2 bg-blue-50 rounded-full">
+                        <MapPin className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">כתובת</p>
+                        <p className="font-medium">{profileData.address || "לא הוגדר"}</p>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-              
-              {!isBusiness && (
-                <>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-xl">חיפוש ספקים</CardTitle>
-                      <CardDescription>מצא ספקים מתאימים לעסק שלך</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-10">
-                        <Building className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">מחפשים ספקים?</h3>
-                        <p className="text-gray-500 mb-6">
-                          גלו ספקים איכותיים שיכולים לעזור לעסק שלך לצמוח
-                        </p>
-                        <Button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (user) {
-                              window.location.href = createPageUrl("Search");
-                            } else {
-                              window.location.href = createPageUrl("Auth") + "?tab=login&redirect=Search";
-                            }
-                          }}
-                        >
-                          חפש ספקים
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </>
-              )}
-              
-              {isBusiness && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">חוות דעת מלקוחות</CardTitle>
-                    <CardDescription>מה לקוחות אומרים על העסק שלך</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-10">
-                      <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">אין חוות דעת עדיין</h3>
-                      <p className="text-gray-500 mb-6">
-                        עדיין אין חוות דעת על העסק שלך
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           ) : (
-            // Edit Mode
             <Card>
               <CardHeader>
                 <CardTitle>עריכת פרופיל</CardTitle>
@@ -606,7 +485,10 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <h3 className="text-lg font-medium">שינוי סיסמה</h3>
+                <h3 className="text-lg font-medium flex items-center gap-2">
+                  <Key className="h-5 w-5 text-blue-600" />
+                  שינוי סיסמה
+                </h3>
                 <p className="text-gray-500 text-sm">
                   התכונה לשינוי סיסמה אינה זמינה כעת, שינוי סיסמה מתבצע דרך התחברות חדשה
                 </p>
@@ -615,7 +497,10 @@ export default function ProfilePage() {
               <Separator />
               
               <div className="space-y-2">
-                <h3 className="text-lg font-medium">הודעות והתראות</h3>
+                <h3 className="text-lg font-medium flex items-center gap-2">
+                  <Bell className="h-5 w-5 text-blue-600" />
+                  הודעות והתראות
+                </h3>
                 <p className="text-gray-500 text-sm">
                   הגדרות להודעות מייל והתראות אינן זמינות כעת
                 </p>
@@ -624,7 +509,10 @@ export default function ProfilePage() {
               <Separator />
               
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-red-600">מחיקת חשבון</h3>
+                <h3 className="text-lg font-medium text-red-600 flex items-center gap-2">
+                  <Trash2 className="h-5 w-5" />
+                  מחיקת חשבון
+                </h3>
                 <p className="text-gray-500 text-sm">
                   מחיקת החשבון היא פעולה בלתי הפיכה שתמחק את כל המידע והתוכן שלך
                 </p>
@@ -638,7 +526,7 @@ export default function ProfilePage() {
                 <Button 
                   variant="destructive" 
                   className="mt-2"
-                  onClick={handleDeleteAccountClick}
+                  onClick={() => setShowDeleteConfirm(true)}
                   disabled={loading}
                 >
                   {loading ? (

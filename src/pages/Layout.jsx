@@ -18,7 +18,8 @@ import {
   Instagram,
   Linkedin,
   Mail,
-  PlusCircle
+  PlusCircle,
+  Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -431,32 +432,26 @@ export default function Layout({ children }) {
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator className="my-1" />
-                      <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer px-2 py-1.5">
-                        <Link
-                          to={createPageUrl("Profile")}
-                          className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                          onClick={(e) => {
-                            e.preventDefault(); // Prevent immediate navigation
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                            
-                            // Check if user is authenticated before navigating
-                            if (user) {
-                              navigate(createPageUrl("Profile"));
-                            } else {
-                              // If not authenticated, redirect to login page with redirect parameter
-                              navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
-                              toast({
-                                title: "נדרשת התחברות",
-                                description: "עליך להתחבר כדי לצפות בפרופיל",
-                                duration: 3000,
-                              });
-                            }
-                          }}
-                        >
-                          <UserIcon className="w-5 h-5 ml-3" />
+                      <DropdownMenuItem 
+                        onClick={() => {
+                          handleLinkClick();
+                          if (user) {
+                            navigate(createPageUrl("Profile"));
+                          } else {
+                            navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
+                            toast({
+                              title: "נדרשת התחברות",
+                              description: "עליך להתחבר כדי לצפות בפרופיל",
+                              duration: 3000,
+                            });
+                          }
+                        }}
+                        className="hover:bg-gray-50 cursor-pointer px-2 py-1.5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <UserIcon className="h-4 w-4" />
                           <span>הפרופיל שלי</span>
-                        </Link>
+                        </div>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer px-2 py-1.5">
                         <Link to={createPageUrl("Settings")} className="flex items-center gap-2">
@@ -464,10 +459,16 @@ export default function Layout({ children }) {
                           <span>הגדרות</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer px-2 py-1.5">
+                      <DropdownMenuItem asChild>
                         <Link to={createPageUrl("Help")} className="flex items-center gap-2">
                           <HelpCircle className="h-4 w-4" />
-                          <span>עזרה ותמיכה</span>
+                          עזרה ותמיכה
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl("Privacy")} className="flex items-center gap-2">
+                          <Shield className="h-4 w-4" />
+                          מדיניות פרטיות
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="my-1" />
@@ -606,19 +607,15 @@ export default function Layout({ children }) {
                           <MessageSquare className="w-5 h-5 ml-3" />
                           <span>הודעות</span>
                         </Link>
-                        <Link
-                          to={createPageUrl("Profile")}
-                          className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
-                          onClick={(e) => {
-                            e.preventDefault(); // Prevent immediate navigation
+                        <button
+                          type="button"
+                          className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50 w-full text-right"
+                          onClick={() => {
                             handleLinkClick();
                             setIsMenuOpen(false);
-                            
-                            // Check if user is authenticated before navigating
                             if (user) {
                               navigate(createPageUrl("Profile"));
                             } else {
-                              // If not authenticated, redirect to login page with redirect parameter
                               navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
                               toast({
                                 title: "נדרשת התחברות",
@@ -630,29 +627,27 @@ export default function Layout({ children }) {
                         >
                           <UserIcon className="w-5 h-5 ml-3" />
                           <span>הפרופיל שלי</span>
-                        </Link>
-                        <Link
-                          to={createPageUrl("Settings")}
-                          className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
+                        </button>
+                        <button
                           onClick={() => {
-                            handleLinkClick();
+                            navigate(createPageUrl("Help"));
                             setIsMenuOpen(false);
                           }}
+                          className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                         >
-                          <Settings className="w-5 h-5 ml-3" />
-                          <span>הגדרות</span>
-                        </Link>
-                        <Link
-                          to={createPageUrl("Help")}
-                          className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
+                          <HelpCircle className="h-4 w-4" />
+                          עזרה ותמיכה
+                        </button>
+                        <button
                           onClick={() => {
-                            handleLinkClick();
+                            navigate(createPageUrl("Privacy"));
                             setIsMenuOpen(false);
                           }}
+                          className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                         >
-                          <HelpCircle className="w-5 h-5 ml-3" />
-                          <span>עזרה ותמיכה</span>
-                        </Link>
+                          <Shield className="h-4 w-4" />
+                          מדיניות פרטיות
+                        </button>
                         <Button
                           variant="outline"
                           className="w-full mt-4 border-red-600 text-red-600"

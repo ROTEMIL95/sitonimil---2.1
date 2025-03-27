@@ -24,6 +24,10 @@ import Profile from "./Profile";
 
 import MyProducts from "./MyProducts";
 
+import Help from "./Help";
+
+import Privacy from "./Privacy";
+
 import ScrollToTop from "@/components/ScrollToTop";
 
 import { BrowserRouter as Router, Route, Routes, useLocation , Navigate  } from 'react-router-dom';
@@ -53,6 +57,10 @@ const PAGES = {
     Profile: Profile,
     
     MyProducts: MyProducts,
+    
+    Help: Help,
+    
+    Privacy: Privacy,
     
 }
 
@@ -91,6 +99,8 @@ function PagesContent() {
                 <Route path="/Messages" element={<Messages />} />
                 <Route path="/Profile" element={<Profile />} />
                 <Route path="/MyProducts" element={<MyProducts />} />
+                <Route path="/Help" element={<Help />} />
+                <Route path="/Privacy" element={<Privacy />} />
             </Routes>
         </Layout>
     );
