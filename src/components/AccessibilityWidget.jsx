@@ -279,24 +279,21 @@ export default function AccessibilityWidget() {
       </TooltipProvider>
 
       <div 
-        className={`accessibility-widget fixed z-50 md:inset-y-0 md:right-0 bottom-0 right-0 w-full md:w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out rounded-t-3xl md:rounded-none ${
-          isOpen ? 'translate-y-0 md:translate-y-0 md:translate-x-0' : 'translate-y-full md:translate-y-0 md:translate-x-full'
-        } ${
-          Object.values(settings).some(value => value !== false && value !== 100) ? 'md:fixed' : ''
+        className={`accessibility-widget fixed z-50 h-screen bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{
-          maxHeight: '80vh',
-          position: Object.values(settings).some(value => value !== false && value !== 100) ? 'fixed' : 'fixed',
-          height: 'auto',
-          '@media (min-width: 768px)': {
-            height: '100%',
-            maxHeight: '100%'
-          }
+          position: 'fixed',
+          width: '85vw',
+          maxWidth: '320px',
+          top: '0',
+          left: '0',
+          height: '100%',
+          borderTopRightRadius: '16px',
+          borderBottomRightRadius: '16px'
         }}
       >
-        <div className="h-1.5 w-16 bg-gray-300 rounded-full mx-auto my-3 md:hidden" />
-        
-        <div className="h-[calc(80vh-24px)] md:h-full overflow-y-auto">
+        <div className="h-full overflow-y-auto">
           <div className="p-4 md:p-6">
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-lg md:text-xl font-bold">אפשרויות נגישות</h2>
@@ -311,24 +308,24 @@ export default function AccessibilityWidget() {
             </div>
 
             <div className="mb-6">
-              <Label className="setting-label block mb-2 font-medium">גודל טקסט</Label>
-              <div className="flex items-center justify-between gap-4">
+              <Label className="setting-label block mb-3 text-lg font-semibold text-gray-800">גודל טקסט</Label>
+              <div className="flex items-center justify-between gap-4 bg-gray-50 p-3 rounded-xl">
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="flex-1 h-9 px-2"
+                  size="lg"
+                  className="flex-1 h-12 px-4 bg-white border-2 border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 rounded-xl"
                   onClick={() => updateSettings('fontSize', Math.max(80, settings.fontSize - 10))}
                 >
-                  <ZoomOut className="h-4 w-4" />
+                  <ZoomOut className="h-5 w-5 text-gray-700" />
                 </Button>
-                <span className="a11y-value w-16 text-center">{settings.fontSize}%</span>
+                <span className="a11y-value w-20 text-center text-xl font-bold text-blue-600">{settings.fontSize}%</span>
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="flex-1 h-9 px-2"
+                  size="lg"
+                  className="flex-1 h-12 px-4 bg-white border-2 border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 rounded-xl"
                   onClick={() => updateSettings('fontSize', Math.min(200, settings.fontSize + 10))}
                 >
-                  <ZoomIn className="h-4 w-4" />
+                  <ZoomIn className="h-5 w-5 text-gray-700" />
                 </Button>
               </div>
             </div>
@@ -410,7 +407,7 @@ export default function AccessibilityWidget() {
 
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
           onClick={() => setIsOpen(false)}
         />
       )}
