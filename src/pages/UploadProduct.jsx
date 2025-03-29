@@ -37,7 +37,8 @@ export default function UploadProduct() {
     category: "",
     images: [],
     specifications: {},
-    status: "active"
+    status: "active",
+    contact_for_price: false
   });
 
   const [user, setUser] = useState(null);
@@ -50,6 +51,15 @@ export default function UploadProduct() {
   const [imageError, setImageError] = useState("");
   const [newSpecKey, setNewSpecKey] = useState("");
   const [newSpecValue, setNewSpecValue] = useState("");
+  
+  // Add validation state
+  const [errors, setErrors] = useState({
+    title: false,
+    price: false,
+    category: false,
+    minimum_order: false,
+    stock: false
+  });
   
   useEffect(() => {
     const loadData = async () => {
@@ -209,50 +219,51 @@ export default function UploadProduct() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Basic validation
-    if (!productData.title || !productData.price || !productData.category) {
-      toast.error("נא למלא את כל השדות הנדרשים");
+    // Reset errors
+    const newErrors = {
+      title: !productData.title,
+      price: !productData.price && !productData.contact_for_price,
+      category: !productData.category,
+      minimum_order: !productData.minimum_order,
+      stock: productData.stock === undefined || productData.stock === null
+    };
+    
+    setErrors(newErrors);
+    
+    // Check if there are any errors
+    if (Object.values(newErrors).some(error => error)) {
+      toast.error("נא למלא את כל שדות החובה המסומנים");
       return;
     }
     
     // Format numeric fields
     const formattedData = {
       ...productData,
-      price: Number(productData.price),
+      price: productData.contact_for_price ? null : Number(productData.price),
       minimum_order: Number(productData.minimum_order),
       stock: Number(productData.stock),
       supplier_id: user.id,
       created_at: new Date(),
-      // Make sure images is an array
       images: Array.isArray(productData.images) ? productData.images : [],
-      // Make sure specifications is an object
       specifications: productData.specifications || {}
     };
     
     setSaving(true);
     
     try {
-      let newProductId;
-      
       if (editMode) {
         await Product.update(productData.id, formattedData);
         toast.success("המוצר עודכן בהצלחה");
-        // In edit mode, redirect to dashboard
         navigate(createPageUrl("Dashboard"));
       } else {
-        // In create mode, get the new product ID and redirect to Search page
         let result;
         if (typeof UploadProductAPI === 'function') {
-          // Pass the complete formatted data object to UploadProductAPI
           result = await UploadProductAPI(formattedData);
         } else {
           result = await Product.create(formattedData);
         }
         
         toast.success("המוצר נוצר בהצלחה");
-        
-        // Redirect to Search page with a parameter to highlight the new product
-        // Navigate to the products page (Search) with a filter for the supplier's products
         navigate(createPageUrl("Search") + `?supplier=${user.id}&new=true`);
       }
     } catch (error) {
@@ -313,14 +324,31 @@ export default function UploadProduct() {
             <Card className="p-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="title" className="text-base">שם המוצר</Label>
+                  <Label htmlFor="title" className={`text-base flex items-center gap-1 ${errors.title ? 'text-red-500' : ''}`}>
+                    שם המוצר
+                    {errors.title && (
+                      <span className="bg-red-50 text-red-500 text-xs px-2 py-0.5 rounded-full border border-red-200 font-medium">
+                        שדה חובה
+                      </span>
+                    )}
+                  </Label>
                   <Input
                     id="title"
                     value={productData.title}
-                    onChange={(e) => handleInputChange("title", e.target.value)}
+                    onChange={(e) => {
+                      handleInputChange("title", e.target.value);
+                      setErrors({ ...errors, title: false });
+                    }}
                     placeholder="שם מלא של המוצר"
+                    className={errors.title ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' : ''}
                     required
                   />
+                  {errors.title && (
+                    <div className="flex items-center gap-1 mt-1.5 text-red-500 text-sm">
+                      <AlertCircle className="h-4 w-4" />
+                      <p>נא למלא את שם המוצר</p>
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -336,42 +364,113 @@ export default function UploadProduct() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="price" className="text-base">מחיר ליחידה (₪)</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={productData.price}
-                      onChange={(e) => handleInputChange("price", e.target.value)}
-                      placeholder="0.00"
-                      required
-                    />
+                    <Label htmlFor="price" className={`text-base flex items-center gap-1 ${errors.price ? 'text-red-500' : ''}`}>
+                      מחיר ליחידה (₪)
+                      {errors.price && !productData.contact_for_price && (
+                        <span className="bg-red-50 text-red-500 text-xs px-2 py-0.5 rounded-full border border-red-200 font-medium">
+                          שדה חובה
+                        </span>
+                      )}
+                    </Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="price"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={productData.price}
+                          onChange={(e) => {
+                            handleInputChange("price", e.target.value);
+                            setErrors({ ...errors, price: false });
+                          }}
+                          placeholder="0.00"
+                          className={errors.price && !productData.contact_for_price ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' : ''}
+                          required={!productData.contact_for_price}
+                          disabled={productData.contact_for_price}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="contact_for_price"
+                          checked={productData.contact_for_price}
+                          onChange={(e) => {
+                            const isChecked = e.target.checked;
+                            setProductData({
+                              ...productData,
+                              contact_for_price: isChecked,
+                              price: isChecked ? null : productData.price
+                            });
+                            if (isChecked) {
+                              setErrors({ ...errors, price: false });
+                            }
+                          }}
+                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                        />
+                        <Label htmlFor="contact_for_price" className="text-sm font-medium text-gray-700">
+                          פנה לקבלת הצעת מחיר
+                        </Label>
+                      </div>
+                    </div>
+                    {errors.price && !productData.contact_for_price && (
+                      <div className="flex items-center gap-1 mt-1.5 text-red-500 text-sm">
+                        <AlertCircle className="h-4 w-4" />
+                        <p>נא להזין מחיר למוצר או לסמן "פנה לקבלת הצעת מחיר"</p>
+                      </div>
+                    )}
                   </div>
                   
                   <div>
-                    <Label htmlFor="minimum_order" className="text-base">כמות מינימום להזמנה</Label>
+                    <Label htmlFor="minimum_order" className={`text-base flex items-center gap-1 ${errors.minimum_order ? 'text-red-500' : ''}`}>
+                      כמות מינימום להזמנה
+                      {errors.minimum_order && (
+                        <span className="bg-red-50 text-red-500 text-xs px-2 py-0.5 rounded-full border border-red-200 font-medium">
+                          שדה חובה
+                        </span>
+                      )}
+                    </Label>
                     <Input
                       id="minimum_order"
                       type="number"
                       min="1"
                       value={productData.minimum_order}
-                      onChange={(e) => handleInputChange("minimum_order", e.target.value)}
+                      onChange={(e) => {
+                        handleInputChange("minimum_order", e.target.value);
+                        setErrors({ ...errors, minimum_order: false });
+                      }}
                       placeholder="1"
+                      className={errors.minimum_order ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' : '' }
                       required
                     />
+                    {errors.minimum_order && (
+                      <div className="flex items-center gap-1 mt-1.5 text-red-500 text-sm">
+                        <AlertCircle className="h-4 w-4" />
+                        <p>נא להזין כמות מינימום להזמנה</p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="category" className="text-base">קטגוריה</Label>
+                    <Label htmlFor="category" className={`text-base flex items-center gap-1 ${errors.category ? 'text-red-500' : ''}`}>
+                      קטגוריה
+                      {errors.category && (
+                        <span className="bg-red-50 text-red-500 text-xs px-2 py-0.5 rounded-full border border-red-200 font-medium">
+                          שדה חובה
+                        </span>
+                      )}
+                    </Label>
                     <Select
                       value={productData.category}
-                      onValueChange={(value) => handleInputChange("category", value)}
+                      onValueChange={(value) => {
+                        handleInputChange("category", value);
+                        setErrors({ ...errors, category: false });
+                      }}
                       required
                     >
-                      <SelectTrigger id="category">
+                      <SelectTrigger id="category" className={errors.category ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' : ''}>
                         <SelectValue placeholder="בחר קטגוריה" />
                       </SelectTrigger>
                       <SelectContent>
@@ -382,6 +481,12 @@ export default function UploadProduct() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {errors.category && (
+                      <div className="flex items-center gap-1 mt-1.5 text-red-500 text-sm">
+                        <AlertCircle className="h-4 w-4" />
+                        <p>נא לבחור קטגוריה למוצר</p>
+                      </div>
+                    )}
                   </div>
                   
                   <div>
@@ -397,16 +502,33 @@ export default function UploadProduct() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="stock" className="text-base">כמות במלאי</Label>
+                    <Label htmlFor="stock" className={`text-base flex items-center gap-1 ${errors.stock ? 'text-red-500' : ''}`}>
+                      כמות במלאי
+                      {errors.stock && (
+                        <span className="bg-red-50 text-red-500 text-xs px-2 py-0.5 rounded-full border border-red-200 font-medium">
+                          שדה חובה
+                        </span>
+                      )}
+                    </Label>
                     <Input
                       id="stock"
                       type="number"
                       min="0"
                       value={productData.stock}
-                      onChange={(e) => handleInputChange("stock", e.target.value)}
+                      onChange={(e) => {
+                        handleInputChange("stock", e.target.value);
+                        setErrors({ ...errors, stock: false });
+                      }}
                       placeholder="0"
+                      className={errors.stock ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500' : ''}
                       required
                     />
+                    {errors.stock && (
+                      <div className="flex items-center gap-1 mt-1.5 text-red-500 text-sm">
+                        <AlertCircle className="h-4 w-4" />
+                        <p>נא להזין כמות במלאי</p>
+                      </div>
+                    )}
                   </div>
                   
                   <div>

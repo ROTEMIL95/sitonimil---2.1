@@ -396,7 +396,7 @@ export default function AccessibilityWidget() {
               <Link 
                 to={createPageUrl("AccessibilityStatement")}
                 onClick={() => setIsOpen(false)}
-                className="block text-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                className="block w-full py-2.5 px-4 text-center text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 font-medium"
               >
                 הצהרת נגישות
               </Link>

@@ -141,7 +141,7 @@ export default function Layout({ children }) {
 
   // Supplier-specific navigation links
   const supplierLinks = [
-    { name: "המוצרים שלי", path: createPageUrl("MyProducts") },
+    { name: "לוח הבקרה לספק", path: createPageUrl("Dashboard") },
   ];
 
   // Get all navigation links based on user role
@@ -799,7 +799,7 @@ export default function Layout({ children }) {
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=privacy"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Privacy")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     מדיניות פרטיות
                   </Link>
                 </li>

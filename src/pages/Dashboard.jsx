@@ -167,22 +167,31 @@ export default function SupplierDashboard() {
     if (!confirm("האם אתה בטוח שברצונך למחוק מוצר זה?")) return;
     
     try {
+      // Find the product before deletion to check its status and details
+      const productToDelete = products.find(p => p.id === productId);
+      if (!productToDelete) {
+        throw new Error("המוצר לא נמצא");
+      }
+
+      // Delete from database first
       await Product.delete(productId);
-      setProducts(products.filter(p => p.id !== productId));
       
-      // Update stats
+      // If deletion was successful, update the UI
+      const updatedProducts = products.filter(p => p.id !== productId);
+      setProducts(updatedProducts);
+      
+      // Update all relevant stats
       setStats(prev => ({
         ...prev,
         totalProducts: prev.totalProducts - 1,
-        activeProducts: products.find(p => p.id === productId).status === "active" 
-          ? prev.activeProducts - 1 
-          : prev.activeProducts
+        activeProducts: productToDelete.status === "active" ? prev.activeProducts - 1 : prev.activeProducts,
+        lowStock: productToDelete.stock < productToDelete.minimum_order ? prev.lowStock - 1 : prev.lowStock
       }));
       
-      alert("המוצר נמחק בהצלחה!");
+      alert("המוצר נמחק בהצלחה");
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("אירעה שגיאה במחיקת המוצר");
+      alert("אירעה שגיאה במחיקת המוצר: " + (error.message || "אנא נסה שוב מאוחר יותר"));
     }
   };
   
@@ -311,7 +320,7 @@ export default function SupplierDashboard() {
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="products">
+      <Tabs defaultValue="products" dir="rtl">
         <TabsList className="mb-6 bg-gray-100 p-1 rounded-xl">
           <TabsTrigger 
             value="products" 

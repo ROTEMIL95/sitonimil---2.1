@@ -28,6 +28,8 @@ import Help from "./Help";
 
 import Privacy from "./Privacy";
 
+import AccessibilityStatement from "./AccessibilityStatement";
+
 import ScrollToTop from "@/components/ScrollToTop";
 
 import { BrowserRouter as Router, Route, Routes, useLocation , Navigate  } from 'react-router-dom';
@@ -61,6 +63,8 @@ const PAGES = {
     Help: Help,
     
     Privacy: Privacy,
+    
+    AccessibilityStatement: AccessibilityStatement,
     
 }
 
@@ -101,6 +105,7 @@ function PagesContent() {
                 <Route path="/MyProducts" element={<MyProducts />} />
                 <Route path="/Help" element={<Help />} />
                 <Route path="/Privacy" element={<Privacy />} />
+                <Route path="/AccessibilityStatement" element={<AccessibilityStatement />} />
             </Routes>
         </Layout>
     );

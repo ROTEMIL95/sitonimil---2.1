@@ -425,16 +425,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="logo_url">קישור לתמונת פרופיל/לוגו</Label>
-                    <Input
-                      id="logo_url"
-                      name="logo_url"
-                      value={profileData.logo_url}
-                      onChange={handleInputChange}
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
+                  
                   
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="description">תיאור</Label>
