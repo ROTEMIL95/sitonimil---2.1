@@ -36,6 +36,8 @@ import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/api/supabaseClient";
+import AccessibilityWidget from "@/components/AccessibilityWidget";
+
 
 export default function Layout({ children }) {
   const [user, setUser] = useState(null);
@@ -850,6 +852,7 @@ export default function Layout({ children }) {
           </div>
         </div>
       </footer>
+      <AccessibilityWidget />
     </div>
   );
 }

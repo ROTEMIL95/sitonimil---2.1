@@ -270,21 +270,31 @@ export default function Home() {
   <div className="absolute inset-0 bg-gradient-to-b from-white to-blue-50"></div>
 
   <div className="relative container mx-auto px-4 md:px-6 py-8 md:py-12 lg:py-16">
-    <div className="max-w-4xl mx-auto text-center md:text-right">
+    <div className="max-w-3xl mx-auto text-center md:text-right ">
       {/* Main heading with class connecting to the critical CSS in index.html */}
       <h1 
-        ref={headingRef}
-        className="hero-heading"
-        suppressHydrationWarning
-      >
-        <span className="inline-block">הבית של <span style={{color: '#3B82F6'}}>הסיטונאים והסוחרים</span> בישראל</span>  
-        <span className="block h-1 bg-blue-300 w-24 mt-2 mx-auto md:mx-0"></span>
-      </h1>
+          ref={headingRef}
+          className="relative mb-6 text-4xl md:text-5xl lg:text-6xl font-bold 
+            text-blue-600 bg-gradient-to-r from-blue-600 to-blue-500 
+            bg-clip-text text-transparent"
+          suppressHydrationWarning
+        >
+          הבית של הסיטונאים והסוחרים בישראל
+          <span 
+            className="block h-1 bg-blue-500 w-20 md:w-24 mt-2 mx-auto md:mx-0" 
+            aria-hidden="true"
+          ></span>
+        </h1>
 
-      {/* Subheading - already simple enough */}
-      <h2 className="text-lg text-gray-700 font-semibold mt-3">
-        התחברו לספקים<span className="text-blue-600"> וגדלו יחד עם קהילת המסחר הגדולה בישראל</span> 
-      </h2>
+        {/* Enhanced Subheading with Improved Styling */}
+        <h2 className="text-xl md:text-2xl font-semibold 
+          text-transparent bg-clip-text 
+          bg-gradient-to-r from-gray-700 to-gray-500 
+          mb-8 tracking-wide leading-relaxed
+          hover:from-blue-600 hover:to-blue-500 
+          transition-all duration-300 ease-in-out">
+          משנים את חוקי המשחק בעולם הסיטונאות
+        </h2>
       
       {/* Search input - using simple div instead of motion.div */}
       <div className="mt-4 sm:mt-6">
