@@ -4,12 +4,9 @@ import {
   Eye, 
   ZoomIn, 
   ZoomOut, 
-  Type, 
   Moon, 
-  Sun, 
   Underline,
   MousePointer2, 
-  Contrast,
   RotateCcw,
   X,
   ArrowRight

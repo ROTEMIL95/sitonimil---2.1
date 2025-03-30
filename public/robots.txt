@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://sitonimil.co.il/sitemap.xml
