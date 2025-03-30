@@ -273,8 +273,10 @@ export default function Auth() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin + createPageUrl("Auth") + "?tab=login&redirect=Home"
-        }
+          options: {
+            redirectTo: 'https://sitonimil.co.il/' //
+            // או דף הבית או כל עמוד שתבחר
+          }        }
       });
       
       if (error) throw error;
