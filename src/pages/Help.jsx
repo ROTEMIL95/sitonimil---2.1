@@ -53,11 +53,11 @@ export default function HelpPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-gray-500" />
-              <span>support@wholesale-hub.co.il</span>
+              <span>sitonimil@gmail.com</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-gray-500" />
-              <span>03-1234567</span>
+              <span>0523-976448</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-gray-500" />

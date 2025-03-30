@@ -146,20 +146,17 @@ export default function Layout({ children }) {
 
   // Get all navigation links based on user role
   const getAllNavLinks = () => {
-    // Basic links for everyone
-    let links = [...navLinks];
-    
-    // Add supplier-specific links if the user is a supplier
-    if (user) {
-      const isSupplier = 
-        (user.user_metadata?.business_type === "supplier") || 
-        (user.business_type === "supplier");
-        
-      if (isSupplier) {
-        links = [...links, ...supplierLinks];
-      }
+    const links = [
+      { name: "דף הבית", path: createPageUrl("Home") },
+      { name: "חיפוש מוצרים", path: createPageUrl("Search") },
+      { name: "מציאת ספקים", path: createPageUrl("Suppliers") },
+    ];
+
+    // Add admin dashboard link if user is admin
+    if (user?.role === 'admin') {
+      links.push({ name: "ניהול האתר", path: createPageUrl("AdminDashboard") });
     }
-    
+
     return links;
   };
 
@@ -403,35 +400,26 @@ export default function Layout({ children }) {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="rounded-full focus:ring-2  focus-visible:ring-offset-2" aria-label="תפריט משתמש">
-                        <Avatar className="h-9 w-9 transition-transform hover:scale-105">
-                          {user.logo_url ? (
-                            <AvatarImage src={user.logo_url} alt={user.company_name || user.full_name} />
-                          ) : (
-                            <AvatarFallback className="bg-blue-100 text-blue-600">
-                              {(user.company_name || user.full_name)?.charAt(0) || "U"}
-                            </AvatarFallback>
-                          )}
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="relative h-8 w-8 rounded-full focus:ring-2 focus-visible:ring-offset-2"
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.avatar_url} alt={user.full_name} />
+                          <AvatarFallback>{user.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 mr-1 bg-white rounded-xl shadow-lg p-1" align="end" dir="rtl">
-                      <DropdownMenuLabel className="font-normal px-2 py-1.5">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8">
-                            {user.logo_url ? (
-                              <AvatarImage src={user.logo_url} alt={user.company_name || user.full_name} />
-                            ) : (
-                              <AvatarFallback className="bg-blue-100 text-blue-600">
-                                {(user.company_name || user.full_name)?.charAt(0) || "U"}
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
-                          <div className="flex flex-col">
-                            <p className="text-sm font-medium">{user.company_name || user.full_name}</p>
-                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                          </div>
-                        </div>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel className="flex items-center gap-2 text-sm">
+                        <span>{user.full_name}</span>
+                        {user.role === 'admin' && (
+                          <Badge variant="secondary" className="font-normal text-xs">
+                            <Shield className="h-3 w-3 ml-1" />
+                            אדמין
+                          </Badge>
+                        )}
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator className="my-1" />
                       <DropdownMenuItem 
