@@ -82,10 +82,10 @@ export default function SupplierCard({ supplier, className = "" }) {
               <span>מאומת</span>
             </Badge>
           )}
-          <div className="absolute bottom-0 right-0 w-full p-4 text-white" >
+          <div className="absolute bottom-0 left-0 w-auto p-4 text-white" >
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
               <span className="text-sm" >{supplier.address || "ישראל"}</span>
+              <MapPin className="h-4 w-4" />
             </div>
           </div>
         </div>
@@ -158,10 +158,7 @@ export default function SupplierCard({ supplier, className = "" }) {
                 </Button>
               </div>
               
-              <div className="text-sm text-right">
-                <span className="text-gray-500">משנת </span>
-                <span className="font-medium">{supplier.established || new Date().getFullYear() - 3}</span>
-              </div>
+           
             </div>
           </div>
         </CardContent>

@@ -290,25 +290,25 @@ export default function Auth() {
 
   const renderUserTypeSelection = () => (
     <div className="space-y-3">
-      <div className="text-center mb-2 sm:mb-3">
-        <h2 className="text-lg font-bold mb-0.5">הרשמה לאתר</h2>
-        <p className="text-gray-500 text-xs">בחר את סוג המשתמש שלך להמשך התהליך</p>
+      <div className="text-center mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">הרשמה לאתר</h2>
+        <p className="text-gray-600 text-sm">בחר את סוג המשתמש שלך להמשך התהליך</p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
         <motion.div 
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <button
             onClick={() => handleUserTypeSelect("buyer")}
-            className="w-full h-auto py-4 sm:h-36 flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
+            className="w-full h-auto py-6 sm:h-40 flex flex-col items-center justify-center p-4 rounded-lg border-2 border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-              <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-blue-100 flex items-center justify-center mb-3">
+              <ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
             </div>
-            <h3 className="text-sm sm:text-base font-semibold mb-0.5">אני קונה / קמעונאי</h3>
-            <p className="text-gray-500 text-xs text-center line-clamp-2">אני מעוניין לחפש ולרכוש מוצרים מסיטונאים</p>
+            <h3 className="text-base sm:text-lg font-bold mb-2 text-gray-800">אני קונה / קמעונאי</h3>
+            <p className="text-gray-600 text-sm text-center leading-relaxed max-w-[80%]">אני מעוניין לחפש ולרכוש מוצרים מסיטונאים</p>
           </button>
         </motion.div>
         
@@ -318,13 +318,13 @@ export default function Auth() {
         >
           <button
             onClick={() => handleUserTypeSelect("supplier")}
-            className="w-full h-auto py-4 sm:h-36 flex flex-col items-center justify-center p-3 rounded-lg border border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
+            className="w-full h-auto py-6 sm:h-40 flex flex-col items-center justify-center p-4 rounded-lg border-2 border-blue-200 hover:border-blue-600 bg-white hover:bg-blue-50 transition-all shadow-sm hover:shadow"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-              <Store className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-blue-100 flex items-center justify-center mb-3">
+              <Store className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
             </div>
-            <h3 className="text-sm sm:text-base font-semibold mb-0.5">אני ספק / סיטונאי</h3>
-            <p className="text-gray-500 text-xs text-center line-clamp-2">אני מעוניין להציע את המוצרים שלי למכירה סיטונאית</p>
+            <h3 className="text-base sm:text-lg font-bold mb-2 text-gray-800">אני ספק / סיטונאי</h3>
+            <p className="text-gray-600 text-sm text-center leading-relaxed max-w-[80%]">אני מעוניין להציע את המוצרים שלי למכירה סיטונאית</p>
           </button>
         </motion.div>
       </div>
@@ -476,7 +476,7 @@ export default function Auth() {
           type="button" 
           variant="outline" 
           className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-                  disabled={loading}
+                  // disabled={loading}
                 >
           <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
           <span>Facebook</span>
@@ -497,242 +497,232 @@ export default function Auth() {
     </>
   );
 
-  const renderSupplierForm = () => (
-    <>
-      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-xs sm:text-sm">
-        <ArrowLeft className="h-3 w-3 ml-1" />
-        חזרה לבחירת סוג משתמש
-      </button>
-      
-      <div className="space-y-2 sm:space-y-3">
-        <div className="text-center mb-2">
-          <h2 className="text-base sm:text-lg font-bold mb-0.5">הרשמה כספק / סיטונאי</h2>
-          <p className="text-gray-500 text-xs">צור חשבון ספק חדש בסיטונאות ישראל</p>
+  const renderSupplierForm = () => {
+    return (
+      <>
+        <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-xs sm:text-sm">
+          <ArrowLeft className="h-3 w-3 ml-1" />
+          חזרה לבחירת סוג משתמש
+        </button>
+
+        <div className="space-y-2 sm:space-y-3">
+          <div className="text-center mb-2">
+            <h2 className="text-base sm:text-lg font-bold mb-0.5">הרשמה כספק / סיטונאי</h2>
+            <p className="text-gray-500 text-xs">צור חשבון ספק חדש בסיטונאות ישראל</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 w-full max-w-2xl mx-auto">
+            <div className="space-y-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="fullName" className="text-xs sm:text-sm text-right">שם מלא</Label>
+                <div className="relative">
+                  <UserIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                  <Input
+                    id="fullName"
+                    placeholder="ישראל ישראלי"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
+                    disabled={loading} />
                 </div>
-                
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 w-full max-w-2xl mx-auto">
-                  <div className="space-y-2">
-            <div className="space-y-0.5">
-              <Label htmlFor="fullName" className="text-xs sm:text-sm text-right">שם מלא</Label>
-              <div className="relative">
-                <UserIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
-                    <Input 
-                      id="fullName" 
-                      placeholder="ישראל ישראלי" 
-                      value={formData.fullName}
-                      onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
-                  disabled={loading}
-                    />
               </div>
-                  </div>
-                  
-            <div className="space-y-0.5">
-              <Label htmlFor="register-email" className="text-xs sm:text-sm text-right">אימייל</Label>
-              <div className="relative">
-                <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
-                    <Input 
-                      id="register-email" 
-                      type="email" 
-                      placeholder="email@example.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
-                  disabled={loading}
-                    />
-              </div>
-                  </div>
-                  
-            <div className="space-y-0.5">
-              <Label htmlFor="register-password" className="text-xs sm:text-sm text-right">סיסמה</Label>
-              <div className="relative">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="absolute left-0 top-0 h-full px-2 py-1 text-blue-600 hover:text-blue-700"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-                    <Input 
-                      id="register-password" 
-                  type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
-                  disabled={loading}
-                />
-              </div>
-            </div>
 
-            <div className="space-y-0.5">
-              <Label htmlFor="companyName" className="text-xs sm:text-sm text-right">שם העסק</Label>
-              <div className="relative">
-                <Building className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
-                <Input 
-                  id="companyName" 
-                  placeholder="שם העסק המלא" 
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({...formData, companyName: e.target.value})}
-                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
-                  disabled={loading}
-                />
+              <div className="space-y-0.5">
+                <Label htmlFor="register-email" className="text-xs sm:text-sm text-right">אימייל</Label>
+                <div className="relative">
+                  <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                  <Input
+                    id="register-email"
+                    type="email"
+                    placeholder="email@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
+                    disabled={loading} />
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <div className="space-y-0.5">
-              <Label htmlFor="description" className="text-xs sm:text-sm text-right">תיאור העסק</Label>
-              <Textarea 
-                id="description" 
-                placeholder="תאר את העסק שלך..." 
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                rows={2}
-                className="text-right border-blue-200 focus-visible:ring-blue-500 text-sm"
-                disabled={loading}
-                    />
-                  </div>
-                  
-            <div className="space-y-0.5">
-              <Label htmlFor="address" className="text-xs sm:text-sm text-right">כתובת העסק</Label>
-              <div className="relative">
-                <MapPin className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
-                <Input 
-                  id="address" 
-                  placeholder="כתובת מלאה" 
-                  value={formData.address}
-                  onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-0.5">
-              <Label htmlFor="phone" className="text-xs sm:text-sm text-right">טלפון</Label>
-              <div className="relative">
-                <Phone className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
-                <Input 
-                  id="phone" 
-                  type="tel" 
-                  placeholder="מספר טלפון" 
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
-                  disabled={loading}
-                />
-              </div>
-            </div>
-          </div>
-                  </div>
-                  
-        <div className="flex items-start sm:items-center space-x-2 space-x-reverse mt-1 w-full max-w-xl mx-auto">
-                    <Checkbox 
-            id="supplier-terms" 
-                      checked={formData.agreeTerms}
-                      onCheckedChange={(checked) => 
-                        setFormData({...formData, agreeTerms: checked === true})
-                      }
-            disabled={loading}
-            className="h-3.5 w-3.5 mt-0.5 sm:mt-0"
-                    />
-          <Label htmlFor="supplier-terms" className="text-xs text-right">
-                      אני מסכים ל
-                      <Link to="/" className="text-blue-600 hover:underline mx-1">
-                        תנאי השימוש
-                      </Link>
-                      ו
-                      <Link to="/" className="text-blue-600 hover:underline mx-1">
-                        מדיניות הפרטיות
-                      </Link>
-                    </Label>
-                  </div>
-                  
-        {error && (
-          <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium w-full max-w-md mx-auto">
-            {error}
-          </div>
-        )}
-
-        <div className="mt-2 w-full max-w-md mx-auto">
-                  <Button 
-            onClick={handleRegister}
-            className="w-full h-8 sm:h-9 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-xs sm:text-sm"
-                    disabled={
-                      !formData.email || 
-                      !formData.password || 
-                      !formData.fullName || 
-              !formData.companyName ||
-              !formData.description ||
-              !formData.address ||
-              !formData.phone ||
-                      !formData.agreeTerms ||
-                      loading
-                    }
+              <div className="space-y-0.5">
+                <Label htmlFor="register-password" className="text-xs sm:text-sm text-right">סיסמה</Label>
+                <div className="relative">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="absolute left-0 top-0 h-full px-2 py-1 text-blue-600 hover:text-blue-700"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
                   >
-            {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="h-3 w-3 sm:h-4 sm:w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
-                מבצע הרשמה...
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Store className="h-3 w-3 sm:h-4 sm:w-4" />
-                הרשמה כספק
-              </span>
-            )}
-          </Button>
-          
-          <div className="text-center mt-3">
-            <p className="text-xs text-gray-500">
-              כבר יש לך חשבון?{" "}
-              <Link 
-                to={createPageUrl("Auth") + "?tab=login"}
-                className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
-              >
-                התחבר כאן
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                  <Input
+                    id="register-password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
+                    disabled={loading} />
+                </div>
+              </div>
+
+              <div className="space-y-0.5">
+                <Label htmlFor="companyName" className="text-xs sm:text-sm text-right">שם העסק</Label>
+                <div className="relative">
+                  <Building className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                  <Input
+                    id="companyName"
+                    placeholder="שם העסק המלא"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
+                    disabled={loading} />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="description" className="text-xs sm:text-sm text-right">תיאור העסק</Label>
+                <Textarea
+                  id="description"
+                  placeholder="תאר את העסק שלך..."
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={2}
+                  className="text-right border-blue-200 focus-visible:ring-blue-500 text-sm"
+                  disabled={loading} />
+              </div>
+
+              <div className="space-y-0.5">
+                <Label htmlFor="address" className="text-xs sm:text-sm text-right">כתובת העסק</Label>
+                <div className="relative">
+                  <MapPin className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                  <Input
+                    id="address"
+                    placeholder="כתובת מלאה"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
+                    disabled={loading} />
+                </div>
+              </div>
+
+              <div className="space-y-0.5">
+                <Label htmlFor="phone" className="text-xs sm:text-sm text-right">טלפון</Label>
+                <div className="relative">
+                  <Phone className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="מספר טלפון"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="pr-8 text-right h-9 border-blue-200 focus-visible:ring-blue-500 text-sm"
+                    disabled={loading} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-start sm:items-center space-x-2 space-x-reverse mt-1 w-full max-w-xl mx-auto">
+            <Checkbox
+              id="supplier-terms"
+              checked={formData.agreeTerms}
+              onCheckedChange={(checked) => setFormData({ ...formData, agreeTerms: checked === true })}
+              disabled={loading}
+              className="h-3.5 w-3.5 mt-0.5 sm:mt-0" />
+            <Label htmlFor="supplier-terms" className="text-xs text-right">
+              אני מסכים ל
+              <Link to="/" className="text-blue-600 hover:underline mx-1">
+                תנאי השימוש
               </Link>
-            </p>
+              ו
+              <Link to="/" className="text-blue-600 hover:underline mx-1">
+                מדיניות הפרטיות
+              </Link>
+            </Label>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium w-full max-w-md mx-auto">
+              {error}
+            </div>
+          )}
+
+          <div className="mt-2 w-full max-w-md mx-auto">
+            <Button
+              onClick={handleRegister}
+              className="w-full h-8 sm:h-9 bg-blue-600 hover:bg-blue-700 transition-all duration-200 text-xs sm:text-sm"
+              disabled={!formData.email ||
+                !formData.password ||
+                !formData.fullName ||
+                !formData.companyName ||
+                !formData.description ||
+                !formData.address ||
+                !formData.phone ||
+                !formData.agreeTerms ||
+                loading}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-3 w-3 sm:h-4 sm:w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                  מבצע הרשמה...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Store className="h-3 w-3 sm:h-4 sm:w-4" />
+                  הרשמה כספק
+                </span>
+              )}
+            </Button>
+
+            <div className="text-center mt-3">
+              <p className="text-xs text-gray-500">
+                כבר יש לך חשבון?{" "}
+                <Link
+                  to={createPageUrl("Auth") + "?tab=login"}
+                  className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
+                >
+                  התחבר כאן
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="relative my-3">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300"></div>
+        <div className="relative my-3">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500 text-xs">או הרשם באמצעות</span>
+          </div>
         </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500 text-xs">או הרשם באמצעות</span>
+
+        <div className="grid grid-cols-2 gap-2 w-full max-w-md mx-auto">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+            onClick={() => handleSocialLogin('google')}
+            disabled={loading}
+          >
+            <GoogleLogo />
+            <span>Google</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
+            // onClick={() => handleSocialLogin('facebook')}
+            // disabled={loading}
+          >
+            <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+            <span>Facebook</span>
+          </Button>
         </div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-2 w-full max-w-md mx-auto">
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
-          onClick={() => handleSocialLogin('google')}
-          disabled={loading}
-        >
-          <GoogleLogo />
-          <span>Google</span>
-        </Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-          onClick={() => handleSocialLogin('facebook')}
-          disabled={loading}
-        >
-          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-          <span>Facebook</span>
-        </Button>
-      </div>
-    </>
-  );
+      </>
+    );
+  };
 
   const renderRegistrationForm = () => {
     if (!userType) {
@@ -868,7 +858,7 @@ export default function Auth() {
                           type="button" 
                           variant="outline" 
                           className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-                          disabled={loading}
+                          // disabled={loading}
                         >
                           <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                           <span>Facebook</span>
