@@ -279,8 +279,8 @@ export default function CategoryBanner() {
           viewport={{ once: true }}
           variants={fadeInUp}
         >
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1 md:mb-2">קטגוריות מובילות</h2>
-          <p className="text-xs sm:text-sm md:text-base text-gray-600">גלו את המוצרים המובילים בתחומים השונים</p>
+          <h2 className="text-base sm:text-xl md:text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1 md:mb-2">קטגוריות מובילות</h2>
+          <p className="text-[10px] sm:text-sm md:text-base text-gray-600">גלו את המוצרים המובילים בתחומים השונים</p>
         </motion.div>
 
         <div className="relative">
@@ -291,10 +291,10 @@ export default function CategoryBanner() {
                 onClick={handleScrollLeft} 
                 variant="secondary"
                 size="icon"
-                className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
+                className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
                 aria-label="scroll left"
               >
-                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                <ChevronLeft className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
               </Button>
             </div>
             
@@ -303,10 +303,10 @@ export default function CategoryBanner() {
                 onClick={handleScrollRight} 
                 variant="secondary"
                 size="icon"
-                className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
+                className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
                 aria-label="scroll right"
               >
-                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                <ChevronRight className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
               </Button>
             </div>
           </div>
@@ -347,7 +347,7 @@ export default function CategoryBanner() {
                         className="block"
                         draggable="false"
                       >
-                        <div className="relative overflow-hidden rounded-lg md:rounded-xl h-16 w-16 sm:h-20 sm:w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 bg-gradient-to-br from-white to-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="relative overflow-hidden rounded-lg md:rounded-xl h-20 w-20 sm:h-20 sm:w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 bg-gradient-to-br from-white to-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
                           <div 
                             className="absolute inset-0 bg-cover bg-center" 
                             style={{ backgroundImage: `url(${category.image})` }}
@@ -356,10 +356,10 @@ export default function CategoryBanner() {
                           </div>
                           
                           <div className="absolute inset-0 flex flex-col items-center justify-center p-1 md:p-2 text-center">
-                            <div className="bg-white/20 backdrop-blur-sm p-1 sm:p-1.5 md:p-2 rounded-full mb-0.5 sm:mb-1 md:mb-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 flex items-center justify-center">
-                              <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white" />
+                            <div className="bg-white/20 backdrop-blur-sm p-1 sm:p-1.5 md:p-2 rounded-full mb-1 sm:mb-1 md:mb-2 w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 flex items-center justify-center">
+                              <IconComponent className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white" />
                             </div>
-                            <h3 className="font-medium text-[10px] sm:text-xs md:text-sm text-white drop-shadow-md">
+                            <h3 className="font-normal text-[7px] sm:text-xs md:text-sm text-white drop-shadow-md">
                               {category.label}
                             </h3>
                           </div>

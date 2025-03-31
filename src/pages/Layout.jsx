@@ -19,7 +19,8 @@ import {
   Linkedin,
   Mail,
   PlusCircle,
-  Shield
+  Shield,
+  Heart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,6 +47,7 @@ export default function Layout({ children }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [favoriteProducts, setFavoriteProducts] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -120,6 +122,47 @@ export default function Layout({ children }) {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Load favorites from localStorage
+  useEffect(() => {
+    const loadFavorites = () => {
+      try {
+        const savedFavorites = localStorage.getItem('favoriteProducts');
+        if (savedFavorites) {
+          setFavoriteProducts(JSON.parse(savedFavorites));
+        }
+      } catch (error) {
+        console.error("Error loading favorites:", error);
+      }
+    };
+    
+    loadFavorites();
+    
+    // Listen for custom events from ProductCard
+    const handleFavoriteUpdate = (event) => {
+      const { productId, isLiked } = event.detail;
+      
+      setFavoriteProducts(current => {
+        let updated = [...current];
+        
+        if (isLiked && !updated.includes(productId)) {
+          updated.push(productId);
+        } else if (!isLiked) {
+          updated = updated.filter(id => id !== productId);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('favoriteProducts', JSON.stringify(updated));
+        return updated;
+      });
+    };
+    
+    window.addEventListener('favoriteUpdate', handleFavoriteUpdate);
+    
+    return () => {
+      window.removeEventListener('favoriteUpdate', handleFavoriteUpdate);
+    };
   }, []);
 
   const handleSearch = (e) => {
@@ -329,6 +372,19 @@ export default function Layout({ children }) {
             <div className="flex items-center gap-4">
               {user ? (
                 <>
+                  {/* Favorites Icon - temporarily removed
+                  <Button variant="ghost" size="icon" asChild className="relative focus:ring-2 focus-visible:ring-offset-2">
+                    <Link to={createPageUrl("Favorites")} aria-label="מועדפים">
+                      <Heart className="w-5 h-5" />
+                      {favoriteProducts.length > 0 && (
+                        <Badge className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-red-500 p-0 flex items-center justify-center text-[10px] font-bold border border-white shadow-sm">
+                          {favoriteProducts.length > 99 ? "99+" : favoriteProducts.length}
+                        </Badge>
+                      )}
+                    </Link>
+                  </Button>
+                  */}
+                  
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="relative focus:ring-2  focus-visible:ring-offset-2" aria-label="התראות">
@@ -392,7 +448,7 @@ export default function Layout({ children }) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   
-                  <Button variant="ghost" size="icon" asChild className="focus:ring-2  focus-visible:ring-offset-2">
+                  <Button variant="ghost" size="icon" asChild className="focus:ring-2 focus-visible:ring-offset-2">
                     <Link to={createPageUrl("Messages")} aria-label="הודעות">
                       <MessageSquare className="w-5 h-5" />
                     </Link>
@@ -586,6 +642,25 @@ export default function Layout({ children }) {
                   <div className="pt-2 border-t border-gray-400">
                     {user ? (
                       <>
+                        {/* Favorites link - temporarily removed
+                        <Link
+                          to={createPageUrl("Favorites")}
+                          className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"
+                          onClick={() => {
+                            handleLinkClick();
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          <Heart className="w-5 h-5 ml-3" />
+                          <span>מועדפים</span>
+                          {favoriteProducts.length > 0 && (
+                            <Badge className="mr-2 bg-red-500 text-white text-xs px-2 py-0.5 font-bold shadow-sm border border-red-600">
+                              {favoriteProducts.length > 99 ? "99+" : favoriteProducts.length}
+                            </Badge>
+                          )}
+                        </Link>
+                        */}
+                        
                         <Link
                           to={createPageUrl("Messages")}
                           className="flex items-center px-4 py-2 rounded-md hover:bg-gray-50"

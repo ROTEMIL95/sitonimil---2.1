@@ -61,6 +61,9 @@ module.exports = {
   				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
+		fontFamily: {
+			heebo: ['Heebo', 'sans-serif'],
+		},
   		keyframes: {
   			'accordion-down': {
   				from: {

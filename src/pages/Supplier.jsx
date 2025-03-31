@@ -230,23 +230,6 @@ export default function SupplierProfile() {
                     </div>
                   </div>
                 )}
-                
-                {supplier.website && (
-                  <div className="flex items-start gap-3">
-                    <Globe className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium">אתר אינטרנט</p>
-                      <a 
-                        href={supplier.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {supplier.website}
-                      </a>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </Card>
@@ -344,7 +327,7 @@ export default function SupplierProfile() {
                           <p className="text-gray-500 text-sm mt-2 mb-3 line-clamp-2">{product.description}</p>
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-blue-600">₪{product.price.toFixed(2)}+</span>
-                            <span className="text-xs text-gray-500">MOQ: {product.minimum_order}</span>
+                            <span className="text-xs text-gray-500">: {product.minimum_order}</span>
                           </div>
                         </div>
                       </Link>

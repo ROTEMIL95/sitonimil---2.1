@@ -312,7 +312,7 @@ export default function Auth() {
           </button>
         </motion.div>
         
-        <motion.div 
+        <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >

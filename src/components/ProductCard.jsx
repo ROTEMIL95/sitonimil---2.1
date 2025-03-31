@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Star, MessageSquare, Heart, Send, Phone, Mail, ArrowRight, Package } from "lucide-react";
+import { Star, MessageSquare, Heart, Send, Phone, Mail, ArrowRight, Package, Eye, ShoppingCart, CircleCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/avatar";
 import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
+import { fetchSupplierById } from "@/api/suppliers";
 import { cn } from "@/lib/utils";
 
 // תמונת ברירת מחדל קבועה למוצרים
@@ -85,9 +86,9 @@ function ContactPopup({ isOpen, onClose, product }) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>יצירת קשר עם הספק</DialogTitle>
-          <DialogDescription>
+        <DialogHeader >
+          <DialogTitle className="text-right text-lg">יצירת קשר עם הספק</DialogTitle>
+          <DialogDescription className="text-right">
             בחר את אופן יצירת הקשר המועדף עליך
           </DialogDescription>
         </DialogHeader>
@@ -114,14 +115,61 @@ function ContactPopup({ isOpen, onClose, product }) {
   );
 }
 
-export default function ProductCard({ product, variant = "default", className = "" }) {
+export default function ProductCard({ 
+  product, 
+  variant = "default", 
+  className = "", 
+  hideIfNoSupplier = true,
+  onAddToCart,
+  onViewDetails,
+  onFavorite,
+  onMoreOptions
+}) {
   const [isLiked, setIsLiked] = useState(false);
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
   const [showContactPopup, setShowContactPopup] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [supplierData, setSupplierData] = useState(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // טעינת פרטי הספק לפי ID
+  useEffect(() => {
+    const getSupplierData = async () => {
+      // בודק אם יש ID של ספק אבל אין שם ספק כבר
+      if (product?.supplier_id && !product.supplier_name) {
+        try {
+          // Use the imported fetchSupplierById function directly
+          const supplier = await fetchSupplierById(product.supplier_id);
+          if (supplier) {
+            console.log("Loaded supplier:", supplier);
+            setSupplierData(supplier);
+          }
+        } catch (error) {
+          console.error("Failed to load supplier data:", error);
+        }
+      }
+    };
+    
+    getSupplierData();
+  }, [product]);
+  
+  // Check if product is in favorites
+  useEffect(() => {
+    if (product?.id) {
+      try {
+        const savedFavorites = localStorage.getItem('favoriteProducts');
+        if (savedFavorites) {
+          const favorites = JSON.parse(savedFavorites);
+          setIsLiked(favorites.includes(product.id));
+        }
+      } catch (error) {
+        console.error("Error checking favorites status:", error);
+      }
+    }
+  }, [product]);
+  
+  // טעינת משתמש נוכחי
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -135,14 +183,38 @@ export default function ProductCard({ product, variant = "default", className = 
     loadUser();
   }, []);
 
+  // מידע של הספק - כולל בדיקה גם מה-supplier שהוטען מה-API
+  const supplierName = product?.supplier_name || (product?.supplier?.name) || supplierData?.name || "";
+  const supplierLogo = product?.supplier_logo || (product?.supplier?.logo) || supplierData?.logo || null;
+  
+  // בדיקות עבור חזרה מוקדמת
   if (!product) {
     return <div>מוצר חסר</div>;
+  }
+  
+  // אם אין שם ספק, לא מציגים את הכרטיס
+  if (hideIfNoSupplier && !supplierName) {
+    return null;
   }
 
   const handleLike = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsLiked(!isLiked);
+    
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
+    
+    // Dispatch custom event for Layout component
+    window.dispatchEvent(new CustomEvent('favoriteUpdate', {
+      detail: {
+        productId: product.id,
+        isLiked: newLikedState
+      }
+    }));
+    
+    if (onFavorite) {
+      onFavorite(product.id);
+    }
     
     toast({
       title: isLiked ? "הוסר מהמועדפים" : "נוסף למועדפים",
@@ -164,37 +236,13 @@ export default function ProductCard({ product, variant = "default", className = 
     setShowContactPopup(true);
   };
 
-  const handleContactWhatsapp = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsContactDialogOpen(false);
-    
-    const phoneNumber = formatPhoneForWhatsApp(product.supplier_phone || "0500000000");
-    const message = `שלום, אני מעוניין במוצר ${product.title} (מק״ט: ${product.id})`;
-    
-    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
-    
-    toast({
-      title: "פתיחת וואטסאפ",
-      description: "פותח וואטסאפ ליצירת קשר עם הספק",
-      duration: 3000,
-    });
-  };
-
-  const handleContactMessages = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsContactDialogOpen(false);
-    
-    const messagesUrl = createPageUrl("Messages") + `?product_id=${product.id}&supplier_id=${product.supplier_id || ""}&guest=true`;
-    
-    window.location.href = messagesUrl;
-    
-    toast({
-      title: "הודעה לספק",
-      description: "מעבר למסך הודעות",
-      duration: 3000,
-    });
+  const handleProductClick = (e) => {
+    if (onViewDetails) {
+      e.preventDefault();
+      onViewDetails(product.id);
+    } else {
+      navigate(createPageUrl("Product") + `?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`);
+    }
   };
 
   const getCategoryLabel = (categoryValue) => {
@@ -215,48 +263,52 @@ export default function ProductCard({ product, variant = "default", className = 
     return categories[categoryValue] || categoryValue;
   };
 
-  const handleProductClick = () => {
-    navigate(createPageUrl("Product") + `?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`);
-  };
-
   if (variant === "list") {
     return (
-      <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <Card className="overflow-hidden hover:shadow-md transition-shadow font-['Heebo'] rtl p-1">
         <div className="flex flex-col sm:flex-row">
           <div className="w-full sm:w-1/4">
-            <div className="h-40 sm:h-full">
+            <div className="h-40 sm:h-full p-1">
               {product.images && product.images.length > 0 ? (
                 <img
                   src={product.images[0]}
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  className="object-cover w-full h-full rounded-lg"
                   loading="lazy"
                   onClick={handleProductClick}
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center"
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-lg"
                   onClick={handleProductClick}>
                   <Package className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                 </div>
               )}
             </div>
           </div>
-          <div className="w-full sm:w-3/4 p-3 sm:p-4">
-            <div className="flex justify-between">
-              <h3 className="font-medium mb-1 text-base sm:text-lg cursor-pointer hover:text-blue-600"
+          <div className="w-full sm:w-3/4 p-4 sm:p-5">
+            {/* Rating area - fixed height */}
+            <div className="h-6 flex items-center justify-end mb-2.5">
+              <div className="flex items-center">
+                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                <span className="text-sm font-[500] font-heebo mr-1.5">{product.rating?.toFixed(1) || "0.0"}</span>
+              </div>
+            </div>
+            
+            {/* Title area - fixed height */}
+            <div className="h-14 mb-1.5">
+              <h3 className="font-[700] font-heebo text-base sm:text-xl cursor-pointer hover:text-blue-600 text-right tracking-tight line-clamp-2"
                 onClick={handleProductClick}>
                 {product.title}
               </h3>
-              {product.customActions}
             </div>
-            <div className="flex items-center text-sm mb-2">
-              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-              <span className="font-medium mr-1 text-xs sm:text-sm">{product.rating?.toFixed(1) || "0.0"}</span>
-            </div>
-            <p className="text-gray-500 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{product.description}</p>
+            
+            <p className="text-sm font-[500] font-heebo text-gray-700 mb-4 line-clamp-2 text-right leading-relaxed h-10">{product.description}</p>
+            
+            <div className="w-full border-t border-gray-200 mb-4"></div>
+            
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-blue-600 text-sm sm:text-base">₪{product.price?.toFixed(2) || "0.00"}+</span>
-              <span className="text-xs text-gray-500">MOQ: {product.minimum_order || 1}</span>
+              <span className="text-sm font-[500] font-heebo text-gray-600">מינימום: {product.minimum_order || 1} יח׳</span>
+              <span className="font-[900] font-heebo text-gray-900 text-xl sm:text-2xl tracking-tight">{formatPrice(product.price)}</span>
             </div>
           </div>
         </div>
@@ -266,101 +318,132 @@ export default function ProductCard({ product, variant = "default", className = 
 
   return (
     <>
-      <Card className={cn("group overflow-hidden transition-all hover:shadow-md h-full", className)}>
+      <Card className={cn("group overflow-hidden transition-all hover:shadow-lg h-full border border-gray-200 font-['Heebo'] rtl p-1", className)}>
         <Link 
           to={createPageUrl("Product") + `?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`} 
-          className="block h-full flex flex-col"
+          className="h-full flex flex-col"
+          onClick={onViewDetails ? (e) => {
+            e.preventDefault();
+            onViewDetails(product.id);
+          } : undefined}
         >
-          <div className="relative aspect-square sm:aspect-video md:aspect-[4/3]">
-            <ProductImage 
-              src={product.images?.[0] || DEFAULT_PRODUCT_IMAGE} 
-              alt={product.title} 
-              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-            />
-            {product.category && (
-              <Badge className="absolute top-2 right-2 bg-blue-600 text-xs">{getCategoryLabel(product.category)}</Badge>
-            )}
-            <Button
-              size="icon"
-              variant="ghost"
-              aria-label="הוספה למועדפים"
-              className={cn(
-                "absolute top-2 left-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white h-7 w-7 sm:h-8 sm:w-8",
-                isLiked ? "text-red-500" : "text-gray-500"
-              )}
-              onClick={handleLike}
-            >
-              <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isLiked ? "fill-current" : "")} />
-            </Button>
-            {product.discount_percent > 0 && (
-              <Badge className="absolute bottom-2 right-2 bg-red-500 hover:bg-red-600 text-white text-xs">
-                {product.discount_percent}% הנחה
-              </Badge>
-            )}
-            {product.minimum_order > 1 && (
-              <Badge className="absolute bottom-2 left-2 bg-blue-600/85 hover:bg-blue-700 text-white text-xs rounded-full">
-                מינימום: {product.minimum_order} יח׳
-              </Badge>
-            )}
-          </div>
-          
-          <CardContent className="p-3 sm:p-4 flex flex-col flex-grow">
-            {product.supplier_name && (
-              <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
-                  <AvatarImage src={product.supplier_logo} alt={product.supplier_name} />
-                  <AvatarFallback>{product.supplier_name.substring(0, 2)}</AvatarFallback>
+          {/* Card Header with Thumbnail and Brand */}
+          <div className="p-5 flex items-center justify-between border-b border-gray-100">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2.5">
+                <Avatar className="h-7 w-7 flex-shrink-0 border border-gray-200 rounded-full shadow-sm">
+                  <AvatarImage src={supplierLogo} alt={supplierName} />
+                  <AvatarFallback>{supplierName.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-gray-500 line-clamp-1">{product.supplier_name}</span>
-              </div>
-            )}
-            
-            <h3 className="font-medium line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors text-right text-sm sm:text-base">
-              {product.title}
-            </h3>
-            
-            {product.description && (
-              <p className="text-xs sm:text-sm line-clamp-2 text-gray-500 mb-2 sm:mb-3 text-right">
-                {product.description}
-              </p>
-            )}
-            
-            <div className="flex flex-wrap items-center justify-between mt-auto gap-y-2">
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-3">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center text-amber-500">
-                        <Star className="fill-current h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        <span className="text-xs mr-1">
-                          {product.rating?.toFixed(1) || "N/A"}{" "}
-                          {product.review_count ? `(${product.review_count})` : ""}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{product.review_count || 0} ביקורות</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-xs rounded-full h-7 px-2 sm:px-3 py-0 sm:py-1.5 hover:bg-blue-50 hover:text-blue-600 transition-colors border-blue-200 hover:border-blue-400 shadow-sm"
-                  onClick={handleContactClick}
-                >
-                  <MessageSquare className="h-3 w-3 sm:h-3.5 sm:w-3.5 ml-1" />
-                  <span className="mx-0.5">צור קשר</span>
-                </Button>
+                <span className="text-sm font-[500] font-heebo text-gray-800">{supplierName}</span>
               </div>
               
-              <div>
-                <p className="font-semibold text-right text-sm sm:text-base">{formatPrice(product.price)}</p>
-                <p className="text-xs text-gray-500 text-right">
-                  מינימום: {product.minimum_order || 1} יח׳
+              {product.category && (
+                <span className="text-sm font-[500] font-heebo text-gray-500 mr-9 mt-1">{getCategoryLabel(product.category)}</span>
+              )}
+            </div>
+          </div>
+          
+          {/* Media - Product Image */}
+          <div className="relative px-5 pt-5 pb-3 flex-grow">
+            <div className="w-full h-40 sm:h-48 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300">
+              <ProductImage 
+                src={product.images?.[0] || product.image || DEFAULT_PRODUCT_IMAGE} 
+                alt={product.title || product.name || "מוצר"} 
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              
+              {/* Overlay badges */}
+              {product.discount_percent > 0 && (
+                <Badge className="absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white text-sm font-[500] font-heebo">
+                  {product.discount_percent}% הנחה
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          {/* Card Content */}
+          <CardContent className="p-5 pb-4 flex flex-col">
+            {/* Product Rating - Fixed height area */}
+            <div className="h-6 flex items-center justify-end mb-2.5">
+              {product.rating && (
+                <div className="flex items-center bg-yellow-50 px-3 py-1.5 rounded-full">
+                  <Star className="fill-yellow-400 text-yellow-400 h-4 w-4" />
+                  <span className="text-sm font-[500] font-heebo text-gray-700 mr-1.5">
+                    {product.rating?.toFixed(1) || "N/A"}
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {/* Header - Product Name - Fixed height */}
+            <div className="h-14 mb-1.5">
+              <h3 className="font-[700] font-heebo line-clamp-2 group-hover:text-blue-600 transition-colors text-right text-lg sm:text-xl tracking-tight">
+                {product.title || product.name || "מוצר ללא שם"}
+              </h3>
+            </div>
+            
+            {/* Supporting Text - Description - Fixed height */}
+            <div className="h-10 mb-4">
+              {product.description && (
+                <p className="text-sm font-[500] font-heebo line-clamp-2 text-gray-600 text-right leading-relaxed">
+                  {product.description}
+                </p>
+              )}
+            </div>
+            
+            {/* Divider */}
+            <div className="w-full border-t border-gray-200 mb-4"></div>
+            
+            {/* Price Section */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col items-end">
+                <p className="text-sm font-[500] font-heebo text-gray-600">
+                  מינימום הזמנה: {product.minimum_order || 1} יח'
                 </p>
               </div>
+              <p className="font-[900] font-heebo text-xl sm:text-2xl text-gray-900 tracking-tight">{formatPrice(product.price)}</p>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-2.5 mt-auto">
+              {/* Primary Action */}
+              <Button 
+                className="flex-1 text-sm font-[500] font-heebo py-1.5 px-4 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onViewDetails ? onViewDetails(product.id) : handleProductClick(e);
+                }}
+              >
+                <Eye className="h-4 w-4 ml-1 opacity-90" />
+                <span>צפה במוצר</span>
+              </Button>
+              
+              {/* Secondary Actions */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex-1 h-10 text-sm font-[500] font-heebo py-1.5 px-4 border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-blue-500 rounded-md transition-colors duration-200"
+                onClick={handleContactClick}
+              >
+                <MessageSquare className="h-4 w-4 ml-1 opacity-90" />
+                <span>צור קשר</span>
+              </Button>
+              
+              {onAddToCart && (
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="h-10 w-10 p-0 rounded-md border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors duration-200"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onAddToCart(product.id);
+                  }}
+                >
+                  <ShoppingCart className="h-4 w-4 text-blue-500" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Link>

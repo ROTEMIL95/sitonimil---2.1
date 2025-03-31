@@ -246,11 +246,11 @@ export default function AccessibilityWidget() {
           <TooltipTrigger asChild>
             <Button
               onClick={() => setIsOpen(!isOpen)}
-              className={`fixed left-0 z-50 rounded-r-full h-14 w-14 shadow-lg 
+              className={`fixed left-0 z-50 rounded-r-full h-14 w-auto px-4 shadow-lg 
                 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 
                 accessibility-button transition-all duration-300 ease-in-out
                 hover:scale-105 hover:shadow-xl
-                flex items-center justify-center
+                flex items-center justify-center gap-2
                 border-2 border-white border-l-0
                 ${Object.values(settings).some(value => value !== false && value !== 100) 
                   ? 'ring-4 ring-blue-200' 
@@ -261,9 +261,10 @@ export default function AccessibilityWidget() {
                 left: '0',
                 transform: 'none'
               }}
-              size="icon"
+              aria-label="אפשרויות נגישות"
             >
-              <Accessibility className="h-7 w-7 text-white" />
+              <Accessibility className="h-6 w-6 text-white" />
+              <span className="font-medium text-white">נגישות</span>
               {Object.values(settings).some(value => value !== false && value !== 100) && (
                 <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full border-2 border-white" />
               )}
