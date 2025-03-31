@@ -18,4 +18,7 @@ export default defineConfig({
     },
     extensions: [".mjs", ".js", ".jsx", ".ts", ".tsx", ".json"],
   },
+  build: {
+    sourcemap: true,
+  }
 });

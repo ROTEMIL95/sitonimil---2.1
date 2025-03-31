@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MessageSquare, MapPin, ShieldCheck, Send } from "lucide-react";
+import { Star, MessageSquare, MapPin, ShieldCheck, Send, Building2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createPageUrl } from "@/utils";
 import {
@@ -73,9 +73,19 @@ export default function SupplierCard({ supplier, className = "" }) {
   return (
     <>
       <Card className={`overflow-hidden transition-all hover:shadow-md ${className}`}>
-        <div className="relative h-32 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div className="relative h-48 sm:h-56 md:h-64">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
+          {supplier.image_url ? (
+            <img
+              src={supplier.image_url}
+              alt={supplier.name}
+              className="w-full h-full object-cover aspect-[2/1]"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <Building2 className="h-12 w-12 text-gray-400" />
+            </div>
+          )}
           {supplier.verified && (
             <Badge className="absolute top-2 left-2 bg-white text-blue-600 flex items-center gap-1">
               <ShieldCheck className="h-3 w-3" />
