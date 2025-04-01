@@ -333,6 +333,7 @@ export default function SearchPage() {
                   variant={viewMode === "grid" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
+                  aria-label="הצג בתצוגת רשת"
                 >
                   <Grid3X3 className="h-4 w-4" />
                 </Button>
@@ -340,6 +341,7 @@ export default function SearchPage() {
                   variant={viewMode === "list" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setViewMode("list")}
+                  aria-label="הצג בתצוגת רשימה"
                 >
                   <ListFilter className="h-4 w-4" />
                 </Button>
@@ -372,6 +374,7 @@ export default function SearchPage() {
               size="sm"
               onClick={refreshProducts}
               className="mb-2"
+              aria-label="רענן רשימת מוצרים"
             >
               רענון מוצרים
             </Button>
@@ -398,6 +401,7 @@ export default function SearchPage() {
                     onClick={() => handleFilterChange({
                       categories: filterOptions.categories.filter(c => c !== category)
                     })}
+                    aria-label={`הסר סינון קטגוריה ${getCategoryLabel(category)}`}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -412,6 +416,7 @@ export default function SearchPage() {
                     size="icon"
                     className="h-4 w-4 p-0 hover:bg-transparent"
                     onClick={() => handleFilterChange({ rating: 0 })}
+                    aria-label="הסר סינון דירוג"
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -426,6 +431,7 @@ export default function SearchPage() {
                     size="icon"
                     className="h-4 w-4 p-0 hover:bg-transparent"
                     onClick={() => handleFilterChange({ priceRange: [0, 500] })}
+                    aria-label="הסר סינון טווח מחירים"
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -437,6 +443,7 @@ export default function SearchPage() {
                 size="sm"
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 p-0 h-auto font-medium"
                 onClick={clearFilters}
+                aria-label="נקה את כל הסינונים"
               >
                 נקה הכל
               </Button>
@@ -448,7 +455,7 @@ export default function SearchPage() {
           <div className="flex items-center gap-2">
             <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="md:hidden flex items-center gap-2">
+                <Button variant="outline" className="md:hidden flex items-center gap-2" aria-label="פתח אפשרויות סינון">
                   <FilterIcon className="h-4 w-4" />
                   סינון
                 </Button>
@@ -475,6 +482,8 @@ export default function SearchPage() {
               size="icon"
               className={`rounded-full ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : ''}`}
               onClick={() => setViewMode('grid')}
+              aria-label="החלף לתצוגת רשת"
+              aria-pressed={viewMode === 'grid'}
             >
               <Grid3X3 className="h-4 w-4" />
             </Button>
@@ -483,6 +492,8 @@ export default function SearchPage() {
               size="icon"
               className={`rounded-full ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : ''}`}
               onClick={() => setViewMode('list')}
+              aria-label="החלף לתצוגת רשימה"
+              aria-pressed={viewMode === 'list'}
             >
               <ListFilter className="h-4 w-4" />
             </Button>
