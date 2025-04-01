@@ -148,7 +148,7 @@ export default function SupplierCard({ supplier, className = "" }) {
             className="flex-1 rounded-md px-4 py-2 text-sm font-medium"
             asChild
           >
-            <Link to={createPageUrl("Search") + `?supplier_id=${supplier.id}&supplier_name=${encodeURIComponent(supplier.company_name)}`}>
+            <Link to={createPageUrl("Search") + `?supplier=${supplier.id}`}>
               קטלוג מוצרים
             </Link>
           </Button>
