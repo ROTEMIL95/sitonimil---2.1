@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, MessageSquare, MapPin, ShieldCheck, Send, Building2 } from "lucide-react";
+import { Star, MessageSquare, MapPin, ShieldCheck, Send, Building2, Truck, Calendar, BadgeCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createPageUrl } from "@/utils";
 import {
@@ -19,19 +18,13 @@ function ContactPopup({ isOpen, onClose, supplier }) {
   if (!isOpen) return null;
   
   const formatPhoneForWhatsApp = (phone) => {
-    // Remove any non-digit characters
     let cleaned = (phone || "").replace(/\D/g, "");
-    
-    // If number starts with 0, replace it with 972
     if (cleaned.startsWith("0")) {
       cleaned = "972" + cleaned.substring(1);
     }
-    
-    // If number doesn't start with 972, add it
     if (!cleaned.startsWith("972")) {
       cleaned = "972" + cleaned;
     }
-    
     return cleaned;
   };
 
@@ -70,108 +63,96 @@ function ContactPopup({ isOpen, onClose, supplier }) {
 export default function SupplierCard({ supplier, className = "" }) {
   const [showContactPopup, setShowContactPopup] = useState(false);
 
+  // Don't render if the supplier is an admin
+  if (supplier.role === "admin") {
+    return null;
+  }
+
   return (
     <>
-      <Card className={`overflow-hidden transition-all hover:shadow-md ${className}`}>
-        <div className="relative h-48 sm:h-56 md:h-64">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
-          {supplier.image_url ? (
-            <img
-              src={supplier.image_url}
-              alt={supplier.name}
-              className="w-full h-full object-cover aspect-[2/1]"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-              <Building2 className="h-12 w-12 text-gray-400" />
-            </div>
-          )}
-          {supplier.verified && (
-            <Badge className="absolute top-2 left-2 bg-white text-blue-600 flex items-center gap-1">
-              <ShieldCheck className="h-3 w-3" />
-              <span>מאומת</span>
-            </Badge>
-          )}
-          <div className="absolute bottom-0 left-0 w-auto p-4 text-white" >
-            <div className="flex items-center gap-2">
-              <span className="text-sm" >{supplier.address || "ישראל"}</span>
-              <MapPin className="h-4 w-4" />
+      <Card className={`w-full max-w-2xl mx-auto bg-white shadow-md border rounded-2xl p-4 text-right flex flex-col h-[400px] ${className}`}>
+        {/* Header */}
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-2">
+            <Avatar className="w-16 h-16">
+              {supplier.logo_url ? (
+                <AvatarImage src={supplier.logo_url} alt={supplier.company_name} />
+              ) : (
+                <AvatarFallback className="bg-blue-50 text-blue-600" >
+                  {supplier.company_name?.charAt(0) || "S"}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div>
+              <h2 className="text-sm font-semibold flex items-center gap-1 mt-2">
+                {supplier.company_name}
+                {supplier.verified && <BadgeCheck className="text-blue-600 w-3 h-3" />}
+              </h2>
+              <p className="text-xs text-blue-600  px-2 py-0.9 rounded-full inline-block">
+                {supplier.categories?.[0] || "ספק סיטונאי"}
+              </p>
             </div>
           </div>
         </div>
-        
-        <CardContent className="p-4 pt-10 relative">
-          <Avatar className="absolute -top-8 right-4 border-4 border-white w-16 h-16">
-            {supplier.logo_url ? (
-              <AvatarImage src={supplier.logo_url} alt={supplier.company_name} />
-            ) : (
-              <AvatarFallback className="bg-blue-100 text-blue-600">
-                {supplier.company_name?.charAt(0) || "S"}
-              </AvatarFallback>
-            )}
-          </Avatar>
-          
-          <div>
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex items-center text-amber-500">
-                <Star className="fill-current h-4 w-4" />
-                <span className="text-sm mr-1">4.5</span>
-                <span className="text-xs text-gray-500 mr-1">(24)</span>
-              </div>
 
-              <Link to={createPageUrl("Supplier") + `?id=${supplier.id}`}>
-                <h3 className="font-semibold text-lg hover:text-blue-600 transition-colors text-right">
-                  {supplier.company_name}
-                </h3>
-              </Link>
-            </div>
-            
-            <p className="text-sm text-gray-500 line-clamp-2 mb-3 text-right">
-              {supplier.description || "אין תיאור זמין"}
-            </p>
-            
-            <div className="flex flex-wrap gap-1 mb-4 justify-end">
-              {supplier.categories?.map((category, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {category}
-                </Badge>
-              )) || (
-                <Badge variant="outline" className="text-xs">
-                  ספק סיטונאי
-                </Badge>
-              )}
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  className="text-xs rounded-full bg-blue-600 hover:bg-blue-700"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowContactPopup(true);
-                  }}
-                >
-                  <MessageSquare className="h-3 w-3 ml-1" />
-                  יצירת קשר
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-xs rounded-full"
-                  asChild
-                >
-                  <Link to={createPageUrl("Supplier") + `?id=${supplier.id}`}>הצגת פרופיל</Link>
-                </Button>
-              </div>
-              
-           
-            </div>
+        {/* Divider */}
+        <div className="w-full h-px bg-gray-200 my-6"></div>
+
+        {/* Description */}
+        <div className="mt-4">
+          <p className="text-sm text-black leading-snug line-clamp-2">
+            {supplier.description || "אין תיאור זמין"}
+          </p>
+        </div>
+
+        {/* Details */}
+        <div className="grid grid-cols-2 gap-3 text-sm text-black mt-10">
+          <div className="flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-gray-400" />
+            {supplier.address || "תל אביב, ישראל"}
           </div>
-        </CardContent>
+          <div className="flex items-center gap-1">
+            <Truck className="w-3 h-3 text-gray-400" />
+            משלוחים לכל הארץ
+          </div>
+          <div className="flex items-center gap-1">
+            <Calendar className="w-3 h-3 text-gray-400" />
+            פעיל מאז {supplier.since || "2010"}
+          </div>
+          <div className="flex items-center gap-1">
+            <Star className="w-3 h-3 text-amber-500" />
+            <span className="font-bold">4.5</span> (24)
+          </div>
+        </div>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1.5 text-xs text-black mt-6">
+          {supplier.categories?.map((category, index) => (
+            <span key={index} className="bg-gray-100 px-2 py-0.5 rounded-full">
+              {category}
+            </span>
+          ))}
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-between items-center pt-6 border-t mt-auto gap-3">
+          <Button 
+            className="flex-1 bg-blue-900 hover:bg-blue-800 text-white rounded-md px-4 py-2 text-sm font-medium"
+            onClick={() => setShowContactPopup(true)}
+          >
+            <MessageSquare className="h-4 w-4 ml-2" />
+            יצירת קשר
+          </Button>
+          <Button 
+            variant="outline"
+            className="flex-1 rounded-md px-4 py-2 text-sm font-medium"
+            asChild
+          >
+            <Link to={createPageUrl("Search") + `?supplier_id=${supplier.id}&supplier_name=${encodeURIComponent(supplier.company_name)}`}>
+              קטלוג מוצרים
+            </Link>
+          </Button>
+        </div>
       </Card>
 
       <ContactPopup 

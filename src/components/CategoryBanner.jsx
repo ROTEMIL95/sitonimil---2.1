@@ -34,55 +34,55 @@ const categories = [
   { 
     value: "electronics", 
     label: "אלקטרוניקה",
-    image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=2070",
+    image: "/images/electronics.webp",
     icon: "Laptop"
   },
   { 
     value: "clothing", 
     label: "ביגוד",
-    image: "https://images.unsplash.com/photo-1562157873-818bc0726f68?q=80&w=1000",
+    image: "/images/clothing.webp",
     icon: "ShoppingBag"
   },
   { 
     value: "home_goods", 
     label: "מוצרי בית",
-    image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=2070",
+    image: "/images/home_goods.webp",
     icon: "Home"
   },
   { 
     value: "food_beverage", 
     label: "מזון ומשקאות",
-    image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=2070",
+    image: "/images/food_beverage.webp",
     icon: "Coffee"
   },
   { 
     value: "health_beauty", 
     label: "בריאות ויופי",
-    image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=2035",
+    image: "/images/health_beauty.webp",
     icon: "HeartPulse"
   },
   { 
     value: "industrial", 
     label: "ציוד תעשייתי",
-    image: "https://images.unsplash.com/photo-1531758854681-1a4966394b13?q=80&w=2070",
+    image: "/images/industrial.webp",
     icon: "Wrench"
   },
   { 
     value: "automotive", 
     label: "רכב",
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070",
+    image: "/images/automotive.webp",
     icon: "Car"
   },
   { 
     value: "sports", 
     label: "ספורט",
-    image: "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?q=80&w=2070",
+    image: "/images/sports.webp",
     icon: "Dumbbell"
   },
   { 
     value: "toys", 
     label: "צעצועים",
-    image: "https://images.unsplash.com/photo-1545558014-8692077e9b5c?q=80&w=2070",
+    image: "/images/toys.webp",
     icon: "Gamepad2"
   }
 ];

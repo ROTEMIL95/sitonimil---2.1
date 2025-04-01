@@ -430,7 +430,7 @@ export default function SuppliersPage() {
 
       <div className="mb-6 text-right">
         <p className="text-sm text-gray-500">
-          {filteredSuppliers.length} ספקים נמצאו
+          {filteredSuppliers.filter(supplier => supplier.role !== "admin").length} ספקים נמצאו {searchQuery ? `עבור "${searchQuery}"` : ""} {selectedCategory ? `בקטגוריית ${getCategoryLabel(selectedCategory)}` : ""}
         </p>
       </div>
 

@@ -185,6 +185,7 @@ export default function ProductCard({
 
   // מידע של הספק - כולל בדיקה גם מה-supplier שהוטען מה-API
   const supplierName = product?.supplier_name || (product?.supplier?.name) || supplierData?.name || "";
+  const companyName = product?.company_name || (product?.supplier?.company_name) || supplierData?.company_name || supplierName;
   const supplierLogo = product?.supplier_logo || (product?.supplier?.logo) || supplierData?.logo || null;
   
   // בדיקות עבור חזרה מוקדמת
@@ -268,12 +269,12 @@ export default function ProductCard({
       <Card className="overflow-hidden hover:shadow-md transition-shadow font-['Heebo'] rtl p-1">
         <div className="flex flex-col sm:flex-row">
           <div className="w-full sm:w-1/4">
-            <div className="h-40 sm:h-full p-1">
+            <div className="h-40 sm:h-full p-1 flex items-center justify-center">
               {product.images && product.images.length > 0 ? (
                 <img
                   src={product.images[0]}
                   alt={product.title}
-                  className="object-cover w-full h-full rounded-lg"
+                  className="object-contain w-full h-full rounded-lg"
                   loading="lazy"
                   onClick={handleProductClick}
                 />
@@ -286,6 +287,11 @@ export default function ProductCard({
             </div>
           </div>
           <div className="w-full sm:w-3/4 p-4 sm:p-5">
+            {/* Company Name */}
+            <div className="flex items-center justify-end mb-1">
+              <span className="text-sm font-medium text-gray-700">{companyName}</span>
+            </div>
+            
             {/* Rating area - fixed height */}
             <div className="h-6 flex items-center justify-end mb-2.5">
               <div className="flex items-center">
@@ -332,10 +338,10 @@ export default function ProductCard({
             <div className="flex flex-col">
               <div className="flex items-center gap-2.5">
                 <Avatar className="h-7 w-7 flex-shrink-0 border border-gray-200 rounded-full shadow-sm">
-                  <AvatarImage src={supplierLogo} alt={supplierName} />
-                  <AvatarFallback>{supplierName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  <AvatarImage src={supplierLogo} alt={companyName} />
+                  <AvatarFallback>{companyName.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-[500] font-heebo text-gray-800">{supplierName}</span>
+                <span className="text-sm font-[500] font-heebo text-gray-800">{companyName}</span>
               </div>
               
               {product.category && (
@@ -346,11 +352,11 @@ export default function ProductCard({
           
           {/* Media - Product Image */}
           <div className="relative px-5 pt-5 pb-3 flex-grow">
-            <div className="w-full h-40 sm:h-48 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="w-full h-40 sm:h-48 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 flex items-center justify-center">
               <ProductImage 
                 src={product.images?.[0] || product.image || DEFAULT_PRODUCT_IMAGE} 
                 alt={product.title || product.name || "מוצר"} 
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
               />
               
               {/* Overlay badges */}

@@ -312,21 +312,21 @@ export default function SearchPage() {
     return (
       <>
         {newProducts.length > 0 && (
-          <div className="mb-8" id="new-products-section">
-            <div className="flex items-center mb-4">
+          <div className="mb-4" id="new-products-section">
+            <div className="flex items-center mb-3">
               <h2 className="text-xl font-bold">מוצרים חדשים</h2>
               <Badge variant="default" className="ml-2 bg-green-500">חדש</Badge>
             </div>
             <ProductGrid products={newProducts} loading={false} viewMode={viewMode} />
-            <Separator className="my-8" />
+            <Separator className="my-4" />
           </div>
         )}
         
         <div>
           {newProducts.length > 0 ? (
-            <h2 className="text-xl font-bold mb-4">מוצרים נוספים</h2>
+            <h2 className="text-xl font-bold mb-3">מוצרים נוספים</h2>
           ) : (
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-3">
               <h2 className="text-xl font-bold">כל המוצרים</h2>
               <div className="flex gap-2">
                 <Button
@@ -361,17 +361,17 @@ export default function SearchPage() {
   }, [isNewProduct]);
 
   return (
-    <div className="py-6 md:py-10">
-      <div className="max-w-7xl mx-auto">
-        <div className="max-w-4xl mx-auto mb-8">
+    <div className="py-4 md:py-6">
+      <div className="max-w-[1500px] mx-auto px-0">
+        <div className="max-w-4xl mx-auto mb-4">
           <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold mb-4 text-right">מוצרים</h1>
+          <h1 className="text-3xl font-bold mb-2 text-right">מוצרים</h1>
 
             <Button 
               variant="outline"
               size="sm"
               onClick={refreshProducts}
-              className="mb-4"
+              className="mb-2"
             >
               רענון מוצרים
             </Button>
@@ -380,12 +380,12 @@ export default function SearchPage() {
             initialQuery={query}
             initialCategory={categoryParam}
             onSearch={handleSearch}
-            className="mb-4"
+            className="mb-3"
           />
           
           {/* תצוגת סינונים פעילים */}
           {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-2 mt-4 p-3 bg-muted/40 rounded-lg justify-end" >
+            <div className="flex flex-wrap items-center gap-2 mt-2 p-2 bg-muted/40 rounded-lg justify-end" >
               <span className="text-sm font-medium">סינון פעיל:</span>
               
               {filterOptions.categories.map(category => (
@@ -444,7 +444,7 @@ export default function SearchPage() {
           )}
         </div>
 
-        <div className="flex justify-between items-center mb-6 gap-4">
+        <div className="flex justify-between items-center mb-3 gap-4">
           <div className="flex items-center gap-2">
             <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
               <SheetTrigger asChild>
@@ -489,7 +489,7 @@ export default function SearchPage() {
           </div>
         </div>
 
-        <div className="flex gap-6 relative">
+        <div className="flex gap-4 relative">
           <div className="hidden md:block w-[240px] flex-shrink-0">
             <div className="sticky top-20">
               <ProductFilter

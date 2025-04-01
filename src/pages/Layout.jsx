@@ -794,7 +794,7 @@ export default function Layout({ children }) {
                 />
               </Link>
               <p className="text-gray-700 text-sm">
-                מחברים סיטונאים וסוחרים ברחבי העולם באמצעות פלטפורמה מאובטחת וידידותית למשתמש.
+                מחברים סיטונאים וסוחרים ברחבי הארץ באמצעות פלטפורמה מאובטחת וידידותית למשתמש.
               </p>
               <div className="flex space-x-3" aria-label="קישורים לרשתות חברתיות">
                 <Button variant="ghost" size="icon" aria-label="Facebook" className="text-gray-700 hover:text-blue-700 hover:bg-blue-50 focus:ring-2  focus-visible:ring-offset-2">
