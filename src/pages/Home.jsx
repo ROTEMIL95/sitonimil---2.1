@@ -274,30 +274,30 @@ export default function Home() {
       {/* Main heading with class connecting to the critical CSS in index.html */}
       <h1 
           ref={headingRef}
-          className="relative mb-6 text-4xl md:text-5xl lg:text-6xl font-bold 
-            text-blue-600 bg-gradient-to-r from-blue-600 to-blue-500 
-            bg-clip-text text-transparent"
+            className="relative mb-6 text-6xl md:text-6xl lg:text-7xl font-extrabold 
+            text-blue-600 bg-gradient-to-r from-blue-700 to-blue-500 
+            bg-clip-text text-transparent drop-shadow-sm font-['Arial'] "
           suppressHydrationWarning
         >
-          הבית של הסיטונאים והסוחרים בישראל
+          פלטפורמת הסיטונאות המובילה בישראל
           <span 
-            className="block h-1 bg-blue-500 w-20 md:w-24 mt-2 mx-auto md:mx-0" 
+            className="block h-1.5 bg-blue-500 w-24 md:w-28 mt-2 mx-auto md:mx-0" 
             aria-hidden="true"
           ></span>
         </h1>
 
         {/* Enhanced Subheading with Improved Styling */}
-        <h2 className="text-xl md:text-2xl font-semibold 
+        <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold 
           text-transparent bg-clip-text 
-          bg-gradient-to-r from-gray-700 to-gray-500 
+          bg-gradient-to-r from-gray-800 to-gray-600 
           mb-8 tracking-wide leading-relaxed
-          hover:from-blue-600 hover:to-blue-500 
-          transition-all duration-300 ease-in-out">
-          משנים את חוקי המשחק בעולם הסיטונאות
+          hover:from-blue-700 hover:to-blue-500 
+          transition-all duration-300 ease-in-out ">
+          מחברים בין ספקים איכותיים לסוחרים בכל רחבי הארץ 
         </h2>
       
       {/* Search input - using simple div instead of motion.div */}
-      <div className="mt-4 sm:mt-6">
+      <div className="mt-6 sm:mt-8">
         <div className="relative w-full max-w-xl sm:max-w-2xl mx-auto">
           {/* Search field with advanced styling */}
           <div className="bg-white p-2 sm:p-3 rounded-full shadow-lg flex items-center border border-gray-200 focus-within:border-blue-500 transition" role="search" aria-label="חיפוש באתר">
@@ -326,8 +326,8 @@ export default function Home() {
       </div>
       
       {/* כפתורי הרשמה */}
-      <div className="mt-8 md:mt-10">
-        <h3 className="text-lg font-medium text-gray-800 mb-4"> הצטרפו לקהילה שלנו עכשיו :</h3>
+      <div className="mt-10 md:mt-12">
+        <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-5">הצטרפו לקהילה שלנו עכשיו:</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl mx-auto">
           <div className="shadow-md rounded-lg overflow-hidden">
             <Link 
