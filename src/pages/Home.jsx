@@ -390,13 +390,13 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <motion.div className="flex justify-between items-center mb-8" variants={fadeIn}>
               <div>
-                <h2 id="most-viewed-products-heading" className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר :</h2>
+                <h2 id="most-viewed-products-heading" className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר :</h2>
               </div>
               <div>
-                <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2 transition-colors py-1 px-2 sm:py-2 sm:px-3 h-auto">
+                <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2 transition-colors">
                   <Link to={createPageUrl("Search")} className="flex items-center gap-1 group">
-                    <span className="text-xs sm:text-sm font-medium">צפייה בכל המוצרים</span>
-                    <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
+                    <span className="text-sm sm:text-base font-medium">צפייה בכל המוצרים</span>
+                    <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 group-hover:-translate-x-1 transition-transform" />
                   </Link>
                 </Button>
               </div>
@@ -506,10 +506,10 @@ export default function Home() {
             <div className="max-w-7xl mx-auto">
               <motion.div className="flex justify-between items-center mb-3" variants={fadeIn}>
                 <div>
-                  <h2 id="top-suppliers-heading" className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">ספקים מובילים</h2>
+                  <h2 id="top-suppliers-heading" className="text-lg font-bold text-gray-900">ספקים מובילים</h2>
                 </div>
                 <div>
-                  <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-1 focus:ring-blue-500 focus-visible:ring-offset-1 transition-colors text-xs py-1 px-2 h-auto">
+                  <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-1 focus:ring-blue-500 focus-visible:ring-offset-1 transition-colors text-xs py-1 px-2">
                     <Link to={createPageUrl("Suppliers")} className="flex items-center gap-1 group">
                       <span className="text-xs">צפייה בכל הספקים</span>
                       <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
@@ -569,8 +569,8 @@ export default function Home() {
               className="text-center max-w-3xl mx-auto mb-12"
               variants={fadeIn}
             >
-              <h2 id="why-join-heading" className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">למה להצטרף לקהילת Sitonimil ?</h2>
-              <p className="text-xs sm:text-sm md:text-base text-gray-600">
+              <h2 id="why-join-heading" className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">למה להצטרף לקהילת Sitonimil ?</h2>
+              <p className="text-sm sm:text-base md:text-lg text-gray-600">
                 הצטרפו לאלפי סוחרים וספקים שכבר נהנים מחיבורים, הזדמנויות עסקיות ומכירות בקנה מידה ארצי
               </p>
             </motion.div>
@@ -636,13 +636,13 @@ export default function Home() {
             <div className="max-w-7xl mx-auto">
               <motion.h2 
                 id="cta-heading"
-                className="text-base sm:text-lg md:text-xl font-bold text-white mb-3"
+                className="text-xl font-bold text-white mb-3"
                 variants={fadeIn}
               >
                 מוכנים להתחיל?
               </motion.h2>
               <motion.p 
-                className="text-xs sm:text-sm md:text-base text-white/90 max-w-3xl mx-auto mb-4"
+                className="text-white/90 text-sm max-w-3xl mx-auto mb-4"
                 variants={fadeIn}
               >
                 הצטרפו לאלפי ספקים וסוחרים אחרים בפלטפורמה הסיטונאית המובילה. מחכים לכם!
