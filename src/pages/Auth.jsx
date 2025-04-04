@@ -270,21 +270,44 @@ export default function Auth() {
   const handleSocialLogin = async (provider) => {
     try {
       setLoading(true);
+      
+      // שמירת ערך ההפניה אם קיים
+      if (redirectTo) {
+        localStorage.setItem("redirectAfterAuth", redirectTo);
+      }
+      
+      // שמירת סוג המשתמש המועדף אם נמצא בלוקאל סטורג'
+      const preferredUserType = localStorage.getItem("preferredUserType");
+      if (preferredUserType) {
+        localStorage.setItem("preferredUserType_temp", preferredUserType);
+      }
+      
+      // אפשרויות ספציפיות לכל ספק
+      const providerOptions = {
+        redirectTo: window.location.origin
+      };
+      
+      // הוספת scopes לפייסבוק
+      if (provider === 'facebook') {
+        providerOptions.scopes = 'email,public_profile';
+      }
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: {
-          options: {
-            redirectTo: 'https://sitonimil.co.il/' //
-            // או דף הבית או כל עמוד שתבחר
-          }        }
+        options: providerOptions
       });
       
       if (error) throw error;
       
+      // הודעה למשתמש
+      const providerName = provider === 'google' ? 'Google' : 
+                          provider === 'facebook' ? 'Facebook' : provider;
+      toast.success(`מעבר להתחברות באמצעות ${providerName}`);
+      
     } catch (error) {
       console.error(`${provider} login failed:`, error);
       toast.error(error.message || `התחברות באמצעות ${provider} נכשלה`);
-    setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -467,20 +490,22 @@ export default function Auth() {
           type="button" 
           variant="outline" 
           className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+          onClick={() => handleSocialLogin('google')}
           disabled={loading}
         >
           <GoogleLogo />
           <span>Google</span>
         </Button>
-                <Button
+        <Button
           type="button" 
           variant="outline" 
           className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-                  // disabled={loading}
-                >
+          onClick={() => handleSocialLogin('facebook')}
+          disabled={loading}
+        >
           <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
           <span>Facebook</span>
-                </Button>
+        </Button>
       </div>
 
       <div className="text-center mt-3">
@@ -713,8 +738,8 @@ export default function Auth() {
             type="button"
             variant="outline"
             className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-            // onClick={() => handleSocialLogin('facebook')}
-            // disabled={loading}
+            onClick={() => handleSocialLogin('facebook')}
+            disabled={loading}
           >
             <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
             <span>Facebook</span>
@@ -849,6 +874,7 @@ export default function Auth() {
                           type="button" 
                           variant="outline" 
                           className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+                          onClick={() => handleSocialLogin('google')}
                           disabled={loading}
                         >
                           <GoogleLogo />
@@ -858,11 +884,12 @@ export default function Auth() {
                           type="button" 
                           variant="outline" 
                           className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-                          // disabled={loading}
+                          onClick={() => handleSocialLogin('facebook')}
+                          disabled={loading}
                         >
                           <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                           <span>Facebook</span>
-                  </Button>
+                        </Button>
                       </div>
 
                       <div className="text-center mt-3">
