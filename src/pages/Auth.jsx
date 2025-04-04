@@ -461,10 +461,6 @@ export default function Auth() {
 
   const renderBuyerForm = () => (
     <>
-      <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-xs sm:text-sm">
-        <ArrowLeft className="h-3 w-3 ml-1" />
-        חזרה לבחירת סוג משתמש
-      </button>
       
       <div className="space-y-2 sm:space-y-3">
         <div className="text-center mb-2 sm:mb-3">
@@ -539,11 +535,11 @@ export default function Auth() {
             />
             <Label htmlFor="terms" className="text-xs text-right">
               אני מסכים ל
-              <Link to="/" className="text-blue-600 hover:underline mx-1">
+              <Link to="/terms" className="text-blue-600 hover:underline mx-1">
                 תנאי השימוש
               </Link>
               ו
-              <Link to="/" className="text-blue-600 hover:underline mx-1">
+              <Link to="/privacy" className="text-blue-600 hover:underline mx-1">
                 מדיניות הפרטיות
               </Link>
             </Label>
@@ -594,7 +590,7 @@ export default function Auth() {
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+          className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm p-2"
           onClick={() => handleSocialLogin('google')}
           disabled={loading}
         >
@@ -620,11 +616,7 @@ export default function Auth() {
   const renderSupplierForm = () => {
     return (
       <>
-        <button onClick={handleBackToUserType} className="text-blue-600 hover:underline mb-2 flex items-center text-xs sm:text-sm">
-          <ArrowLeft className="h-3 w-3 ml-1" />
-          חזרה לבחירת סוג משתמש
-        </button>
-
+       
         <div className="space-y-2 sm:space-y-3">
           <div className="text-center mb-2">
             <h2 className="text-base sm:text-lg font-bold mb-0.5">הרשמה כספק / סיטונאי</h2>
@@ -752,11 +744,11 @@ export default function Auth() {
               className="h-3.5 w-3.5 mt-0.5 sm:mt-0" />
             <Label htmlFor="supplier-terms" className="text-xs text-right">
               אני מסכים ל
-              <Link to="/" className="text-blue-600 hover:underline mx-1">
+              <Link to="/help?tab=terms" className="text-blue-600 hover:underline mx-1">
                 תנאי השימוש
               </Link>
               ו
-              <Link to="/" className="text-blue-600 hover:underline mx-1">
+              <Link to="/privacy" className="text-blue-600 hover:underline mx-1">
                 מדיניות הפרטיות
               </Link>
             </Label>
@@ -822,7 +814,7 @@ export default function Auth() {
           <Button 
             type="button" 
             variant="outline" 
-            className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+            className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm p-2"
             onClick={() => handleSocialLogin('google')}
             disabled={loading}
           >
@@ -1032,7 +1024,7 @@ export default function Auth() {
                         <Button 
                           type="button" 
                           variant="outline" 
-                          className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+                          className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm p-2"
                           onClick={() => handleSocialLogin('google')}
                           disabled={loading}
                         >
