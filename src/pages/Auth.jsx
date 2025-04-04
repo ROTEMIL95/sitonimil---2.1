@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
@@ -26,8 +26,7 @@ import {
   MapPin, 
   Phone, 
   Store,
-  ShoppingBag,
-  Facebook
+  ShoppingBag
 } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
@@ -75,6 +74,13 @@ export default function Auth() {
   });
   const [redirectTo, setRedirectTo] = useState("");
   const [error, setError] = useState(null);
+  
+  // New state variables for Facebook email collection
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [facebookEmail, setFacebookEmail] = useState("");
+  const [facebookEmailError, setFacebookEmailError] = useState("");
+  const [facebookUserData, setFacebookUserData] = useState(null);
+  const emailInputRef = useRef(null);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -267,30 +273,100 @@ export default function Auth() {
     }
   };
 
+  // Add function to handle Facebook email submission
+  const handleFacebookEmailSubmit = async () => {
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(facebookEmail)) {
+      setFacebookEmailError("כתובת האימייל אינה תקינה");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Update user with the provided email
+      const { data: authData, error: authError } = await supabase.auth.updateUser({
+        email: facebookEmail
+      });
+
+      if (authError) throw authError;
+
+      // Check if user already exists in users table
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', facebookUserData.user.id)
+        .maybeSingle();
+
+      // Prepare user data
+      const userData = {
+        id: facebookUserData.user.id,
+        email: facebookEmail,
+        full_name: facebookUserData.user.user_metadata?.full_name || "",
+        role: "user",
+        business_type: "buyer", // Default to buyer
+        verified: false,
+        created_at: new Date().toISOString(),
+      };
+
+      // Update or insert user data
+      let dbOperation;
+      if (existingUser) {
+        dbOperation = supabase
+          .from('users')
+          .update({ email: facebookEmail })
+          .eq('id', facebookUserData.user.id);
+      } else {
+        dbOperation = supabase
+          .from('users')
+          .insert([userData]);
+      }
+
+      const { error: dbError } = await dbOperation;
+      if (dbError) throw dbError;
+
+      // Success message
+      toast.success("התחברת בהצלחה!");
+
+      // Navigate to redirect page or home
+      const storedRedirect = localStorage.getItem("redirectAfterAuth");
+      if (storedRedirect) {
+        navigate(createPageUrl(storedRedirect));
+        localStorage.removeItem("redirectAfterAuth");
+      } else {
+        navigate(createPageUrl("Home"));
+      }
+
+      // Reload to update UI with new user data
+      window.location.reload();
+    } catch (error) {
+      console.error("Error handling Facebook login:", error);
+      setFacebookEmailError(error.message || "אירעה שגיאה בעת עדכון האימייל");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update handleSocialLogin to handle Facebook login
   const handleSocialLogin = async (provider) => {
     try {
       setLoading(true);
       
-      // שמירת ערך ההפניה אם קיים
+      // Store redirect value if provided
       if (redirectTo) {
         localStorage.setItem("redirectAfterAuth", redirectTo);
       }
       
-      // שמירת סוג המשתמש המועדף אם נמצא בלוקאל סטורג'
+      // Store preferred user type if in localStorage
       const preferredUserType = localStorage.getItem("preferredUserType");
       if (preferredUserType) {
         localStorage.setItem("preferredUserType_temp", preferredUserType);
       }
       
-      // אפשרויות ספציפיות לכל ספק
+      // Regular OAuth for providers
       const providerOptions = {
         redirectTo: window.location.origin
       };
-      
-      // הוספת scopes לפייסבוק
-      if (provider === 'facebook') {
-        providerOptions.scopes = 'email,public_profile';
-      }
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -299,9 +375,8 @@ export default function Auth() {
       
       if (error) throw error;
       
-      // הודעה למשתמש
-      const providerName = provider === 'google' ? 'Google' : 
-                          provider === 'facebook' ? 'Facebook' : provider;
+      // Success message
+      const providerName = provider === 'google' ? 'Google' : provider;
       toast.success(`מעבר להתחברות באמצעות ${providerName}`);
       
     } catch (error) {
@@ -310,6 +385,36 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  // Add useEffect to check for Facebook auth return
+  useEffect(() => {
+    const checkAuthState = async () => {
+      const fbAuthPending = localStorage.getItem("fbAuthPending");
+      
+      if (fbAuthPending) {
+        // Clear the flag
+        localStorage.removeItem("fbAuthPending");
+        
+        // Check if user is logged in
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session && session.provider_token && session.provider_id === 'facebook') {
+          // Store user data and show email dialog
+          setFacebookUserData({ user: session.user });
+          setShowEmailDialog(true);
+          
+          // Focus email input when dialog opens
+          setTimeout(() => {
+            if (emailInputRef.current) {
+              emailInputRef.current.focus();
+            }
+          }, 100);
+        }
+      }
+    };
+    
+    checkAuthState();
+  }, []);
 
   const renderUserTypeSelection = () => (
     <div className="space-y-3">
@@ -485,26 +590,16 @@ export default function Auth() {
         </div>
               </div>
               
-      <div className="grid grid-cols-2 gap-2 w-full max-w-sm mx-auto">
+      <div className="w-full mx-auto">
         <Button 
           type="button" 
           variant="outline" 
-          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+          className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
           onClick={() => handleSocialLogin('google')}
           disabled={loading}
         >
           <GoogleLogo />
           <span>Google</span>
-        </Button>
-        <Button
-          type="button" 
-          variant="outline" 
-          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-          onClick={() => handleSocialLogin('facebook')}
-          disabled={loading}
-        >
-          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-          <span>Facebook</span>
         </Button>
       </div>
 
@@ -723,26 +818,16 @@ export default function Auth() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 w-full max-w-md mx-auto">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+        <div className="w-full mx-auto">
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
             onClick={() => handleSocialLogin('google')}
             disabled={loading}
           >
             <GoogleLogo />
             <span>Google</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-            onClick={() => handleSocialLogin('facebook')}
-            disabled={loading}
-          >
-            <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-            <span>Facebook</span>
           </Button>
         </div>
       </>
@@ -762,6 +847,80 @@ export default function Auth() {
   return (
     <div className="min-h-screen py-3 sm:py-4 bg-gradient-to-b from-blue-50 to-white">
       <BackgroundShapes />
+      
+      {/* Add email dialog for Facebook login */}
+      {showEmailDialog && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-xl shadow-xl max-w-md w-full p-6"
+          >
+            <h2 className="text-lg font-bold text-center mb-4">
+              כמעט סיימנו! נדרש אימייל להשלמת ההתחברות
+            </h2>
+            <p className="text-gray-600 text-sm text-center mb-4">
+              אפליקציית פייסבוק אינה מספקת לנו את כתובת האימייל שלך.
+              אנא הזן את כתובת האימייל שלך כדי שנוכל להשלים את תהליך ההתחברות.
+            </p>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="facebook-email" className="text-sm">כתובת אימייל</Label>
+                <div className="relative">
+                  <Mail className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
+                  <Input
+                    id="facebook-email"
+                    ref={emailInputRef}
+                    type="email"
+                    placeholder="name@example.com"
+                    value={facebookEmail}
+                    onChange={(e) => {
+                      setFacebookEmail(e.target.value);
+                      setFacebookEmailError(""); // Clear errors on input change
+                    }}
+                    className="pr-8 text-right"
+                    disabled={loading}
+                  />
+                </div>
+                {facebookEmailError && (
+                  <p className="text-red-500 text-xs font-medium">{facebookEmailError}</p>
+                )}
+              </div>
+              
+              <div className="flex gap-2 mt-4">
+                <Button
+                  onClick={handleFacebookEmailSubmit}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={!facebookEmail || loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                      מעבד...
+                    </span>
+                  ) : (
+                    "המשך"
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    // Sign out and close dialog
+                    await supabase.auth.signOut();
+                    setShowEmailDialog(false);
+                    navigate(createPageUrl("Auth"));
+                  }}
+                  className="flex-1"
+                  disabled={loading}
+                >
+                  ביטול
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
       
       <div className="w-full max-w-md sm:max-w-xl md:max-w-3xl mx-auto px-3 sm:px-4">
         <div className="flex items-center gap-2 mb-3 sm:mb-4">
@@ -869,26 +1028,16 @@ export default function Auth() {
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="w-full mx-auto">
                         <Button 
                           type="button" 
                           variant="outline" 
-                          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
+                          className="flex items-center justify-center gap-1 sm:gap-2 h-8 w-full border border-gray-300 hover:bg-gray-50 hover:border-[#4285F4] transition-all rounded-md text-xs sm:text-sm"
                           onClick={() => handleSocialLogin('google')}
                           disabled={loading}
                         >
                           <GoogleLogo />
                           <span>Google</span>
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          className="flex items-center justify-center gap-1 sm:gap-2 h-8 border border-gray-300 hover:bg-gray-50 hover:border-[#1877F2] transition-all rounded-md text-xs sm:text-sm"
-                          onClick={() => handleSocialLogin('facebook')}
-                          disabled={loading}
-                        >
-                          <Facebook className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-                          <span>Facebook</span>
                         </Button>
                       </div>
 
