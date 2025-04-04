@@ -289,7 +289,7 @@ export default function Auth() {
       
       // הוספת scopes לפייסבוק
       if (provider === 'facebook') {
-        providerOptions.scopes = 'public_profile';
+        providerOptions.scopes = 'email,public_profile';
       }
       
       const { data, error } = await supabase.auth.signInWithOAuth({
