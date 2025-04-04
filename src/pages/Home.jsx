@@ -43,12 +43,13 @@ const fadeIn = {
 const criticalHeadingStyles = {
   display: 'block',
   color: '#2563EB', // text-blue-600
-  fontWeight: '800',
-  fontSize: 'clamp(2.25rem, 5vw, 3.75rem)', // responsive text size without media queries
+  fontWeight: '600',
+  fontSize: 'clamp(3rem, 8vw, 5rem)', // responsive text size without media queries
   lineHeight: '1.2',
   textAlign: 'center',
   marginTop: '0',
 };
+
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -189,16 +190,8 @@ export default function Home() {
 
     loadData();
 
-    const updateTimer = setTimeout(() => {
-      setLastUpdated(new Date());
-      toast({
-        title: "עדכון אחרון",
-        description: "האתר עודכן כעת!",
-        duration: 3000,
-      });
-    }, 60000);
+   
 
-    return () => clearTimeout(updateTimer);
   }, [lastUpdated, toast]);
 
   const fallbackSuppliers = [
@@ -225,13 +218,7 @@ export default function Home() {
     }
   ];
 
-  const formattedLastUpdate = lastUpdated.toLocaleString('he-IL', {
-    hour: '2-digit',
-    minute: '2-digit',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
+  
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -277,27 +264,26 @@ export default function Home() {
       {/* Main heading with class connecting to the critical CSS in index.html */}
       <h1 
           ref={headingRef}
-            className="relative mb-4 text-4xl md:text-5xl lg:text-6xl font-extrabold 
-            text-blue-600 bg-gradient-to-r from-blue-700 to-blue-500 
-            bg-clip-text text-transparent drop-shadow-sm font-['Arial'] "
+            // className="relative mb-4 text-4xl md:text-5xl lg:text-6xl font-extrabold 
+            // text-blue-500 bg-gradient-to-r from-blue-800 to-blue-500 
+            // bg-clip-text text-transparent drop-shadow-sm font-['Arial'] "
+            className="relative mb-4 text-6xl md:text-7xl lg:text-8xl font-extrabold 
+            text-blue-500 bg-gradient-to-r from-blue-800 to-blue-500 
+            bg-clip-text text-transparent drop-shadow-sm font-['Arial']"
+            style={criticalHeadingStyles}
           suppressHydrationWarning
         >
           פלטפורמת הסיטונאות המובילה בישראל
           <span 
-            className="block h-1 bg-blue-500 w-20 md:w-24 mt-1 mx-auto md:mx-0" 
+            className="block h-1 bg-blue-400 w-24 md:w-32 mt-2 mx-auto rounded-full" 
             aria-hidden="true"
           ></span>
         </h1>
 
         {/* Enhanced Subheading with Improved Styling */}
-        <h2 className="text-lg md:text-xl lg:text-2xl font-semibold 
-          text-transparent bg-clip-text 
-          bg-gradient-to-r from-gray-800 to-gray-600 
-          mb-4 tracking-wide leading-relaxed
-          hover:from-blue-700 hover:to-blue-500 
-          transition-all duration-300 ease-in-out ">
-          מחברים בין ספקים איכותיים לסוחרים בכל רחבי הארץ 
-        </h2>
+        <h3 className="text-xl md:text-sm lg:text-lg font-semibold text-gray-800 text-center">
+        מחפשים קונים? צריכים ספק? הכל מחכה לכם כאן
+        </h3>
       
       {/* Search input - using simple div instead of motion.div */}
       <div className="mt-4">
@@ -329,51 +315,41 @@ export default function Home() {
       </div>
       
       {/* כפתורי הרשמה */}
-      <div className="mt-6">
-        <h3 className="text-base font-semibold text-gray-800 mb-3">הצטרפו לקהילה שלנו עכשיו:</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-w-3xl mx-auto">
-          <div className="shadow-sm rounded-lg overflow-hidden">
-            <Link 
-              to={createPageUrl("Auth") + "?tab=register"}
-              className="block h-full"
-              onClick={() => localStorage.setItem("preferredUserType", "buyer")}
-            >
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 transition-colors p-3 flex flex-col items-center text-center h-full border border-blue-200 rounded-lg">
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mb-1 border border-blue-300">
-                  <ShoppingBag className="h-4 w-4 text-blue-600" />
-                </div>
-                <h3 className="text-sm font-medium mb-1 text-gray-800">הרשמה כקונה</h3>
-                <p className="text-xs text-gray-600 mb-2 line-clamp-2">הרשם כקונה כדי לחפש ולרכוש מוצרים מספקים מובילים</p>
-                <div className="mt-auto bg-blue-700 text-white py-1 px-2 rounded-md text-xs font-medium inline-flex items-center gap-1 hover:bg-blue-800 transition-colors">
-                  <UserPlus className="h-3 w-3" />
-                  <span>הרשם עכשיו</span>
-                </div>
-              </div>
-            </Link>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto mt-6">
+          {/* ספק */}
+          <div className="bg-green-50 border border-green-200 p-6 rounded-xl text-right">
+            <h2 className="text-green-700 font-bold text-xl mb-2">הרשמה כספק</h2>
+            <ul className="text-sm text-gray-700 leading-relaxed">
+              <li>✔️ פרסם מוצרים בחינם</li>
+              <li>✔️ חיבור לקונים פוטנציאליים</li>
+              <li>✔️ הגדל את החשיפה העסקית שלך</li>
+            </ul>
+            <button className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700" onClick={() => {
+              localStorage.setItem("preferredUserType", "supplier");
+              navigate(createPageUrl("Auth") + "?tab=register");
+            }}>
+            הצטרף כספק
+            </button>
           </div>
-
-          <div className="shadow-sm rounded-lg overflow-hidden">
-            <Link 
-              to={createPageUrl("Auth") + "?tab=register"}
-              className="block h-full"
-              onClick={() => localStorage.setItem("preferredUserType", "supplier")}
-            >
-              <div className="bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-colors p-3 flex flex-col items-center text-center h-full border border-green-200 rounded-lg">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mb-1 border border-green-300">
-                  <Store className="h-4 w-4 text-green-600" />
-                </div>
-                <h3 className="text-sm font-medium mb-1 text-gray-800">הרשמה כספק</h3>
-                <p className="text-xs text-gray-600 mb-2 line-clamp-2">הצג את המוצרים שלך וחבר בין העסק שלך לקונים פוטנציאליים</p>
-                <div className="mt-auto bg-green-600 text-white py-1 px-2 rounded-md text-xs font-medium inline-flex items-center gap-1 hover:bg-green-700 transition-colors">
-                  <Building className="h-3 w-3" />
-                  <span>הרשם כספק</span>
-                </div>
-              </div>
-            </Link>
+          {/* קונה */}
+          <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl text-right">
+            <h2 className="text-blue-700 font-bold text-xl mb-2">הרשמה כקונה</h2>
+            <ul className="text-sm text-gray-700 leading-relaxed">
+              <li>✔️ מצא ספקים אמינים</li>
+              <li>✔️ גש למוצרים סיטונאיים</li>
+              <li>✔️ נהל קשר ישיר עם ספקים אמיתיים</li>
+            </ul>
+            <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700" onClick={() => {
+              localStorage.setItem("preferredUserType", "customer");
+              navigate(createPageUrl("Auth") + "?tab=register");
+            }}>
+           הצטרף כקונה
+            </button>
           </div>
         </div>
       </div>
-    </div>
+      
+   
   </div>
 </section>
       
