@@ -70,7 +70,7 @@ export default function SupplierCard({ supplier, className = "" }) {
 
   return (
     <>
-      <Card className={`w-full max-w-2xl mx-auto bg-white shadow-md border rounded-2xl p-4 text-right flex flex-col h-[350px] ${className}`}>
+      <Card className={`w-full max-w-2xl mx-auto bg-white shadow-md border rounded-2xl p-4 text-right flex flex-col h-[370px] ${className}`}>
         {/* Header */}
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
