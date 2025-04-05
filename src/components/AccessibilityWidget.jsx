@@ -246,12 +246,13 @@ export default function AccessibilityWidget() {
           <TooltipTrigger asChild>
             <Button
               onClick={() => setIsOpen(!isOpen)}
-              className={`fixed left-0 z-50 rounded-r-full h-14 w-auto px-4 shadow-lg 
+              className={`fixed left-0 z-50 rounded-r-full h-14 w-14 overflow-hidden shadow-lg 
                 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 
                 accessibility-button transition-all duration-300 ease-in-out
-                hover:scale-105 hover:shadow-xl
-                flex items-center justify-center gap-2
+                hover:w-auto hover:px-4 hover:shadow-xl
+                flex items-center justify-center gap-0 hover:gap-2
                 border-2 border-white border-l-0
+                group
                 ${Object.values(settings).some(value => value !== false && value !== 100) 
                   ? 'ring-4 ring-blue-200' 
                   : ''}`}
@@ -263,8 +264,8 @@ export default function AccessibilityWidget() {
               }}
               aria-label="אפשרויות נגישות"
             >
-              <Accessibility className="h-6 w-6 text-white" />
-              <span className="font-medium text-white">נגישות</span>
+              <Accessibility className="h-8 w-8 text-white transform transition-transform duration-300 group-hover:scale-125" />
+              <span className="font-medium text-white whitespace-nowrap w-0 overflow-hidden opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-300">נגישות</span>
               {Object.values(settings).some(value => value !== false && value !== 100) && (
                 <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full border-2 border-white" />
               )}

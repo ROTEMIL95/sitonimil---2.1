@@ -66,21 +66,49 @@ function ProductImage({ src, alt, className }) {
 function ContactPopup({ isOpen, onClose, product }) {
   if (!isOpen) return null;
   
+  // Get supplier details from product
+  const supplierName = product?.supplier_name || (product?.supplier?.name) || "";
+  const companyName = product?.company_name || (product?.supplier?.company_name) || supplierName || "הספק";
+  
   const formatPhoneForWhatsApp = (phone) => {
     // Remove any non-digit characters
     let cleaned = (phone || "").replace(/\D/g, "");
+    
+    // If empty or invalid, use a default
+    if (!cleaned || cleaned.length < 9) {
+      return "972500000000"; // Default fallback number
+    }
     
     // If number starts with 0, replace it with 972
     if (cleaned.startsWith("0")) {
       cleaned = "972" + cleaned.substring(1);
     }
     
-    // If number doesn't start with 972, add it
-    if (!cleaned.startsWith("972")) {
-      cleaned = "972" + cleaned;
+    // If number doesn't have country code and doesn't start with 0
+    if (!cleaned.startsWith("972") && !cleaned.startsWith("0")) {
+      // If it's likely an Israeli number (9-10 digits)
+      if (cleaned.length >= 9 && cleaned.length <= 10) {
+        cleaned = "972" + cleaned;
+      }
     }
     
+    console.log("Formatted WhatsApp number:", cleaned);
     return cleaned;
+  };
+  
+  // Get the supplier phone from all possible sources
+  const getSupplierPhone = () => {
+    // Check all possible locations for the phone number
+    const phone = 
+      product.supplier_phone || 
+      product.supplier?.phone || 
+      product.phone ||
+      (product.supplier_data && product.supplier_data.phone) ||
+      (window.supplierData && window.supplierData[product.supplier_id] && window.supplierData[product.supplier_id].phone) ||
+      "0500000000"; // Default fallback
+      
+    console.log("Found supplier phone:", phone);
+    return phone;
   };
   
   return (
@@ -95,8 +123,19 @@ function ContactPopup({ isOpen, onClose, product }) {
         <div className="grid gap-4 py-4">
           <Button onClick={(e) => {
             e.preventDefault();
-            const phoneNumber = formatPhoneForWhatsApp(product.supplier_phone || "0500000000");
-            const message = `שלום, אני מעוניין במוצר ${product.title} (מק״ט: ${product.id})`;
+            const supplierPhone = getSupplierPhone();
+            const phoneNumber = formatPhoneForWhatsApp(supplierPhone);
+            
+            // Get the full product URL (current domain + product page path)
+            const baseUrl = window.location.origin;
+            const productPath = createPageUrl("Product");
+            const productUrl = `${baseUrl}${productPath}?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`;
+            
+            const message = `שלום,\n` +
+            `אני מתעניין במוצר "${product.title}" שראיתי באתר Sitonim-il \n` +
+            `אשמח לקבל פרטים נוספים על המוצר.\n` +
+            `קישור למוצר: ${productUrl}`;
+
             window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
           }} className="flex items-center gap-2">
             <Send className="h-4 w-4" />
@@ -144,6 +183,10 @@ export default function ProductCard({
           if (supplier) {
             console.log("Loaded supplier:", supplier);
             setSupplierData(supplier);
+            
+            // Store supplier data globally for access in dialog
+            if (!window.supplierData) window.supplierData = {};
+            window.supplierData[product.supplier_id] = supplier;
           }
         } catch (error) {
           console.error("Failed to load supplier data:", error);
@@ -185,7 +228,7 @@ export default function ProductCard({
 
   // מידע של הספק - כולל בדיקה גם מה-supplier שהוטען מה-API
   const supplierName = product?.supplier_name || (product?.supplier?.name) || supplierData?.name || "";
-  const companyName = product?.company_name || (product?.supplier?.company_name) || supplierData?.company_name || supplierName;
+  const companyName = product?.company_name || (product?.supplier?.company_name) || supplierData?.company_name || supplierName || "הספק";
   const supplierLogo = product?.supplier_logo || (product?.supplier?.logo) || supplierData?.logo || null;
   
   // בדיקות עבור חזרה מוקדמת
@@ -351,7 +394,7 @@ export default function ProductCard({
           </div>
           
           {/* Media - Product Image */}
-          <div className="relative px-5 pt-5 pb-3 flex-grow">
+          <div className="relative px-5 pt-2 pb-1 flex-grow">
             <div className="w-full h-40 sm:h-48 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 flex items-center justify-center">
               <ProductImage 
                 src={product.images?.[0] || product.image || DEFAULT_PRODUCT_IMAGE} 
@@ -359,19 +402,14 @@ export default function ProductCard({
                 className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
               />
               
-              {/* Overlay badges */}
-              {product.discount_percent > 0 && (
-                <Badge className="absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white text-sm font-[500] font-heebo">
-                  {product.discount_percent}% הנחה
-                </Badge>
-              )}
+             
             </div>
           </div>
           
           {/* Card Content */}
-          <CardContent className="p-5 pb-4 flex flex-col">
+          <CardContent className="p-5 pb-3 flex flex-col">
             {/* Product Rating - Fixed height area */}
-            <div className="h-6 flex items-center justify-end mb-2.5">
+            <div className="h-6 flex items-center justify-start mb-1">
               {product.rating && (
                 <div className="flex items-center bg-yellow-50 px-3 py-1.5 rounded-full">
                   <Star className="fill-yellow-400 text-yellow-400 h-4 w-4" />
@@ -383,14 +421,14 @@ export default function ProductCard({
             </div>
             
             {/* Header - Product Name - Fixed height */}
-            <div className="h-14 mb-1.5">
+            <div className="h-16">
               <h3 className="font-[700] font-heebo line-clamp-2 group-hover:text-blue-600 transition-colors text-right text-lg sm:text-xl tracking-tight">
                 {product.title || product.name || "מוצר ללא שם"}
               </h3>
             </div>
             
             {/* Supporting Text - Description - Fixed height */}
-            <div className="h-10 mb-4">
+            <div className="h-10 mb-3">
               {product.description && (
                 <p className="text-sm font-[500] font-heebo line-clamp-2 text-gray-600 text-right leading-relaxed">
                   {product.description}

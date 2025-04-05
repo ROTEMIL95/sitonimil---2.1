@@ -259,7 +259,7 @@ export default function Home() {
   {/* Simplified gradient background */}
   <div className="absolute inset-0 bg-gradient-to-b from-white to-blue-50"></div>
 
-  <div className="relative container mx-auto px-3 md:px-4 py-4 md:py-6 lg:py-8">
+  <div className="relative container mx-auto px-3 md:px-3 md:py-4 lg:py-5">
     <div className="max-w-3xl mx-auto text-center md:text-right ">
       {/* Main heading with class connecting to the critical CSS in index.html */}
       <h1 
@@ -366,7 +366,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <motion.div className="flex justify-between items-center mb-8" variants={fadeIn}>
               <div>
-                <h2 id="most-viewed-products-heading" className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר :</h2>
+                <h2 id="most-viewed-products-heading" className="text-base sm:text-sm md:text-2xl font-bold text-gray-900">  המוצרים הנצפים ביותר :</h2>
               </div>
               <div>
                 <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2 transition-colors">

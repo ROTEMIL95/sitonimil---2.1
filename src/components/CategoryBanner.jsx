@@ -220,14 +220,48 @@ export default function CategoryBanner() {
     
     const x = e.touches[0].clientX;
     const distance = startX - x;
-    scrollContainerRef.current.scrollLeft = scrollLeft + distance;
+    scrollContainerRef.current.scrollLeft = scrollLeft + distance * 1.2; // Increased sensitivity for mobile
     
     // Check scroll buttons during drag
     checkScrollButtons();
     e.preventDefault(); // Prevent page scrolling while dragging categories
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e) => {
+    if (!isDragging || !scrollContainerRef.current) {
+      setIsDragging(false);
+      return;
+    }
+    
+    // Add momentum scrolling effect
+    const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    const distance = startX - endX;
+    const velocity = Math.abs(distance) / 100; // Calculate velocity
+    
+    if (Math.abs(distance) > 20) { // Only snap if there's significant movement
+      // Calculate the index to snap to
+      const itemsInView = Math.floor(scrollContainerRef.current.clientWidth / itemWidth);
+      const currentIndex = Math.round(scrollContainerRef.current.scrollLeft / itemWidth);
+      let targetIndex;
+      
+      if (distance > 0) { // Swiping left (moving right)
+        targetIndex = currentIndex + 1;
+      } else { // Swiping right (moving left)
+        targetIndex = Math.max(0, currentIndex - 1);
+      }
+      
+      // Apply extra momentum based on velocity
+      if (velocity > 0.5) {
+        targetIndex += distance > 0 ? 1 : -1;
+      }
+      
+      // Ensure target is within bounds
+      targetIndex = Math.max(0, Math.min(targetIndex, categories.length - itemsInView));
+      
+      // Scroll to the target item
+      scrollToPosition(targetIndex * itemWidth);
+    }
+    
     setIsDragging(false);
     // Recheck scroll state after momentum scrolling
     setTimeout(checkScrollButtons, 300);
@@ -252,11 +286,40 @@ export default function CategoryBanner() {
     checkScrollButtons();
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.style.cursor = 'grab';
+  const handleMouseUp = (e) => {
+    if (!isDragging || !scrollContainerRef.current) {
+      setIsDragging(false);
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.style.cursor = 'grab';
+      }
+      return;
     }
+    
+    // Add snapping behavior for desktop too
+    const endX = e.clientX;
+    const distance = startX - endX;
+    
+    if (Math.abs(distance) > 50) { // Only snap if there's significant movement
+      // Calculate the index to snap to
+      const itemsInView = Math.floor(scrollContainerRef.current.clientWidth / itemWidth);
+      const currentIndex = Math.round(scrollContainerRef.current.scrollLeft / itemWidth);
+      let targetIndex;
+      
+      if (distance > 0) { // Swiping left (moving right)
+        targetIndex = currentIndex + 1;
+      } else { // Swiping right (moving left)
+        targetIndex = Math.max(0, currentIndex - 1);
+      }
+      
+      // Ensure target is within bounds
+      targetIndex = Math.max(0, Math.min(targetIndex, categories.length - itemsInView));
+      
+      // Scroll to the target item
+      scrollToPosition(targetIndex * itemWidth);
+    }
+    
+    setIsDragging(false);
+    scrollContainerRef.current.style.cursor = 'grab';
     setTimeout(checkScrollButtons, 150);
   };
 
@@ -284,35 +347,37 @@ export default function CategoryBanner() {
         </motion.div>
 
         <div className="relative">
-          {/* Navigation buttons - positioned outside the scroll area with fixed width */}
-          <div className="flex justify-between mb-2 sm:mb-0">
-            <div className={`absolute left-0 top-1/2 -translate-y-1/2 z-30 pl-1 sm:pl-2 md:pl-3 lg:pl-4 ${!canScrollLeft ? 'invisible' : ''}`}>
-              <Button 
-                onClick={handleScrollLeft} 
-                variant="secondary"
-                size="icon"
-                className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
-                aria-label="scroll left"
-              >
-                <ChevronLeft className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
-              </Button>
-            </div>
-            
-            <div className={`absolute right-0 top-1/2 -translate-y-1/2 z-30 pr-1 sm:pr-2 md:pr-3 lg:pr-4 ${!canScrollRight ? 'invisible' : ''}`}>
-              <Button 
-                onClick={handleScrollRight} 
-                variant="secondary"
-                size="icon"
-                className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
-                aria-label="scroll right"
-              >
-                <ChevronRight className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
-              </Button>
-            </div>
-          </div>
+          {/* Navigation buttons - only visible on desktop/tablet */}
+          {!isMobile && (
+            <>
+              <div className={`absolute left-0 top-1/2 -translate-y-1/2 z-30 pl-1 sm:pl-2 md:pl-3 lg:pl-4 ${!canScrollLeft ? 'invisible' : ''}`}>
+                <Button 
+                  onClick={handleScrollLeft} 
+                  variant="secondary"
+                  size="icon"
+                  className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
+                  aria-label="scroll left"
+                >
+                  <ChevronLeft className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                </Button>
+              </div>
+              
+              <div className={`absolute right-0 top-1/2 -translate-y-1/2 z-30 pr-1 sm:pr-2 md:pr-3 lg:pr-4 ${!canScrollRight ? 'invisible' : ''}`}>
+                <Button 
+                  onClick={handleScrollRight} 
+                  variant="secondary"
+                  size="icon"
+                  className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all transform active:scale-95 border border-gray-200"
+                  aria-label="scroll right"
+                >
+                  <ChevronRight className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-gray-700" />
+                </Button>
+              </div>
+            </>
+          )}
 
-          {/* Scroll container with padding to accommodate the buttons */}
-          <div className="mx-auto overflow-hidden px-6 sm:px-8 md:px-10 lg:px-12">
+          {/* Scroll container with padding to accommodate the buttons on desktop, less padding on mobile */}
+          <div className={`mx-auto overflow-hidden ${isMobile ? 'px-2' : 'px-6 sm:px-8 md:px-10 lg:px-12'}`}>
             <div 
               ref={scrollContainerRef}
               className="flex overflow-x-auto pb-4 pt-2 hide-scrollbar scroll-smooth touch-pan-x snap-x snap-mandatory"
@@ -326,8 +391,8 @@ export default function CategoryBanner() {
               onMouseLeave={handleMouseLeave}
               style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
             >
-              {/* Center the categories on desktop */}
-              <div className="mx-auto flex justify-center sm:justify-start">
+              {/* Center items only on larger screens, align start on mobile for better swiping */}
+              <div className={`flex ${isMobile ? 'justify-start pl-2' : 'mx-auto justify-center sm:justify-start'}`}>
                 {categories.map((category, index) => {
                   const IconComponent = iconMap[category.icon] || Home;
                   
@@ -340,7 +405,7 @@ export default function CategoryBanner() {
                       viewport={{ once: true }}
                       custom={index}
                       whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                      className="transform transition-all duration-300 flex-shrink-0 px-1 sm:px-1.5 md:px-2 snap-start"
+                      className={`transform transition-all duration-300 flex-shrink-0 snap-center ${isMobile ? 'px-2' : 'px-1 sm:px-1.5 md:px-2'}`}
                     >
                       <Link 
                         to={createPageUrl("Search") + `?category=${category.value}`}
@@ -359,9 +424,9 @@ export default function CategoryBanner() {
                             <div className="bg-white/20 backdrop-blur-sm p-1 sm:p-1.5 md:p-2 rounded-full mb-1 sm:mb-1 md:mb-2 w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 flex items-center justify-center">
                               <IconComponent className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-white" />
                             </div>
-                            <h3 className="font-normal text-[7px] sm:text-xs md:text-sm text-white drop-shadow-md">
+                            <h6 className="font-normal text-[5px] xs:text-[6px] sm:text-xs md:text-sm text-white drop-shadow-md px-1 leading-tight tracking-wide" style={{ fontFamily: 'Arial, sans-serif', wordBreak: 'keep-all', whiteSpace: 'nowrap' }}>
                               {category.label}
-                            </h3>
+                            </h6>
                           </div>
                         </div>
                       </Link>

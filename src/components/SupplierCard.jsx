@@ -70,11 +70,11 @@ export default function SupplierCard({ supplier, className = "" }) {
 
   return (
     <>
-      <Card className={`w-full max-w-2xl mx-auto bg-white shadow-md border rounded-2xl p-4 text-right flex flex-col h-[400px] ${className}`}>
+      <Card className={`w-full max-w-2xl mx-auto bg-white shadow-md border rounded-2xl p-4 text-right flex flex-col h-[350px] ${className}`}>
         {/* Header */}
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
-            <Avatar className="w-16 h-16">
+            <Avatar className="w-16 h-16 rounded-full border-2 border-gray-200">
               {supplier.logo_url ? (
                 <AvatarImage src={supplier.logo_url} alt={supplier.company_name} />
               ) : (
@@ -96,10 +96,10 @@ export default function SupplierCard({ supplier, className = "" }) {
         </div>
 
         {/* Divider */}
-        <div className="w-full h-px bg-gray-200 my-6"></div>
+        <div className="w-full h-px bg-gray-200 my-4"></div>
 
         {/* Description */}
-        <div className="mt-4">
+        <div className="mt-2">
           <p className="text-sm text-black leading-snug line-clamp-2">
             {supplier.description || "אין תיאור זמין"}
           </p>
@@ -135,7 +135,7 @@ export default function SupplierCard({ supplier, className = "" }) {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-between items-center pt-6 border-t mt-auto gap-3">
+        <div className="flex justify-between items-center pt-5 border-t gap-3">
           <Button 
             className="flex-1 bg-blue-900 hover:bg-blue-800 text-white rounded-md px-4 py-2 text-sm font-medium"
             onClick={() => setShowContactPopup(true)}
