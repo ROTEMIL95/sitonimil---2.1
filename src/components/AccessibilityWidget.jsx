@@ -300,6 +300,7 @@ export default function AccessibilityWidget() {
                 size="icon" 
                 onClick={() => setIsOpen(false)}
                 className="h-8 w-8 opacity-70 hover:opacity-100 hover:bg-gray-100"
+                aria-label="סגור את תפריט הנגישות"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -313,6 +314,7 @@ export default function AccessibilityWidget() {
                   size="lg"
                   className="flex-1 h-12 px-4 bg-white border-2 border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 rounded-xl"
                   onClick={() => updateSettings('fontSize', Math.max(80, settings.fontSize - 10))}
+                  aria-label="הקטנת גודל טקסט"
                 >
                   <ZoomOut className="h-5 w-5 text-gray-700" />
                 </Button>
@@ -322,6 +324,7 @@ export default function AccessibilityWidget() {
                   size="lg"
                   className="flex-1 h-12 px-4 bg-white border-2 border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 rounded-xl"
                   onClick={() => updateSettings('fontSize', Math.min(200, settings.fontSize + 10))}
+                  aria-label="הגדלת גודל טקסט"
                 >
                   <ZoomIn className="h-5 w-5 text-gray-700" />
                 </Button>
@@ -339,6 +342,7 @@ export default function AccessibilityWidget() {
                 <Switch
                   checked={settings.darkMode}
                   onCheckedChange={(checked) => updateSettings('darkMode', checked)}
+                  aria-label="הפעל/כבה מצב כהה"
                 />
               </div>
 
@@ -350,6 +354,7 @@ export default function AccessibilityWidget() {
                 <Switch
                   checked={settings.contrast}
                   onCheckedChange={(checked) => updateSettings('contrast', checked)}
+                  aria-label="הפעל/כבה ניגודיות גבוהה"
                 />
               </div>
 
@@ -361,6 +366,7 @@ export default function AccessibilityWidget() {
                 <Switch
                   checked={settings.underlineLinks}
                   onCheckedChange={(checked) => updateSettings('underlineLinks', checked)}
+                  aria-label="הפעל/כבה הדגשת קישורים"
                 />
               </div>
 
@@ -375,6 +381,7 @@ export default function AccessibilityWidget() {
                     updateSettings('bigCursor', checked);
                     handleBigCursor(checked);
                   }}
+                  aria-label="הפעל/כבה סמן גדול"
                 />
               </div>
             </div>
@@ -386,6 +393,7 @@ export default function AccessibilityWidget() {
                 variant="outline"
                 onClick={resetSettings}
                 className="w-full border-red-300 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 flex items-center justify-center gap-2 h-10"
+                aria-label="איפוס כל הגדרות הנגישות"
               >
                 <RotateCcw className="h-4 w-4" />
                 איפוס הגדרות
