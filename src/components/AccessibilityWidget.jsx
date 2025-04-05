@@ -6,10 +6,9 @@ import {
   ZoomOut, 
   Moon, 
   Underline,
-  MousePointer2, 
+  MousePointer2 , 
   RotateCcw,
   X,
-  ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -373,7 +372,7 @@ export default function AccessibilityWidget() {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <MousePointer2 className="h-4 w-4" />
+                  <MousePointer2  className="h-4 w-4" />
                   <Label className="setting-label">סמן גדול</Label>
                 </div>
                 <Switch
