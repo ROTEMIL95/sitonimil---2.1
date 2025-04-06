@@ -111,72 +111,83 @@ export default function HelpPage() {
         <h2 className="text-2xl font-bold">שאלות נפוצות</h2>
         
         <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="item-1">
-            <AccordionTrigger className="text-right">
-              איך אני יכול להתחיל להשתמש בפלטפורמה?
-            </AccordionTrigger>
-            <AccordionContent className="text-right">
-              <p className="text-gray-600">
-                כדי להתחיל, יש ליצור חשבון חדש דרך דף ההרשמה. לאחר ההרשמה, תוכלו להזין את פרטי העסק שלכם ולהתחיל להשתמש בשירותים השונים של הפלטפורמה.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
+  <AccordionItem value="item-1">
+    <AccordionTrigger className="text-right">
+      איך אני יכול להתחיל להשתמש בפלטפורמה?
+    </AccordionTrigger>
+    <AccordionContent className="text-right">
+      <p className="text-gray-600">
+        כדי להתחיל, יש ליצור חשבון חדש דרך דף ההרשמה. לאחר ההרשמה, תוכלו להזין את פרטי העסק שלכם ולהתחיל להשתמש בשירותים השונים של הפלטפורמה.
+      </p>
+    </AccordionContent>
+  </AccordionItem>
 
-          <AccordionItem value="item-2">
-            <AccordionTrigger className="text-right">
-              איך אני יכול לשנות את סוג העסק שלי?
-            </AccordionTrigger>
-            <AccordionContent className="text-right">
-              <p className="text-gray-600">
-                ניתן לשנות את סוג העסק דרך דף הפרופיל. לחצו על "ערוך פרופיל" ובחרו את סוג העסק הרצוי מתוך הרשימה הנפתחת. שימו לב ששינוי סוג העסק עשוי להשפיע על השירותים הזמינים לכם.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
+  <AccordionItem value="item-2">
+    <AccordionTrigger className="text-right">
+      איך אני יכול לשנות את סוג העסק שלי?
+    </AccordionTrigger>
+    <AccordionContent className="text-right">
+      <p className="text-gray-600">
+        ניתן לשנות את סוג העסק דרך דף הפרופיל. לחצו על "ערוך פרופיל" ובחרו את סוג העסק הרצוי מתוך הרשימה הנפתחת. שימו לב ששינוי סוג העסק עשוי להשפיע על השירותים הזמינים לכם.
+      </p>
+    </AccordionContent>
+  </AccordionItem>
 
-          <AccordionItem value="item-3">
-            <AccordionTrigger className="text-right">
-              איך אני יכול להעלות מוצרים למכירה?
-            </AccordionTrigger>
-            <AccordionContent className="text-right">
-              <p className="text-gray-600">
-                כדי להעלות מוצרים, יש להיכנס לדף "המוצרים שלי" ולחצות על "הוסף מוצר חדש". מלאו את כל הפרטים הנדרשים, כולל תמונות, תיאור ומחיר. לאחר העלאת המוצר, הוא יופיע בקטלוג הכללי.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
+  <AccordionItem value="item-3">
+    <AccordionTrigger className="text-right">
+      איך אני יכול להעלות מוצרים למכירה?
+    </AccordionTrigger>
+    <AccordionContent className="text-right">
+      <p className="text-gray-600">
+        כדי להעלות מוצרים, יש להיכנס לדף "המוצרים שלי" וללחוץ על "הוסף מוצר חדש". מלאו את כל הפרטים הנדרשים, כולל תמונות, תיאור ומחיר. לאחר העלאת המוצר, הוא יופיע בקטלוג הכללי.
+      </p>
+    </AccordionContent>
+  </AccordionItem>
 
-          <AccordionItem value="item-4">
-            <AccordionTrigger className="text-right">
-              איך מתבצע התשלום בפלטפורמה?
-            </AccordionTrigger>
-            <AccordionContent className="text-right">
-              <p className="text-gray-600">
-                הפלטפורמה תומכת במגוון אמצעי תשלום, כולל כרטיסי אשראי והעברה בנקאית. התשלום מתבצע בצורה מאובטחת דרך מערכת התשלומים המשולבת. כל העסקאות מוצפנות ומאובטחות.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
+  <AccordionItem value="item-4">
+    <AccordionTrigger className="text-right">
+      האם הרישום כקונה או כספק כרוך בתשלום?
+    </AccordionTrigger>
+    <AccordionContent className="text-right">
+      <p className="text-gray-600">
+        לא. ההרשמה לפלטפורמה חינמית לגמרי, גם עבור קונים וגם עבור ספקים. בעתיד ייתכנו שירותים מתקדמים בתשלום.
+      </p>
+    </AccordionContent>
+  </AccordionItem>
 
-          <AccordionItem value="item-5">
-            <AccordionTrigger className="text-right">
-              מה המדיניות לגבי החזרות והחלפות?
-            </AccordionTrigger>
-            <AccordionContent className="text-right">
-              <p className="text-gray-600">
-                המדיניות לגבי החזרות והחלפות נקבעת על ידי כל ספק בנפרד. בדרך כלל, ניתן להחזיר מוצרים תוך 14 ימים מיום המשלוח, בכפוף לתנאים מסוימים. מומלץ לבדוק את המדיניות הספציפית של הספק לפני ביצוע רכישה.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
+  <AccordionItem value="item-5">
+    <AccordionTrigger className="text-right">
+      האם ניתן לפרסם יותר ממוצר אחד?
+    </AccordionTrigger>
+    <AccordionContent className="text-right">
+      <p className="text-gray-600">
+        כן, ניתן לפרסם כמה מוצרים שתרצו. פשוט עברו לדף "המוצרים שלי" ולחצו על "הוסף מוצר" לכל מוצר נוסף.
+      </p>
+    </AccordionContent>
+  </AccordionItem>
 
-          <AccordionItem value="item-6">
-            <AccordionTrigger className="text-right">
-              איך אני יכול לדווח על בעיה או להציע שיפור?
-            </AccordionTrigger>
-            <AccordionContent className="text-right">
-              <p className="text-gray-600">
-                אתם מוזמנים ליצור קשר עם צוות התמיכה דרך הטופס באתר או דרך המייל support@wholesale-hub.co.il. כל משוב שלכם חשוב לנו ומסייע בשיפור השירות.
-              </p>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+  <AccordionItem value="item-6">
+    <AccordionTrigger className="text-right">
+      איך אני יוצר קשר עם ספק?
+    </AccordionTrigger>
+    <AccordionContent className="text-right">
+      <p className="text-gray-600">
+        בכל עמוד מוצר תמצאו כפתור ליצירת קשר עם הספק דרך וואטסאפ או טופס ישיר באתר. ההודעה תכלול גם קישור למוצר לצורך התייחסות מהירה.
+      </p>
+    </AccordionContent>
+  </AccordionItem>
+
+  <AccordionItem value="item-7">
+    <AccordionTrigger className="text-right">
+      איך אני יכול לדווח על בעיה או להציע שיפור?
+    </AccordionTrigger>
+    <AccordionContent className="text-right">
+      <p className="text-gray-600">
+        אתם מוזמנים ליצור קשר עם צוות התמיכה דרך הטופס באתר או דרך המייל sitonimil@gmail.com. כל משוב שלכם חשוב לנו ומסייע בשיפור השירות.
+      </p>
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
