@@ -364,7 +364,7 @@ export default function Home() {
           variants={fadeIn}
         >
           <div className="max-w-7xl mx-auto">
-            <motion.div className="flex justify-between items-center mb-8" variants={fadeIn}>
+            <motion.div className="flex justify-between items-center mb-6" variants={fadeIn}>
               <div className="w-full sm:w-auto text-center sm:text-right">
                 <h2 id="most-viewed-products-heading" className="text-xl sm:text-xl md:text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר</h2>
               </div>
@@ -490,11 +490,11 @@ export default function Home() {
         >
           <div className="container mx-auto px-4 md:px-6">
             <div className="max-w-7xl mx-auto">
-              <motion.div className="flex justify-between items-center mb-3" variants={fadeIn}>
-                <div>
-                  <h2 id="top-suppliers-heading" className="text-lg font-bold text-gray-900">ספקים מובילים</h2>
+              <motion.div className="flex justify-between items-center mb-6" variants={fadeIn}>
+                <div className="w-full sm:w-auto">
+                  <h2 id="top-suppliers-heading" className="text-lg font-bold text-gray-900 text-center sm:text-right">ספקים מובילים</h2>
                 </div>
-                <div>
+                <div className="hidden sm:block">
                   <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-1 focus:ring-blue-500 focus-visible:ring-offset-1 transition-colors text-xs py-1 px-2">
                     <Link to={createPageUrl("Suppliers")} className="flex items-center gap-1 group">
                       <span className="text-xs">צפייה בכל הספקים</span>
@@ -503,6 +503,15 @@ export default function Home() {
                   </Button>
                 </div>
               </motion.div>
+              
+              <div className="mb-3 flex justify-center sm:hidden ">
+                <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-1 focus:ring-blue-500 focus-visible:ring-offset-1 transition-colors text-xs py-1 px-2">
+                  <Link to={createPageUrl("Suppliers")} className="flex items-center gap-1 group">
+                    <span className="text-xs">צפייה בכל הספקים</span>
+                    <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </div>
               
               <motion.div 
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
