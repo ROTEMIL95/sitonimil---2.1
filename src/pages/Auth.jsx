@@ -535,15 +535,25 @@ export default function Auth() {
             />
             <Label htmlFor="terms" className="text-xs text-right">
               אני מסכים ל
-              <Link to="/terms" className="text-blue-600 hover:underline mx-1">
+              <a
+                href={createPageUrl("Terms")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-500"
+              >
                 תנאי השימוש
-              </Link>
+              </a>{" "}
               ו
-              <Link to="/privacy" className="text-blue-600 hover:underline mx-1">
+              <a
+                href={createPageUrl("Privacy")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-500"
+              >
                 מדיניות הפרטיות
-              </Link>
+              </a>
             </Label>
-                  </div>
+          </div>
           
           {error && (
             <div className="bg-red-50 text-red-600 p-2 rounded-md mt-2 text-center text-xs font-medium">
@@ -573,9 +583,9 @@ export default function Auth() {
                 הרשמה
               </span>
             )}
-                  </Button>
-                </div>
-              </div>
+          </Button>
+        </div>
+      </div>
 
       <div className="relative my-3">
         <div className="absolute inset-0 flex items-center">
@@ -584,8 +594,8 @@ export default function Auth() {
         <div className="relative flex justify-center text-sm">
           <span className="px-2 bg-white text-gray-500 text-xs">או הרשם באמצעות</span>
         </div>
-              </div>
-              
+      </div>
+      
       <div className="w-full mx-auto">
         <Button 
           type="button" 
@@ -609,7 +619,7 @@ export default function Auth() {
             התחבר כאן
           </Link>
         </p>
-                  </div>
+      </div>
     </>
   );
 
@@ -744,13 +754,23 @@ export default function Auth() {
               className="h-3.5 w-3.5 mt-0.5 sm:mt-0" />
             <Label htmlFor="supplier-terms" className="text-xs text-right">
               אני מסכים ל
-              <Link to="/help?tab=terms" className="text-blue-600 hover:underline mx-1">
+              <a
+                href={createPageUrl("Terms")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-500"
+              >
                 תנאי השימוש
-              </Link>
+              </a>{" "}
               ו
-              <Link to="/privacy" className="text-blue-600 hover:underline mx-1">
+              <a
+                href={createPageUrl("Privacy")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-blue-500"
+              >
                 מדיניות הפרטיות
-              </Link>
+              </a>
             </Label>
           </div>
 

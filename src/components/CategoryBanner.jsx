@@ -98,8 +98,10 @@ export default function CategoryBanner() {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isScrollingHorizontally, setIsScrollingHorizontally] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const [itemWidth, setItemWidth] = useState(0);
 
@@ -174,6 +176,27 @@ export default function CategoryBanner() {
     };
   }, []);
 
+  useEffect(() => {
+    // קוד CSS גלובלי להסתרת סרגלי גלילה ושיפור חוויית המובייל
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      @media (pointer: coarse) {
+        .touch-pan-x {
+          overscroll-behavior-x: contain;
+          scroll-snap-type: x mandatory;
+        }
+      }
+    `;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+
   const scrollToPosition = (position) => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({
@@ -211,20 +234,45 @@ export default function CategoryBanner() {
   const handleTouchStart = (e) => {
     if (!scrollContainerRef.current) return;
     setStartX(e.touches[0].clientX);
+    setStartY(e.touches[0].clientY);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     setIsDragging(true);
+    setIsScrollingHorizontally(false);
   };
 
   const handleTouchMove = (e) => {
     if (!isDragging || !scrollContainerRef.current) return;
     
     const x = e.touches[0].clientX;
-    const distance = startX - x;
-    scrollContainerRef.current.scrollLeft = scrollLeft + distance * 1.2; // Increased sensitivity for mobile
+    const y = e.touches[0].clientY;
+    const xDiff = startX - x;
+    const yDiff = startY - y;
     
-    // Check scroll buttons during drag
-    checkScrollButtons();
-    e.preventDefault(); // Prevent page scrolling while dragging categories
+    // בפעם הראשונה שהמשתמש מתחיל לגלול, נקבע את כיוון הגלילה
+    if (!isScrollingHorizontally && (Math.abs(xDiff) > 5 || Math.abs(yDiff) > 5)) {
+      // אם התנועה יותר אופקית מאשר אנכית (ובהפרש משמעותי)
+      // נגדיר את זה כגלילה אופקית ונמנע את הגלילה האנכית
+      if (Math.abs(xDiff) > Math.abs(yDiff) * 1.2) {
+        setIsScrollingHorizontally(true);
+        e.preventDefault(); // מונעים את הגלילה האנכית במקרה של גלילה אופקית ברורה
+      } else {
+        // אחרת זו גלילה אנכית, נפסיק לעקוב כאן
+        setIsDragging(false);
+        return;
+      }
+    }
+    
+    // המשך טיפול בגלילה האופקית
+    if (isScrollingHorizontally) {
+      // עדכון מיקום הגלילה
+      scrollContainerRef.current.scrollLeft = scrollLeft + xDiff;
+      
+      // מונעים את אירוע הברירת מחדל רק אם אנחנו באמת גוללים אופקית
+      e.preventDefault();
+      
+      // בדיקת מצב כפתורי הגלילה
+      checkScrollButtons();
+    }
   };
 
   const handleTouchEnd = (e) => {
@@ -233,37 +281,32 @@ export default function CategoryBanner() {
       return;
     }
     
-    // Add momentum scrolling effect
+    // הוספת אפקט של מומנטום בגלילה
     const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
     const distance = startX - endX;
-    const velocity = Math.abs(distance) / 100; // Calculate velocity
     
-    if (Math.abs(distance) > 20) { // Only snap if there's significant movement
-      // Calculate the index to snap to
+    // רק אם הייתה תנועה משמעותית, נפעיל את ה-snapping
+    if (Math.abs(distance) > 20) {
+      // חישוב האינדקס שאליו נרצה לגלול
       const itemsInView = Math.floor(scrollContainerRef.current.clientWidth / itemWidth);
       const currentIndex = Math.round(scrollContainerRef.current.scrollLeft / itemWidth);
       let targetIndex;
       
-      if (distance > 0) { // Swiping left (moving right)
+      if (distance > 0) { // גלילה שמאלה (מעבר ימינה)
         targetIndex = currentIndex + 1;
-      } else { // Swiping right (moving left)
+      } else { // גלילה ימינה (מעבר שמאלה)
         targetIndex = Math.max(0, currentIndex - 1);
       }
       
-      // Apply extra momentum based on velocity
-      if (velocity > 0.5) {
-        targetIndex += distance > 0 ? 1 : -1;
-      }
-      
-      // Ensure target is within bounds
+      // מוודאים שהיעד נמצא בגבולות
       targetIndex = Math.max(0, Math.min(targetIndex, categories.length - itemsInView));
       
-      // Scroll to the target item
+      // גוללים אל הפריט היעד
       scrollToPosition(targetIndex * itemWidth);
     }
     
     setIsDragging(false);
-    // Recheck scroll state after momentum scrolling
+    // בודקים שוב את מצב הגלילה לאחר הגלילה עם המומנטום
     setTimeout(checkScrollButtons, 300);
   };
 
@@ -333,7 +376,7 @@ export default function CategoryBanner() {
   };
 
   return (
-    <section className="py-4 sm:py-6 md:py-8 bg-gray-50">
+    <section className="py-6 sm:py-6 md:py-8 bg-gray-50">
       <div className="container mx-auto px-2 md:px-4">
         <motion.div 
           className="text-center mb-3 sm:mb-4 md:mb-6"
@@ -389,7 +432,12 @@ export default function CategoryBanner() {
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseLeave}
-              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+              style={{ 
+                cursor: isDragging ? 'grabbing' : 'grab', 
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}
             >
               {/* Center items only on larger screens, align start on mobile for better swiping */}
               <div className={`flex ${isMobile ? 'justify-start pl-2' : 'mx-auto justify-center sm:justify-start'}`}>

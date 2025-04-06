@@ -28,6 +28,8 @@ import Help from "./Help";
 
 import Privacy from "./Privacy";
 
+import Terms from "./Terms";
+
 import AccessibilityStatement from "./AccessibilityStatement";
 
 import ScrollToTop from "@/components/ScrollToTop";
@@ -63,6 +65,8 @@ const PAGES = {
     Help: Help,
     
     Privacy: Privacy,
+    
+    Terms: Terms,
     
     AccessibilityStatement: AccessibilityStatement,
     
@@ -105,6 +109,7 @@ function PagesContent() {
                 <Route path="/MyProducts" element={<MyProducts />} />
                 <Route path="/Help" element={<Help />} />
                 <Route path="/Privacy" element={<Privacy />} />
+                <Route path="/Terms" element={<Terms />} />
                 <Route path="/AccessibilityStatement" element={<AccessibilityStatement />} />
             </Routes>
         </Layout>

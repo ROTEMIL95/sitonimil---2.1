@@ -20,7 +20,8 @@ import {
   Mail,
   PlusCircle,
   Shield,
-  Heart
+  Heart,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -517,6 +518,12 @@ export default function Layout({ children }) {
                           מדיניות פרטיות
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl("Terms")} className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          תנאי שימוש
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator className="my-1" />
                       <DropdownMenuItem 
                         onClick={() => {
@@ -648,7 +655,7 @@ export default function Layout({ children }) {
             >
               <div className="flex flex-col h-full">
                 <div className="p-4 flex justify-between items-center border-b sticky top-0 bg-white z-10">
-                  <h2 className="font-semibold text-lg">התפריט</h2>
+                  <h2 className="font-semibold text-lg">תפריט</h2>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -756,137 +763,22 @@ export default function Layout({ children }) {
                         
                         <h3 className="text-sm font-bold mt-4 mb-3 text-gray-500 px-2">עזרה ומידע</h3>
                         
-                        {/* קישור לשאלות נפוצות */}
-                        <Link
-                          to={createPageUrl("Help") + "?tab=faq"}
-                          className="flex items-center px-4 py-3 mb-1 rounded-md hover:bg-gray-50"
-                          onClick={() => {
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                          }}  
-                        >
-                          <HelpCircle className="w-5 h-5 ml-3" />
-                          <span> שאלות נפוצות</span>
-                        </Link>
-                        
-                        {/* קישור לצור קשר */}
-                        <Link
-                          to={createPageUrl("Help") + "?tab=contact"}
-                          className="flex items-center px-4 py-3 mb-1 rounded-md hover:bg-gray-50"
-                          onClick={() => {
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <Mail className="w-5 h-5 ml-3" />
-                          <span> צור קשר</span>
-                        </Link>
-                        
-                        <Link
-                          to={createPageUrl("Help") + "?tab=terms"}
-                          className="flex items-center px-4 py-3 mb-1 rounded-md hover:bg-gray-50"
-                          onClick={() => {
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <Shield className="w-5 h-5 ml-3" />
-                          <span>תנאי שימוש</span>
-                        </Link>
-                        
-                        <Link
-                          to={createPageUrl("Privacy")}
-                          className="flex items-center px-4 py-3 mb-1 rounded-md hover:bg-gray-50"
-                          onClick={() => {
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <Shield className="w-5 h-5 ml-3" />
-                          <span>מדיניות פרטיות</span>
-                        </Link>
-                        
-                        <button
-                          onClick={() => {
-                            const accessibilityWidget = document.getElementById('userway-accessibility-widget');
-                            if (accessibilityWidget) {
-                              accessibilityWidget.click();
-                            }
-                            setIsMenuOpen(false);
-                          }}
-                          className="flex items-center px-4 py-3 mb-1 rounded-md hover:bg-gray-50 w-full text-right"
-                        >
-                          <span className="ml-3 w-5 h-5 flex items-center justify-center">♿</span>
-                          <span>נגישות</span>
-                        </button>
-                        
-                        <h3 className="text-sm font-bold mt-6 mb-3 text-gray-500 px-2">עקבו אחרינו</h3>
-                        
-                        <div className="flex flex-wrap gap-2 px-4 py-2 mb-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="bg-gray-100 hover:bg-blue-100 hover:text-blue-700 rounded-full h-10 w-10"
-                            onClick={() => {
-                              window.open('https://www.facebook.com/sitonimil', '_blank');
-                              setIsMenuOpen(false);
-                            }}
-                            aria-label="פייסבוק"
-                          >
-                            <Facebook className="h-5 w-5" />
-                          </Button>
-                          
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="bg-gray-100 hover:bg-blue-100 hover:text-blue-500 rounded-full h-10 w-10"
-                            onClick={() => {
-                              window.open('https://twitter.com/sitonimil', '_blank');
-                              setIsMenuOpen(false);
-                            }}
-                            aria-label="טוויטר"
-                          >
-                            <Twitter className="h-5 w-5" />
-                          </Button>
-                          
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="bg-gray-100 hover:bg-pink-100 hover:text-pink-600 rounded-full h-10 w-10"
-                            onClick={() => {
-                              window.open('https://www.instagram.com/sitonimil', '_blank');
-                              setIsMenuOpen(false);
-                            }}
-                            aria-label="אינסטגרם"
-                          >
-                            <Instagram className="h-5 w-5" />
-                          </Button>
-                          
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="bg-gray-100 hover:bg-blue-100 hover:text-blue-800 rounded-full h-10 w-10"
-                            onClick={() => {
-                              window.open('https://www.linkedin.com/company/sitonimil', '_blank');
-                              setIsMenuOpen(false);
-                            }}
-                            aria-label="לינקדאין"
-                          >
-                            <Linkedin className="h-5 w-5" />
-                          </Button>
+                        <div className="space-y-1 text-sm">
+                          <h3 className="font-medium">מוצרים</h3>
+                          <Link to={createPageUrl("Search") + "?category=clothing"} className="block hover:underline" onClick={handleLinkClick}>
+                            ביגוד והלבשה
+                          </Link>
+                          <Link to={createPageUrl("Search") + "?category=electronics"} className="block hover:underline" onClick={handleLinkClick}>
+                            אלקטרוניקה וגאדג'טים
+                          </Link>
+                          <Link to={createPageUrl("Search") + "?category=home"} className="block hover:underline" onClick={handleLinkClick}>
+                            בית וגינה
+                          </Link>
+                          <Link to={createPageUrl("Search") + "?category=beauty"} className="block hover:underline" onClick={handleLinkClick}>
+                            קוסמטיקה ויופי
+                          </Link>
                         </div>
                         
-                        <Button
-                          variant="outline"
-                          className="w-full mt-6 border-red-600 text-red-600"
-                          onClick={() => {
-                            handleLogout();
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <LogOut className="w-4 h-4 ml-2" />
-                          התנתקות
-                        </Button>
                       </>
                     ) : (
                       <div className="space-y-3">
@@ -1041,9 +933,6 @@ export default function Layout({ children }) {
                 <Button variant="ghost" size="icon" aria-label="Instagram" className="text-gray-700 hover:text-pink-600 hover:bg-pink-50 focus:ring-2  focus-visible:ring-offset-2">
                   <Instagram className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label="LinkedIn" className="text-gray-700 hover:text-blue-800 hover:bg-blue-50 focus:ring-2  focus-visible:ring-offset-2">
-                  <Linkedin className="w-5 h-5" />
-                </Button>
               </div>
             </div>
 
@@ -1077,11 +966,6 @@ export default function Layout({ children }) {
               <h4 className="font-medium text-base mb-4 text-gray-900">עזרה ותמיכה</h4>
               <ul className="space-y-3" aria-label="עזרה ותמיכה">
                 <li>
-                  <Link to={createPageUrl("Help")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
-                    איך זה עובד
-                  </Link>
-                </li>
-                <li>
                   <Link to={createPageUrl("Help") + "?tab=faq"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     שאלות נפוצות
                   </Link>
@@ -1092,7 +976,7 @@ export default function Layout({ children }) {
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Help") + "?tab=terms"} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Terms")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     תנאי שימוש
                   </Link>
                 </li>

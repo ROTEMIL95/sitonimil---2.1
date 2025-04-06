@@ -223,7 +223,7 @@ export default function Home() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery) {
-      window.location.href = createPageUrl("Search") + `?q=${encodeURIComponent(searchQuery)}`;
+      navigate(createPageUrl("Search") + `?q=${encodeURIComponent(searchQuery)}&searchType=all`);
     }
   };
 
@@ -259,7 +259,7 @@ export default function Home() {
   {/* Simplified gradient background */}
   <div className="absolute inset-0 bg-gradient-to-b from-white to-blue-50"></div>
 
-  <div className="relative container mx-auto px-3 md:px-3 md:py-4 lg:py-5">
+  <div className="relative container mx-auto px-3 md:px-3 md:py-2 lg:py-2">
     <div className="max-w-3xl mx-auto text-center md:text-right ">
       {/* Main heading with class connecting to the critical CSS in index.html */}
       <h1 
@@ -289,7 +289,7 @@ export default function Home() {
       <div className="mt-4">
         <div className="relative w-full max-w-xl sm:max-w-2xl mx-auto">
           {/* Search field with advanced styling */}
-          <div className="bg-white p-1.5 rounded-full shadow-md flex items-center border border-gray-200 focus-within:border-blue-500 transition" role="search" aria-label="חיפוש באתר">
+          <form onSubmit={handleSearch} className="bg-white p-1.5 rounded-full shadow-md flex items-center border border-gray-200 focus-within:border-blue-500 transition" role="search" aria-label="חיפוש באתר">
             
             {/* Search input with advanced effects */}
             <input
@@ -305,12 +305,12 @@ export default function Home() {
             <Button
               type="submit"
               className="bg-blue-700 hover:bg-blue-800 text-white px-2 py-1 rounded-full flex items-center transition-all text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:ring-offset-1"
-              aria-label="חיפוש מוצרים"
+              aria-label="חיפוש מוצרים וספקים"
             >
               <span className="hidden sm:inline">חיפוש</span>
               <Search className="w-3 h-3 sm:w-4 sm:h-4 ml-0 sm:ml-1"  />
             </Button>
-          </div>
+          </form>
         </div>
       </div>
       
@@ -340,7 +340,7 @@ export default function Home() {
               <li>✔️ נהל קשר ישיר עם ספקים אמיתיים</li>
             </ul>
             <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700" onClick={() => {
-              localStorage.setItem("preferredUserType", "customer");
+              localStorage.setItem("preferredUserType", "buyer");
               navigate(createPageUrl("Auth") + "?tab=register");
             }}>
            הצטרף כקונה
@@ -365,10 +365,10 @@ export default function Home() {
         >
           <div className="max-w-7xl mx-auto">
             <motion.div className="flex justify-between items-center mb-8" variants={fadeIn}>
-              <div>
-                <h2 id="most-viewed-products-heading" className="text-base sm:text-sm md:text-2xl font-bold text-gray-900">  המוצרים הנצפים ביותר :</h2>
+              <div className="w-full sm:w-auto text-center sm:text-right">
+                <h2 id="most-viewed-products-heading" className="text-xl sm:text-xl md:text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר</h2>
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2 transition-colors">
                   <Link to={createPageUrl("Search")} className="flex items-center gap-1 group">
                     <span className="text-sm sm:text-base font-medium">צפייה בכל המוצרים</span>
@@ -376,6 +376,16 @@ export default function Home() {
                   </Link>
                 </Button>
               </div>
+            </motion.div>
+            
+            {/* כפתור לכל המוצרים למובייל - מוצג מתחת לכותרת */}
+            <motion.div className="block sm:hidden text-center mb-6" variants={fadeIn}>
+              <Button variant="outline" asChild className="mx-auto border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2 transition-colors">
+                <Link to={createPageUrl("Search")} className="flex items-center gap-1 group">
+                  <span className="text-sm font-medium">צפייה בכל המוצרים</span>
+                  <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
+                </Link>
+              </Button>
             </motion.div>
             
             <motion.div 
@@ -556,7 +566,7 @@ export default function Home() {
               variants={staggerContainer}
             >
               <motion.div variants={fadeIn}>
-                <Card className="border-none shadow-sm hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
+                <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
                   <CardContent className="p-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
                       <TrendingUp className="h-4 w-4 text-blue-700" />
@@ -570,7 +580,7 @@ export default function Home() {
               </motion.div>
 
               <motion.div variants={fadeIn}>
-                <Card className="border-none shadow-sm hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
+                <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
                   <CardContent className="p-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
                       <Shield className="h-4 w-4 text-blue-700" />
@@ -584,7 +594,7 @@ export default function Home() {
               </motion.div>
 
               <motion.div variants={fadeIn}>
-                <Card className="border-none shadow-sm hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
+                <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
                   <CardContent className="p-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
                       <Package className="h-4 w-4 text-blue-700" />
@@ -643,7 +653,7 @@ export default function Home() {
                       onClick={() => navigate(redirectToLogin("Home"))}
                     >
                       <LogIn className="ml-1 h-3 w-3" />
-                      התחברות
+                      התחבר
                     </Button>
                   </>
                 )}
