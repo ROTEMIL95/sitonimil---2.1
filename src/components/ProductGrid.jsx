@@ -4,18 +4,23 @@ import { createPageUrl } from "@/utils";
 import { Card } from "@/components/ui/card";
 import ProductCard from "../components/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 function ProductSkeleton() {
   return (
-    <Card className="bg-white p-4 rounded-lg shadow-sm animate-pulse">
+    <Card className="bg-white p-4 rounded-lg shadow-sm animate-pulse" dir="rtl">
       <div className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
-      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-      <div className="h-4 bg-gray-200 rounded w-1/2" />
+      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2 mr-auto ml-0" />
+      <div className="h-4 bg-gray-200 rounded w-1/2 mr-auto ml-0" />
+      <div className="flex justify-between mt-4">
+        <div className="h-6 bg-gray-200 rounded w-1/4" />
+        <div className="h-6 bg-gray-200 rounded w-1/3" />
+      </div>
     </Card>
   );
 }
 
-export default function ProductGrid({ products, loading, viewMode }) {
+export default function ProductGrid({ products, loading, viewMode, className }) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -28,7 +33,7 @@ export default function ProductGrid({ products, loading, viewMode }) {
 
   if (products.length === 0) {
     return (
-      <div className="min-h-[300px] flex flex-col items-center justify-center text-center">
+      <div className="min-h-[300px] flex flex-col items-center justify-center text-center" dir="rtl">
         <img 
           src="https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=80&w=2070" 
           alt="לא נמצאו מוצרים" 
@@ -50,11 +55,13 @@ export default function ProductGrid({ products, loading, viewMode }) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className={
+        className={cn(
           viewMode === "grid"
             ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-            : "flex flex-col gap-3"
-        }
+            : "flex flex-col gap-3",
+          className
+        )}
+        dir="rtl"
       >
         {products.map((product) => (
           <motion.div

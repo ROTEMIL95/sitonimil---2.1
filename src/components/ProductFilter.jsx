@@ -35,9 +35,9 @@ const categories = [
 
 export default function ProductFilter({ options, onChange, onReset }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="bg-white shadow-sm rounded-lg overflow-hidden border">
-        <div className="p-4 flex items-center justify-between">
+        <div className="p-2.5 flex items-center justify-between">
           <h3 className="text-base font-medium">סינון מוצרים</h3>
           <Button 
             variant="ghost" 
@@ -51,18 +51,18 @@ export default function ProductFilter({ options, onChange, onReset }) {
         </div>
         <Separator />
         
-        <div className="p-4">
-          <Accordion type="multiple" defaultValue={["categories", "price", "rating"]} className="space-y-2">
+        <div className="p-2.5">
+          <Accordion type="multiple" defaultValue={["categories", "price", "rating"]} className="space-y-1">
             <AccordionItem value="sort" className="border-b-0">
-              <AccordionTrigger className="py-2 hover:no-underline">
+              <AccordionTrigger className="py-1.5 hover:no-underline">
                 <span className="text-sm font-medium">מיון לפי</span>
               </AccordionTrigger>
-              <AccordionContent>
+              <AccordionContent className="pt-1 pb-1.5">
                 <Select
                   value={options.sortBy}
                   onValueChange={(value) => onChange({ sortBy: value })}
                 >
-                  <SelectTrigger className="h-9 text-sm">
+                  <SelectTrigger className="h-8 text-sm">
                     <SelectValue placeholder="בחר מיון" />
                   </SelectTrigger>
                   <SelectContent>
@@ -76,11 +76,11 @@ export default function ProductFilter({ options, onChange, onReset }) {
             </AccordionItem>
   
             <AccordionItem value="categories" className="border-b-0">
-              <AccordionTrigger className="py-2 hover:no-underline">
+              <AccordionTrigger className="py-1.5 hover:no-underline">
                 <span className="text-sm font-medium">קטגוריות</span>
               </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+              <AccordionContent className="pt-1 pb-1.5">
+                <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
                   {categories.map((category) => (
                     <div key={category.value} className="flex items-center space-x-2 space-x-reverse">
                       <Checkbox
@@ -92,7 +92,7 @@ export default function ProductFilter({ options, onChange, onReset }) {
                             : options.categories.filter((c) => c !== category.value);
                           onChange({ categories: newCategories });
                         }}
-                        className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                        className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 h-3.5 w-3.5"
                       />
                       <Label htmlFor={category.value} className="cursor-pointer text-sm">
                         {category.label}
@@ -104,17 +104,17 @@ export default function ProductFilter({ options, onChange, onReset }) {
             </AccordionItem>
   
             <AccordionItem value="price" className="border-b-0">
-              <AccordionTrigger className="py-2 hover:no-underline">
+              <AccordionTrigger className="py-1.5 hover:no-underline">
                 <span className="text-sm font-medium">טווח מחירים</span>
               </AccordionTrigger>
-              <AccordionContent className="pt-3">
-                <div className="mb-6">
+              <AccordionContent className="pt-1 pb-1.5">
+                <div className="mb-4">
                   <Slider
                     value={options.priceRange}
                     min={0}
                     max={500}
                     step={10}
-                    className="my-5"
+                    className="my-3"
                     onValueChange={(value) => onChange({ priceRange: value })}
                   />
                   <div className="flex justify-between text-sm">
@@ -126,17 +126,17 @@ export default function ProductFilter({ options, onChange, onReset }) {
             </AccordionItem>
   
             <AccordionItem value="minOrder" className="border-b-0">
-              <AccordionTrigger className="py-2 hover:no-underline">
+              <AccordionTrigger className="py-1.5 hover:no-underline">
                 <span className="text-sm font-medium">כמות מינימלית להזמנה</span>
               </AccordionTrigger>
-              <AccordionContent className="pt-3">
-                <div className="mb-6">
+              <AccordionContent className="pt-1 pb-1.5">
+                <div className="mb-4">
                   <Slider
                     value={options.minOrderRange}
                     min={0}
                     max={200}
                     step={5}
-                    className="my-5"
+                    className="my-3"
                     onValueChange={(value) => onChange({ minOrderRange: value })}
                   />
                   <div className="flex justify-between text-sm">
@@ -148,15 +148,15 @@ export default function ProductFilter({ options, onChange, onReset }) {
             </AccordionItem>
   
             <AccordionItem value="rating" className="border-b-0">
-              <AccordionTrigger className="py-2 hover:no-underline">
+              <AccordionTrigger className="py-1.5 hover:no-underline">
                 <span className="text-sm font-medium">דירוג מינימלי</span>
               </AccordionTrigger>
-              <AccordionContent>
+              <AccordionContent className="pt-1 pb-1.5">
                 <div className="space-y-1">
                   {[4, 3, 2, 1].map((rating) => (
                     <div
                       key={rating}
-                      className={`flex items-center p-2 rounded-md cursor-pointer transition-colors ${
+                      className={`flex items-center p-1.5 rounded-md cursor-pointer transition-colors ${
                         options.rating === rating
                           ? "bg-blue-50/80 text-blue-600"
                           : "hover:bg-gray-50"
@@ -167,7 +167,7 @@ export default function ProductFilter({ options, onChange, onReset }) {
                         {Array.from({ length: 5 }).map((_, index) => (
                           <Star
                             key={index}
-                            className={`h-4 w-4 ${
+                            className={`h-3.5 w-3.5 ${
                               index < rating
                                 ? options.rating === rating
                                   ? "text-blue-500 fill-blue-500"

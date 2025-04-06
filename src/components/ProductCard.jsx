@@ -11,15 +11,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogClose
+ 
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
   Avatar,
   AvatarFallback,
@@ -384,7 +378,7 @@ export default function ProductCard({
                   <AvatarImage src={supplierLogo} alt={companyName} />
                   <AvatarFallback>{companyName.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-[500] font-heebo text-gray-800">{companyName}</span>
+                <span className="text-sm font-[500] font-heebo text-gray-800">{companyName} </span>
               </div>
               
               {product.category && (

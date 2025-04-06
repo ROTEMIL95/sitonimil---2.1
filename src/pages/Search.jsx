@@ -2,19 +2,16 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Product } from "@/api/entities";
 import { User } from "@/api/entities";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
-import { Search, X, FilterIcon, ListFilter, Grid3X3, Store, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, X, FilterIcon, ListFilter, Grid3X3,  Package, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductFilter from "@/components/ProductFilter";
 import ProductGrid from "@/components/ProductGrid";
 import SearchBar from "@/components/SearchBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createPageUrl } from "@/utils";
 import SupplierCard from "@/components/SupplierCard";
 import PageMeta from "@/components/PageMeta";
 
@@ -424,32 +421,10 @@ export default function SearchPage() {
                 <Package className="h-4 w-4" />
                 <span>מוצרים {filteredProducts.length > 0 && `(${filteredProducts.length})`}</span>
               </TabsTrigger>
-              <TabsTrigger value="suppliers" className="flex items-center gap-1">
-                <Store className="h-4 w-4" />
-                <span>ספקים {filteredSuppliers.length > 0 && `(${filteredSuppliers.length})`}</span>
-              </TabsTrigger>
+            
             </TabsList>
             
-            <div className="flex gap-2">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-                aria-label="הצג בתצוגת רשת"
-                className="border-gray-400 text-gray-800"
-              >
-                <Grid3X3 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-                aria-label="הצג בתצוגת רשימה"
-                className="border-gray-400 text-gray-800"
-              >
-                <ListFilter className="h-4 w-4" />
-              </Button>
-            </div>
+         
           </div>
           
           <TabsContent value="products">
@@ -662,22 +637,22 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 md:pt-28 pb-10">
+    <div className="min-h-screen bg-gray-50 pt-16 md:pt-20 pb-6">
       <PageMeta
-        title={`חיפוש ${query ? `"${query}"` : ""} | סיטונימיל`}
-        description={`חיפוש ${activeTab === "products" ? "מוצרים" : "ספקים"} באתר סיטונימיל${query ? ` - "${query}"` : ""}. מצא את המוצרים או הספקים הטובים ביותר בקטגוריה שלך.`}
+        title={`חיפוש ${query ? `"${query}"` : ""} |  Sitonim-il`}
+        description={`חיפוש ${activeTab === "products" ? "מוצרים" : "ספקים"} באתר Sitonim-il${query ? ` - "${query}"` : ""}. מצא את המוצרים או הספקים הטובים ביותר בקטגוריה שלך.`}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <div className="max-w-4xl mx-auto mb-4">
-          <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold mb-2 text-right">מוצרים</h1>
+      <div className="max-w-[1600px] mx-auto px-3 md:px-4">
+        <div className="max-w-6xl mx-auto mb-2">
+          <div className="flex justify-between items-center mb-1.5">
+            <h1 className="text-xl font-bold text-right">מוצרים</h1>
 
             <Button 
               variant="outline"
               size="sm"
               onClick={refreshProducts}
-              className="mb-2 border-gray-400 text-gray-800 hover:bg-gray-100"
+              className="border-gray-300 text-gray-700 hover:bg-gray-100 h-8"
               aria-label="רענן רשימת מוצרים"
             >
               רענון מוצרים
@@ -687,57 +662,57 @@ export default function SearchPage() {
             initialQuery={query}
             initialCategory={categoryParam}
             onSearch={handleSearch}
-            className="mb-3"
+            className="mb-2"
           />
           
           {/* תצוגת סינונים פעילים */}
           {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-2 mt-2 p-2 bg-muted/40 rounded-lg justify-end" >
-              <span className="text-sm font-medium">סינון פעיל:</span>
+            <div className="flex flex-wrap items-center gap-1 mt-1 p-1.5 bg-blue-50/50 rounded-lg justify-end border border-blue-100">
+              <span className="text-xs font-medium text-blue-700">סינון פעיל:</span>
               
               {filterOptions.categories.map(category => (
-                <Badge key={category} variant="secondary" className="gap-1 bg-background" >
+                <Badge key={category} variant="secondary" className="gap-1 bg-white border border-blue-100 text-blue-700 h-6 px-2" >
                   {getCategoryLabel(category)}
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-4 w-4 p-0 hover:bg-gray-200 text-gray-700"
+                    className="h-3.5 w-3.5 p-0 hover:bg-gray-200 text-gray-700"
                     onClick={() => handleFilterChange({
                       categories: filterOptions.categories.filter(c => c !== category)
                     })}
                     aria-label={`הסר סינון קטגוריה ${getCategoryLabel(category)}`}
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-2.5 w-2.5" />
                   </Button>
                 </Badge>
               ))}
               
               {filterOptions.rating > 0 && (
-                <Badge variant="secondary" className="gap-1 bg-background">
+                <Badge variant="secondary" className="gap-1 bg-white border border-blue-100 text-blue-700 h-6 px-2">
                   דירוג: {filterOptions.rating}+
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-4 w-4 p-0 hover:bg-gray-200 text-gray-700"
+                    className="h-3.5 w-3.5 p-0 hover:bg-gray-200 text-gray-700"
                     onClick={() => handleFilterChange({ rating: 0 })}
                     aria-label="הסר סינון דירוג"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-2.5 w-2.5" />
                   </Button>
                 </Badge>
               )}
               
               {(filterOptions.priceRange[0] > 0 || filterOptions.priceRange[1] < 500) && (
-                <Badge variant="secondary" className="gap-1 bg-background">
+                <Badge variant="secondary" className="gap-1 bg-white border border-blue-100 text-blue-700 h-6 px-2">
                   מחיר: ₪{filterOptions.priceRange[0]}-₪{filterOptions.priceRange[1]}
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-4 w-4 p-0 hover:bg-gray-200 text-gray-700"
+                    className="h-3.5 w-3.5 p-0 hover:bg-gray-200 text-gray-700"
                     onClick={() => handleFilterChange({ priceRange: [0, 500] })}
                     aria-label="הסר סינון טווח מחירים"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-2.5 w-2.5" />
                   </Button>
                 </Badge>
               )}
@@ -745,7 +720,7 @@ export default function SearchPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-blue-800 hover:text-blue-900 hover:bg-blue-100 p-0 h-auto font-medium"
+                className="text-blue-700 hover:text-blue-900 hover:bg-blue-100 p-0 h-6 px-1 font-medium text-xs"
                 onClick={clearFilters}
                 aria-label="נקה את כל הסינונים"
               >
@@ -755,17 +730,17 @@ export default function SearchPage() {
           )}
         </div>
 
-        <div className="flex justify-between items-center mb-3 gap-4">
-          <div className="flex items-center gap-2">
+        <div className="flex justify-between items-center mb-2 gap-2">
+          <div className="flex items-center gap-1.5">
             <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="md:hidden flex items-center gap-2 border-gray-400 text-gray-800" aria-label="פתח אפשרויות סינון">
-                  <FilterIcon className="h-4 w-4" />
+                <Button variant="outline" className="md:hidden flex items-center gap-1.5 border-gray-300 text-gray-700 h-8" aria-label="פתח אפשרויות סינון">
+                  <FilterIcon className="h-3.5 w-3.5" />
                   סינון
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <div className="py-6">
+                <div className="py-4">
                   <ProductFilter
                     options={filterOptions}
                     onChange={handleFilterChange}
@@ -775,37 +750,37 @@ export default function SearchPage() {
               </SheetContent>
             </Sheet>
             
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-gray-500">
               {filteredProducts.length} מוצרים
             </span>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Button 
               variant="ghost" 
               size="icon"
-              className={`rounded-full ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:bg-gray-200'}`}
+              className={`rounded-full h-7 w-7 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setViewMode('grid')}
               aria-label="החלף לתצוגת רשת"
               aria-pressed={viewMode === 'grid'}
             >
-              <Grid3X3 className="h-4 w-4" />
+              <Grid3X3 className="h-3.5 w-3.5" />
             </Button>
             <Button 
               variant="ghost" 
               size="icon"
-              className={`rounded-full ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-800 hover:bg-gray-200'}`}
+              className={`rounded-full h-7 w-7 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setViewMode('list')}
               aria-label="החלף לתצוגת רשימה"
               aria-pressed={viewMode === 'list'}
             >
-              <ListFilter className="h-4 w-4" />
+              <ListFilter className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
 
-        <div className="flex gap-4 relative">
-          <div className="hidden md:block w-[240px] flex-shrink-0">
+        <div className="flex gap-2 relative">
+          <div className="hidden md:block w-[190px] flex-shrink-0">
             <div className="sticky top-20">
               <ProductFilter
                 options={filterOptions}
@@ -815,7 +790,7 @@ export default function SearchPage() {
             </div>
           </div>
           
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pl-0">
             {renderContent()}
           </div>
         </div>
