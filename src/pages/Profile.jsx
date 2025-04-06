@@ -226,7 +226,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-8">
       <PageMeta
-        title={`הפרופיל של ${user.full_name || "משתמש"} | סיטונימיל`}
+        title={`הפרופיל של ${user.full_name || "משתמש"} | Sitonim-il`}
         description={`צפייה ועריכת פרטי הפרופיל של ${user.full_name || "המשתמש"}. עדכן פרטים אישיים, תמונת פרופיל, ונתונים נוספים.`}
       />
       
