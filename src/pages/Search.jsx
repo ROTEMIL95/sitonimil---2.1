@@ -9,13 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
-import { Search, X, FilterIcon, ListFilter, Grid3X3, Store, Package } from "lucide-react";
+import { Search, X, FilterIcon, ListFilter, Grid3X3, Store, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductFilter from "@/components/ProductFilter";
 import ProductGrid from "@/components/ProductGrid";
 import SearchBar from "@/components/SearchBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createPageUrl } from "@/utils";
 import SupplierCard from "@/components/SupplierCard";
+import PageMeta from "@/components/PageMeta";
 
 // הגדרת טיפוס לאפשרויות הסינון
 const initialFilterOptions = {
@@ -25,6 +26,9 @@ const initialFilterOptions = {
   rating: 0,
   sortBy: 'newest'
 };
+
+// מספר מוצרים מקסימלי לעמוד
+const PRODUCTS_PER_PAGE = 30;
 
 // פונקציית סינון ומיון המוצרים - מוגדרת מחוץ לקומפוננטה למנוע שגיאות הרפרור
 const filterAndSortProducts = (products, options, searchQuery) => {
@@ -99,6 +103,8 @@ export default function SearchPage() {
   const supplierParam = searchParams.get("supplier") || "";
   const searchType = searchParams.get("searchType") || "products"; // "products", "suppliers", "all"
   const isNewProduct = searchParams.get("new") === "true";
+  const pageParam = searchParams.get("page") || "1";
+  const currentPage = parseInt(pageParam, 10) || 1;
   
   // טאב פעיל
   const [activeTab, setActiveTab] = useState(searchType === "suppliers" ? "suppliers" : "products");
@@ -260,6 +266,28 @@ export default function SearchPage() {
     }
   }, [isNewProduct, newProducts.length, loading]);
 
+  // Get paginated products
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+  
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  }, [filteredProducts]);
+
+  // Pagination navigation
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
+    
+    const params = new URLSearchParams(searchParams);
+    params.set("page", page.toString());
+    setSearchParams(params);
+    
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSearch = (searchQuery, category) => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
@@ -267,6 +295,9 @@ export default function SearchPage() {
     
     // שמירה על סוג החיפוש (מוצרים/ספקים/הכל)
     if (searchType) params.set("searchType", searchType);
+    
+    // Reset page to 1 when changing search
+    params.set("page", "1");
     
     setSearchParams(params);
     
@@ -291,15 +322,19 @@ export default function SearchPage() {
 
   const handleFilterChange = (newOptions) => {
     // עדכון פרמטר הקטגוריה ב-URL
+    const params = new URLSearchParams(searchParams);
+    
     if (newOptions.categories !== undefined) {
-      const params = new URLSearchParams(searchParams);
       if (newOptions.categories.length === 1) {
         params.set("category", newOptions.categories[0]);
       } else {
         params.delete("category");
       }
-      setSearchParams(params);
     }
+    
+    // Reset page to 1 when changing filters
+    params.set("page", "1");
+    setSearchParams(params);
 
     // עדכון אפשרויות הסינון
     setFilterOptions(prev => ({
@@ -316,9 +351,10 @@ export default function SearchPage() {
   const clearFilters = () => {
     setFilterOptions(initialFilterOptions);
     
-    // ניקוי פרמטר הקטגוריה מה-URL
+    // ניקוי פרמטר הקטגוריה מה-URL ואיפוס העמוד ל-1
     const params = new URLSearchParams(searchParams);
     params.delete("category");
+    params.set("page", "1");
     setSearchParams(params);
 
     toast({
@@ -439,7 +475,22 @@ export default function SearchPage() {
               
               {filteredProducts.length > 0 ? (
                 <>
-                  <ProductGrid products={filteredProducts} loading={false} viewMode={viewMode} />
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="text-sm text-gray-500">
+                      מציג {Math.min((currentPage - 1) * PRODUCTS_PER_PAGE + 1, filteredProducts.length)}-
+                      {Math.min(currentPage * PRODUCTS_PER_PAGE, filteredProducts.length)} מתוך {filteredProducts.length} מוצרים
+                    </div>
+                    {totalPages > 1 && (
+                      <div className="text-sm text-gray-500">
+                        עמוד {currentPage} מתוך {totalPages}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <ProductGrid products={paginatedProducts} loading={false} viewMode={viewMode} />
+                  
+                  {/* Pagination controls */}
+                  {renderPagination()}
                   
                   {/* תצוגת תקציר של ספקים כאשר יש חיפוש כולל עם תוצאות ספקים */}
                   {searchType === "all" && filteredSuppliers.length > 0 && (
@@ -538,9 +589,86 @@ export default function SearchPage() {
     }
   }, [isNewProduct]);
 
+  // Render pagination controls
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    
+    return (
+      <div className="flex justify-center items-center mt-6 mb-8 gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="border-gray-200 hover:bg-gray-100 text-gray-700"
+          aria-label="עמוד קודם"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        
+        <div className="flex gap-1 mx-1">
+          {[...Array(totalPages)].map((_, index) => {
+            const pageNumber = index + 1;
+            
+            // Show limited page numbers for better UX
+            if (
+              pageNumber === 1 ||
+              pageNumber === totalPages ||
+              (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+            ) {
+              return (
+                <Button
+                  key={pageNumber}
+                  variant={pageNumber === currentPage ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(pageNumber)}
+                  className={
+                    pageNumber === currentPage
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "border-gray-200 hover:bg-gray-100 text-gray-700"
+                  }
+                  aria-label={`עבור לעמוד ${pageNumber}`}
+                  aria-current={pageNumber === currentPage ? "page" : undefined}
+                >
+                  {pageNumber}
+                </Button>
+              );
+            }
+            
+            // Show ellipsis for gaps in page numbers
+            if (
+              (pageNumber === currentPage - 2 && pageNumber > 2) ||
+              (pageNumber === currentPage + 2 && pageNumber < totalPages - 1)
+            ) {
+              return <span key={pageNumber} className="px-2">...</span>;
+            }
+            
+            return null;
+          })}
+        </div>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="border-gray-200 hover:bg-gray-100 text-gray-700"
+          aria-label="עמוד הבא"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  };
+
   return (
-    <div className="py-4 md:py-6">
-      <div className="max-w-[1500px] mx-auto px-0">
+    <div className="min-h-screen bg-gray-50 pt-24 md:pt-28 pb-10">
+      <PageMeta
+        title={`חיפוש ${query ? `"${query}"` : ""} | סיטונימיל`}
+        description={`חיפוש ${activeTab === "products" ? "מוצרים" : "ספקים"} באתר סיטונימיל${query ? ` - "${query}"` : ""}. מצא את המוצרים או הספקים הטובים ביותר בקטגוריה שלך.`}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="max-w-4xl mx-auto mb-4">
           <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold mb-2 text-right">מוצרים</h1>

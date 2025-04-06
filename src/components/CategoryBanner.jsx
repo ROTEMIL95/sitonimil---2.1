@@ -187,6 +187,7 @@ export default function CategoryBanner() {
         .touch-pan-x {
           overscroll-behavior-x: contain;
           scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
         }
       }
     `;
@@ -254,7 +255,7 @@ export default function CategoryBanner() {
       // נגדיר את זה כגלילה אופקית ונמנע את הגלילה האנכית
       if (Math.abs(xDiff) > Math.abs(yDiff) * 1.2) {
         setIsScrollingHorizontally(true);
-        e.preventDefault(); // מונעים את הגלילה האנכית במקרה של גלילה אופקית ברורה
+        // Don't call preventDefault() here - it's preventing touch scrolling on mobile
       } else {
         // אחרת זו גלילה אנכית, נפסיק לעקוב כאן
         setIsDragging(false);
@@ -267,8 +268,8 @@ export default function CategoryBanner() {
       // עדכון מיקום הגלילה
       scrollContainerRef.current.scrollLeft = scrollLeft + xDiff;
       
-      // מונעים את אירוע הברירת מחדל רק אם אנחנו באמת גוללים אופקית
-      e.preventDefault();
+      // Don't call preventDefault() - it causes issues with touch scrolling
+      // on many mobile browsers
       
       // בדיקת מצב כפתורי הגלילה
       checkScrollButtons();
@@ -428,12 +429,12 @@ export default function CategoryBanner() {
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
+              onMouseDown={isMobile ? null : handleMouseDown}
+              onMouseMove={isMobile ? null : handleMouseMove}
+              onMouseUp={isMobile ? null : handleMouseUp}
+              onMouseLeave={isMobile ? null : handleMouseLeave}
               style={{ 
-                cursor: isDragging ? 'grabbing' : 'grab', 
+                cursor: isDragging && !isMobile ? 'grabbing' : 'grab', 
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none'

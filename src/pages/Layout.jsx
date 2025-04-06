@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User, Product, Message, Review } from "@/api/entities";
@@ -51,6 +51,56 @@ export default function Layout({ children }) {
   const [favoriteProducts, setFavoriteProducts] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Function to refresh user data
+  const refreshUserData = useCallback(async () => {
+    try {
+      // Get the authenticated user
+      const userData = await User.me();
+      
+      // Get the full user record from the database
+      if (userData) {
+        try {
+          const { data: userRecord } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", userData.id)
+            .single();
+            
+          // Merge auth user with DB record
+          if (userRecord) {
+            // Create a new merged user object
+            const mergedUser = { ...userData, ...userRecord };
+            
+            // Force avatar refresh by adding timestamp to URL
+            if (mergedUser.avatar_url) {
+              // Generate a unique timestamp for cache busting
+              const timestamp = Date.now();
+              
+              // Handle existing query parameters
+              const url = new URL(mergedUser.avatar_url, window.location.origin);
+              url.searchParams.set('t', timestamp);
+              
+              // Update the avatar URL with the new timestamped version
+              mergedUser.avatar_url = url.toString().replace(window.location.origin, '');
+              
+              console.log("Updated avatar URL with timestamp:", mergedUser.avatar_url);
+            }
+            
+            // Set the updated user with fresh avatar URL
+            setUser({ ...mergedUser });
+          } else {
+            setUser(userData);
+          }
+        } catch (dbError) {
+          console.error("Error fetching user record:", dbError);
+          setUser(userData);
+        }
+      }
+    } catch (error) {
+      console.log("Error refreshing user data:", error);
+    }
+  }, []);
 
   useEffect(() => {
     const loadNotifications = async (userId) => {
@@ -124,6 +174,41 @@ export default function Layout({ children }) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Listen for avatar update events
+  useEffect(() => {
+    // Listen for profile/avatar update event
+    const handleProfileUpdate = () => {
+      refreshUserData();
+    };
+    
+    // Add event listener for custom profile update events
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    // Set up real-time subscription to user data changes
+    let userSubscription;
+    
+    if (user?.id) {
+      userSubscription = supabase
+        .channel(`public:users:id=eq.${user.id}`)
+        .on('postgres_changes', { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'users',
+          filter: `id=eq.${user.id}`
+        }, () => {
+          refreshUserData();
+        })
+        .subscribe();
+    }
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      if (userSubscription) {
+        userSubscription.unsubscribe();
+      }
+    };
+  }, [user?.id, refreshUserData]);
 
   // Load favorites from localStorage
   useEffect(() => {
@@ -397,7 +482,7 @@ export default function Layout({ children }) {
                         )}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-80 mr-1 bg-white rounded-xl shadow-lg p-1" align="end" dir="rtl">
+                    <DropdownMenuContent className="w-80 mr-1 bg-white rounded-xl shadow-lg p-1" align="start" dir="rtl">
                       <DropdownMenuLabel className="font-normal px-2 py-2 flex justify-between items-center">
                         <span className="font-medium">התראות</span>
                         {notifications.length > 0 && (
@@ -460,153 +545,139 @@ export default function Layout({ children }) {
                       <Button 
                         variant="ghost" 
                         size="icon"
-                        className="relative h-8 w-8 rounded-full focus:ring-2 focus-visible:ring-offset-2"
+                        className="relative h-8 w-8 rounded-full focus:ring-2 focus-visible:ring-offset-2 hover:bg-gray-100"
                       >
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.avatar_url} alt={user.full_name} />
-                          <AvatarFallback>{user.full_name?.charAt(0)}</AvatarFallback>
+                        <Avatar className="h-8 w-8 border-2 border-white shadow">
+                          <AvatarImage 
+                            src={`${user.avatar_url}?v=${Date.now()}`}
+                            alt={user.full_name}
+                          />
+                          <AvatarFallback className="bg-blue-100 text-blue-600">{user.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel className="flex items-center gap-2 text-sm">
-                        <span>{user.full_name}</span>
-                        {user.role === 'admin' && (
-                          <Badge variant="secondary" className="font-normal text-xs">
-                            <Shield className="h-3 w-3 ml-1" />
-                            אדמין
-                          </Badge>
-                        )}
-                      </DropdownMenuLabel>
+                    <DropdownMenuContent align="start" className="w-64 p-2 rounded-xl" dir="rtl">
+                      <div className="px-3 py-2 mb-1 bg-blue-50 rounded-lg">
+                        <DropdownMenuLabel className="flex items-center gap-2 text-sm p-0">
+                          <span className="font-semibold text-gray-800">{user.full_name}</span>
+                          {user.role === 'admin' && (
+                            <Badge variant="secondary" className="font-normal text-xs bg-blue-200 text-blue-800">
+                              <Shield className="h-3 w-3 ml-1" />
+                              אדמין
+                            </Badge>
+                          )}
+                        </DropdownMenuLabel>
+                        <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+                      </div>
                       <DropdownMenuSeparator className="my-1" />
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          handleLinkClick();
-                          if (user) {
-                            navigate(createPageUrl("Profile"));
-                          } else {
-                            navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
-                            toast({
-                              title: "נדרשת התחברות",
-                              description: "עליך להתחבר כדי לצפות בפרופיל",
-                              duration: 3000,
-                            });
-                          }
-                        }}
-                        className="hover:bg-gray-50 cursor-pointer px-2 py-1.5"
-                      >
-                        <div className="flex items-center gap-2">
-                          <UserIcon className="h-4 w-4" />
-                          <span>הפרופיל שלי</span>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="hover:bg-gray-50 cursor-pointer px-2 py-1.5">
-                        <Link to={createPageUrl("Settings")} className="flex items-center gap-2">
-                          <Settings className="h-4 w-4" />
-                          <span>הגדרות</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl("Help")} className="flex items-center gap-2">
-                          <HelpCircle className="h-4 w-4" />
-                          עזרה ותמיכה
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl("Privacy")} className="flex items-center gap-2">
-                          <Shield className="h-4 w-4" />
-                          מדיניות פרטיות
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl("Terms")} className="flex items-center gap-2">
-                          <FileText className="h-4 w-4" />
-                          תנאי שימוש
-                        </Link>
-                      </DropdownMenuItem>
+                      <div className="py-1">
+                        <DropdownMenuItem 
+                          onClick={() => {
+                            handleLinkClick();
+                            if (user) {
+                              navigate(createPageUrl("Profile"));
+                            } else {
+                              navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
+                              toast({
+                                title: "נדרשת התחברות",
+                                description: "עליך להתחבר כדי לצפות בפרופיל",
+                                duration: 3000,
+                              });
+                            }
+                          }}
+                          className="hover:bg-blue-50 cursor-pointer px-3 py-2 rounded-md focus:bg-blue-50 mb-1"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="bg-blue-100 p-1.5 rounded-full">
+                              <UserIcon className="h-4 w-4 text-blue-700" />
+                            </div>
+                            <span className="font-medium text-gray-800">הפרופיל שלי</span>
+                          </div>
+                        </DropdownMenuItem>
+                
+                        <DropdownMenuItem asChild className="hover:bg-blue-50 cursor-pointer px-3 py-2 rounded-md focus:bg-blue-50 mb-1">
+                          <Link to={createPageUrl("Help")} className="flex items-center gap-3">
+                            <div className="bg-green-100 p-1.5 rounded-full">
+                              <HelpCircle className="h-4 w-4 text-green-700" />
+                            </div>
+                            <span className="font-medium text-gray-800">עזרה ותמיכה</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="hover:bg-blue-50 cursor-pointer px-3 py-2 rounded-md focus:bg-blue-50 mb-1">
+                          <Link to={createPageUrl("Privacy")} className="flex items-center gap-3">
+                            <div className="bg-yellow-100 p-1.5 rounded-full">
+                              <Shield className="h-4 w-4 text-yellow-700" />
+                            </div>
+                            <span className="font-medium text-gray-800">מדיניות פרטיות</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="hover:bg-blue-50 cursor-pointer px-3 py-2 rounded-md focus:bg-blue-50">
+                          <Link to={createPageUrl("Terms")} className="flex items-center gap-3">
+                            <div className="bg-gray-100 p-1.5 rounded-full">
+                              <FileText className="h-4 w-4 text-gray-700" />
+                            </div>
+                            <span className="font-medium text-gray-800">תנאי שימוש</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </div>
                       <DropdownMenuSeparator className="my-1" />
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          const accessibilityWidget = document.getElementById('userway-accessibility-widget');
-                          if (accessibilityWidget) {
-                            accessibilityWidget.click();
-                          }
-                          setIsMenuOpen(false);
-                        }}
-                        className="hover:bg-gray-50 cursor-pointer px-2 py-1.5"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="ml-3 w-5 h-5 flex items-center justify-center">♿</span>
-                          <span>נגישות</span>
-                        </div>
-                      </DropdownMenuItem>
-                      <h3 className="text-sm font-bold mt-6 mb-3 text-gray-500 px-2">עקבו אחרינו</h3>
                       
-                      <div className="flex flex-wrap gap-2 px-4 py-2 mb-2">
+                      <h3 className="text-sm font-bold mt-2 mb-2 text-gray-500 px-3">עקבו אחרינו</h3>
+                      
+                      <div className="flex justify-center gap-2 px-3 py-2 mb-2">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="bg-gray-100 hover:bg-blue-100 hover:text-blue-700 rounded-full h-10 w-10"
+                          className="bg-white hover:bg-blue-100 hover:text-blue-700 rounded-full h-9 w-9 shadow-sm border"
                           onClick={() => {
                             window.open('https://www.facebook.com/sitonimil', '_blank');
                             setIsMenuOpen(false);
                           }}
                           aria-label="פייסבוק"
                         >
-                          <Facebook className="h-5 w-5" />
+                          <Facebook className="h-4 w-4" />
                         </Button>
                         
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="bg-gray-100 hover:bg-blue-100 hover:text-blue-500 rounded-full h-10 w-10"
-                          onClick={() => {
-                            window.open('https://twitter.com/sitonimil', '_blank');
-                            setIsMenuOpen(false);
-                          }}
-                          aria-label="טוויטר"
-                        >
-                          <Twitter className="h-5 w-5" />
-                        </Button>
-                        
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-gray-100 hover:bg-pink-100 hover:text-pink-600 rounded-full h-10 w-10"
+                          className="bg-white hover:bg-pink-100 hover:text-pink-600 rounded-full h-9 w-9 shadow-sm border"
                           onClick={() => {
                             window.open('https://www.instagram.com/sitonimil', '_blank');
                             setIsMenuOpen(false);
                           }}
                           aria-label="אינסטגרם"
                         >
-                          <Instagram className="h-5 w-5" />
+                          <Instagram className="h-4 w-4" />
                         </Button>
                         
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="bg-gray-100 hover:bg-blue-100 hover:text-blue-800 rounded-full h-10 w-10"
+                          className="bg-white hover:bg-blue-100 hover:text-blue-800 rounded-full h-9 w-9 shadow-sm border"
                           onClick={() => {
                             window.open('https://www.linkedin.com/company/sitonimil', '_blank');
                             setIsMenuOpen(false);
                           }}
                           aria-label="לינקדאין"
                         >
-                          <Linkedin className="h-5 w-5" />
+                          <Linkedin className="h-4 w-4" />
                         </Button>
                       </div>
                       
-                      <Button
-                        variant="outline"
-                        className="w-full mt-6 border-red-600 text-red-600"
-                        onClick={() => {
-                          handleLogout();
-                          setIsMenuOpen(false);
-                        }}
-                      >
-                        <LogOut className="w-4 h-4 ml-2" />
-                        התנתקות
-                      </Button>
+                      <div className="p-2 mt-1">
+                        <Button
+                          variant="outline"
+                          className="w-full border-red-500 text-red-600 hover:bg-red-50 rounded-md"
+                          onClick={() => {
+                            handleLogout();
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          <LogOut className="w-4 h-4 ml-2" />
+                          <span className="font-medium">התנתקות</span>
+                        </Button>
+                      </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
@@ -671,8 +742,11 @@ export default function Layout({ children }) {
                   {user && (
                     <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
                       <Avatar className="h-12 w-12">
-                        {user.logo_url ? (
-                          <AvatarImage src={user.logo_url} alt={user.company_name || user.full_name} />
+                        {user.logo_url || user.avatar_url ? (
+                          <AvatarImage 
+                            src={`${user.logo_url || user.avatar_url}?v=${Date.now()}`}
+                            alt={user.company_name || user.full_name}
+                          />
                         ) : (
                           <AvatarFallback className="bg-blue-100 text-blue-600">
                             {(user.company_name || user.full_name)?.charAt(0) || "U"}
@@ -739,9 +813,9 @@ export default function Layout({ children }) {
                           <MessageSquare className="w-5 h-5 ml-3" />
                           <span>הודעות</span>
                         </Link>
-                        <button
+                        <Button
                           type="button"
-                          className="flex items-center px-4 py-3 mb-1 rounded-md hover:bg-gray-50 w-full text-right"
+                          className="flex items-center px-4 py-3 mb-1 rounded-md h w-full text-right"
                           onClick={() => {
                             handleLinkClick();
                             setIsMenuOpen(false);
@@ -758,26 +832,8 @@ export default function Layout({ children }) {
                           }}
                         >
                           <UserIcon className="w-5 h-5 ml-3" />
-                          <span>הפרופיל שלי</span>
-                        </button>
-                        
-                        <h3 className="text-sm font-bold mt-4 mb-3 text-gray-500 px-2">עזרה ומידע</h3>
-                        
-                        <div className="space-y-1 text-sm">
-                          <h3 className="font-medium">מוצרים</h3>
-                          <Link to={createPageUrl("Search") + "?category=clothing"} className="block hover:underline" onClick={handleLinkClick}>
-                            ביגוד והלבשה
-                          </Link>
-                          <Link to={createPageUrl("Search") + "?category=electronics"} className="block hover:underline" onClick={handleLinkClick}>
-                            אלקטרוניקה וגאדג'טים
-                          </Link>
-                          <Link to={createPageUrl("Search") + "?category=home"} className="block hover:underline" onClick={handleLinkClick}>
-                            בית וגינה
-                          </Link>
-                          <Link to={createPageUrl("Search") + "?category=beauty"} className="block hover:underline" onClick={handleLinkClick}>
-                            קוסמטיקה ויופי
-                          </Link>
-                        </div>
+                          <span >הפרופיל שלי</span>
+                        </Button>
                         
                       </>
                     ) : (

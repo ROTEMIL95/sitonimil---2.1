@@ -43,6 +43,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import PageMeta from "@/components/PageMeta";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -163,14 +164,23 @@ export default function ProfilePage() {
 
       const updatedProfileData = {
         ...profileData,
-        logo_url: publicUrl
+        logo_url: publicUrl,
+        avatar_url: publicUrl
       };
 
       await User.updateMyUserData(updatedProfileData);
       setProfileData(updatedProfileData);
       setUser(prev => ({
         ...prev,
-        logo_url: publicUrl
+        logo_url: publicUrl,
+        avatar_url: publicUrl
+      }));
+
+      // Dispatch custom event for real-time avatar update
+      window.dispatchEvent(new CustomEvent('profileUpdated', {
+        detail: {
+          message: "תמונת הפרופיל עודכנה בהצלחה"
+        }
       }));
 
       toast.success("תמונת הפרופיל עודכנה בהצלחה");
@@ -215,6 +225,11 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-8">
+      <PageMeta
+        title={`הפרופיל של ${user.full_name || "משתמש"} | סיטונימיל`}
+        description={`צפייה ועריכת פרטי הפרופיל של ${user.full_name || "המשתמש"}. עדכן פרטים אישיים, תמונת פרופיל, ונתונים נוספים.`}
+      />
+      
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">הפרופיל שלי</h1>
         <Button 

@@ -17,6 +17,7 @@ import { supabase } from "@/api/supabaseClient";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import PageMeta from "@/components/PageMeta";
 
 // Optimized staggered animation settings
 const staggerContainer = {
@@ -251,426 +252,455 @@ export default function Home() {
 
   return (
     <>
-     <section 
-       data-section="hero" 
-       className="relative"
-       aria-label="הקדמה ופתיחה"
-     >
-  {/* Simplified gradient background */}
-  <div className="absolute inset-0 bg-gradient-to-b from-white to-blue-50"></div>
-
-  <div className="relative container mx-auto px-3 md:px-3 md:py-2 lg:py-2">
-    <div className="max-w-3xl mx-auto text-center md:text-right ">
-      {/* Main heading with class connecting to the critical CSS in index.html */}
-      <h1 
-          ref={headingRef}
-            // className="relative mb-4 text-4xl md:text-5xl lg:text-6xl font-extrabold 
-            // text-blue-500 bg-gradient-to-r from-blue-800 to-blue-500 
-            // bg-clip-text text-transparent drop-shadow-sm font-['Arial'] "
-            className="relative mb-4 text-6xl md:text-7xl lg:text-8xl font-extrabold 
-            text-blue-500 bg-gradient-to-r from-blue-800 to-blue-500 
-            bg-clip-text text-transparent drop-shadow-sm font-['Arial']"
-            style={criticalHeadingStyles}
-          suppressHydrationWarning
-        >
-          פלטפורמת הסיטונאות המובילה בישראל
-          <span 
-            className="block h-1 bg-blue-400 w-24 md:w-32 mt-2 mx-auto rounded-full" 
-            aria-hidden="true"
-          ></span>
-        </h1>
-
-        {/* Enhanced Subheading with Improved Styling */}
-        <h3 className="text-xl md:text-sm lg:text-lg font-semibold text-gray-800 text-center">
-        מחפשים קונים? צריכים ספק? הכל מחכה לכם כאן
-        </h3>
+      <PageMeta
+        title="סיטונימיל - האתר המוביל למסחר סיטונאי בישראל"
+        description="סיטונימיל - הפלטפורמה המובילה למסחר סיטונאי בישראל. פרסם את המוצרים שלך, חפש ספקים, והתחבר עם לקוחות וספקים ברחבי הארץ."
+      />
       
-      {/* Search input - using simple div instead of motion.div */}
-      <div className="mt-4">
-        <div className="relative w-full max-w-xl sm:max-w-2xl mx-auto">
-          {/* Search field with advanced styling */}
-          <form onSubmit={handleSearch} className="bg-white p-1.5 rounded-full shadow-md flex items-center border border-gray-200 focus-within:border-blue-500 transition" role="search" aria-label="חיפוש באתר">
-            
-            {/* Search input with advanced effects */}
-            <input
-              type="text"
-              placeholder=" חפשו מוצרים או ספקים..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent border-none py-1 px-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
-              aria-label="חיפוש מוצרים או ספקים"
-            />
+      <section 
+        data-section="hero" 
+        className="relative"
+        aria-label="הקדמה ופתיחה"
+      >
+    {/* Simplified gradient background */}
+    <div className="absolute inset-0 bg-gradient-to-b from-white to-blue-50"></div>
 
-            {/* Search button with icon */}
-            <Button
-              type="submit"
-              className="bg-blue-700 hover:bg-blue-800 text-white px-2 py-1 rounded-full flex items-center transition-all text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:ring-offset-1"
-              aria-label="חיפוש מוצרים וספקים"
-            >
-              <span className="hidden sm:inline">חיפוש</span>
-              <Search className="w-3 h-3 sm:w-4 sm:h-4 ml-0 sm:ml-1"  />
-            </Button>
-          </form>
-        </div>
-      </div>
-      
-      {/* כפתורי הרשמה */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto mt-6">
-          {/* ספק */}
-          <div className="bg-green-50 border border-green-200 p-6 rounded-xl text-right">
-            <h2 className="text-green-700 font-bold text-xl mb-2">הרשמה כספק</h2>
-            <ul className="text-sm text-gray-700 leading-relaxed">
-              <li>✔️ פרסם מוצרים בחינם</li>
-              <li>✔️ חיבור לקונים פוטנציאליים</li>
-              <li>✔️ הגדל את החשיפה העסקית שלך</li>
-            </ul>
-            <button className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700" onClick={() => {
-              localStorage.setItem("preferredUserType", "supplier");
-              navigate(createPageUrl("Auth") + "?tab=register");
-            }}>
-            הצטרף כספק
-            </button>
-          </div>
-          {/* קונה */}
-          <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl text-right">
-            <h2 className="text-blue-700 font-bold text-xl mb-2">הרשמה כקונה</h2>
-            <ul className="text-sm text-gray-700 leading-relaxed">
-              <li>✔️ מצא ספקים אמינים</li>
-              <li>✔️ גש למוצרים סיטונאיים</li>
-              <li>✔️ נהל קשר ישיר עם ספקים אמיתיים</li>
-            </ul>
-            <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700" onClick={() => {
-              localStorage.setItem("preferredUserType", "buyer");
-              navigate(createPageUrl("Auth") + "?tab=register");
-            }}>
-           הצטרף כקונה
-            </button>
+    <div className="relative container mx-auto px-3 md:px-3 md:py-2 lg:py-2">
+      <div className="max-w-3xl mx-auto text-center md:text-right ">
+        {/* Main heading with class connecting to the critical CSS in index.html */}
+        <h1 
+            ref={headingRef}
+              // className="relative mb-4 text-4xl md:text-5xl lg:text-6xl font-extrabold 
+              // text-blue-500 bg-gradient-to-r from-blue-800 to-blue-500 
+              // bg-clip-text text-transparent drop-shadow-sm font-['Arial'] "
+              className="relative mb-4 text-6xl md:text-7xl lg:text-8xl font-extrabold 
+              text-blue-500 bg-gradient-to-r from-blue-800 to-blue-500 
+              bg-clip-text text-transparent drop-shadow-sm font-['Arial']"
+              style={criticalHeadingStyles}
+            suppressHydrationWarning
+          >
+            פלטפורמת הסיטונאות המובילה בישראל
+            <span 
+              className="block h-1 bg-blue-400 w-24 md:w-32 mt-2 mx-auto rounded-full" 
+              aria-hidden="true"
+            ></span>
+          </h1>
+
+          {/* Enhanced Subheading with Improved Styling */}
+          <h3 className="text-xl md:text-sm lg:text-lg font-semibold text-gray-800 text-center">
+          מחפשים קונים? צריכים ספק? הכל מחכה לכם כאן
+          </h3>
+        
+        {/* Search input - using simple div instead of motion.div */}
+        <div className="mt-4">
+          <div className="relative w-full max-w-xl sm:max-w-2xl mx-auto">
+            {/* Search field with advanced styling */}
+            <form onSubmit={handleSearch} className="bg-white p-1.5 rounded-full shadow-md flex items-center border border-gray-200 focus-within:border-blue-500 transition" role="search" aria-label="חיפוש באתר">
+              
+              {/* Search input with advanced effects */}
+              <input
+                type="text"
+                placeholder=" חפשו מוצרים או ספקים..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent border-none py-1 px-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
+                aria-label="חיפוש מוצרים או ספקים"
+              />
+
+              {/* Search button with icon */}
+              <Button
+                type="submit"
+                className="bg-blue-700 hover:bg-blue-800 text-white px-2 py-1 rounded-full flex items-center transition-all text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:ring-offset-1"
+                aria-label="חיפוש מוצרים וספקים"
+              >
+                <span className="hidden sm:inline">חיפוש</span>
+                <Search className="w-3 h-3 sm:w-4 sm:h-4 ml-0 sm:ml-1"  />
+              </Button>
+            </form>
           </div>
         </div>
-      </div>
-      
-   
-  </div>
-</section>
-      
-      <CategoryBanner />
-      
-      <section data-section="products" className={`transition-opacity duration-500 ${isContentVisible.products ? 'opacity-100' : 'opacity-0'}`} aria-labelledby="most-viewed-products-heading">
-        <motion.section 
-          className="container mx-auto px-4 md:px-6 py-8 bg-gradient-to-b from-gray-50 to-white"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={fadeIn}
-        >
-          <div className="max-w-7xl mx-auto">
-            <motion.div className="flex justify-between items-center mb-6" variants={fadeIn}>
-              <div className="w-full sm:w-auto text-center sm:text-right">
-                <h2 id="most-viewed-products-heading" className="text-xl sm:text-xl md:text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר</h2>
-              </div>
-              <div className="hidden sm:block">
-                <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2 transition-colors">
-                  <Link to={createPageUrl("Search")} className="flex items-center gap-1 group">
-                    <span className="text-sm sm:text-base font-medium">צפייה בכל המוצרים</span>
-                    <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 group-hover:-translate-x-1 transition-transform" />
+        
+        {/* כפתורי הרשמה */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto mt-6">
+            {/* ספק */}
+            <div className="bg-green-50 border border-green-200 p-6 rounded-xl text-right">
+              <h2 className="text-green-700 font-bold text-xl mb-2">הרשמה כספק</h2>
+              <ul className="text-sm text-gray-700 leading-relaxed">
+                <li>✔️ פרסם מוצרים בחינם</li>
+                <li>✔️ חיבור לקונים פוטנציאליים</li>
+                <li>✔️ הגדל את החשיפה העסקית שלך</li>
+              </ul>
+              <button className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700" onClick={() => {
+                localStorage.setItem("preferredUserType", "supplier");
+                navigate(createPageUrl("Auth") + "?tab=register");
+              }}>
+              הצטרף כספק
+              </button>
+            </div>
+            {/* קונה */}
+            <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl text-right">
+              <h2 className="text-blue-700 font-bold text-xl mb-2">הרשמה כקונה</h2>
+              <ul className="text-sm text-gray-700 leading-relaxed">
+                <li>✔️ מצא ספקים אמינים</li>
+                <li>✔️ גש למוצרים סיטונאיים</li>
+                <li>✔️ נהל קשר ישיר עם ספקים אמיתיים</li>
+              </ul>
+              <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700" onClick={() => {
+                localStorage.setItem("preferredUserType", "buyer");
+                navigate(createPageUrl("Auth") + "?tab=register");
+              }}>
+             הצטרף כקונה
+              </button>
+            </div>
+          </div>
+        </div>
+        
+     
+    </div>
+  </section>
+        
+        <CategoryBanner />
+        
+        <section data-section="products" className={`transition-opacity duration-500 ${isContentVisible.products ? 'opacity-100' : 'opacity-0'}`} aria-labelledby="most-viewed-products-heading">
+          <motion.section 
+            className="container mx-auto px-4 md:px-6 py-8 bg-gradient-to-b from-gray-50 to-white"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={fadeIn}
+          >
+            <div className="max-w-7xl mx-auto">
+              <motion.div className="flex justify-between items-center mb-6" variants={fadeIn}>
+                <div className="w-full sm:w-auto text-center sm:text-right">
+                  <h2 id="most-viewed-products-heading" className="text-xl sm:text-xl md:text-2xl font-bold text-gray-900">המוצרים הנצפים ביותר</h2>
+                </div>
+                <div className="hidden sm:block">
+                  <Button 
+                    variant="ghost" 
+                    asChild 
+                    className="border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all px-4 py-2 rounded-full shadow-sm hover:shadow"
+                  >
+                    <Link to={createPageUrl("Search")} className="flex items-center gap-2 group">
+                      <span className="text-sm font-medium">צפייה בכל המוצרים</span>
+                      <div className="bg-blue-500 rounded-full p-1 transform group-hover:-translate-x-1 transition-all duration-200">
+                        <ArrowLeft className="h-3 w-3 text-white" />
+                      </div>
+                    </Link>
+                  </Button>
+                </div>
+              </motion.div>
+              
+              {/* כפתור לכל המוצרים למובייל - מוצג מתחת לכותרת */}
+              <motion.div className="block sm:hidden text-center mb-6" variants={fadeIn}>
+                <Button 
+                  variant="ghost" 
+                  asChild 
+                  className="mx-auto border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all px-4 py-2 rounded-full shadow-sm hover:shadow"
+                >
+                  <Link to={createPageUrl("Search")} className="flex items-center gap-2 group">
+                    <span className="text-sm font-medium">צפייה בכל המוצרים</span>
+                    <div className="bg-blue-500 rounded-full p-1 transform group-hover:-translate-x-1 transition-all duration-200">
+                      <ArrowLeft className="h-3 w-3 text-white" />
+                    </div>
                   </Link>
                 </Button>
-              </div>
-            </motion.div>
-            
-            {/* כפתור לכל המוצרים למובייל - מוצג מתחת לכותרת */}
-            <motion.div className="block sm:hidden text-center mb-6" variants={fadeIn}>
-              <Button variant="outline" asChild className="mx-auto border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2 transition-colors">
-                <Link to={createPageUrl("Search")} className="flex items-center gap-1 group">
-                  <span className="text-sm font-medium">צפייה בכל המוצרים</span>
-                  <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-            </motion.div>
-            
-            <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
-              variants={staggerContainer}
-            >
-              {loading
-                ? Array(4).fill(0).map((_, i) => (
-                    <motion.div
-                      key={i}
-                      variants={fadeIn}
-                      className="bg-white p-4 rounded-lg shadow-sm animate-pulse"
-                    >
-                      <div className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                      <div className="h-4 bg-gray-200 rounded w-1/2" />
-                    </motion.div>
-                  ))
-                : featuredProducts.length > 0 ? (
-                    featuredProducts.map((product, index) => (
-                      <motion.div 
-                        key={product.id}
+              </motion.div>
+              
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+                variants={staggerContainer}
+              >
+                {loading
+                  ? Array(4).fill(0).map((_, i) => (
+                      <motion.div
+                        key={i}
                         variants={fadeIn}
+                        className="bg-white p-4 rounded-lg shadow-sm animate-pulse"
                       >
-                        <ProductCard product={product} />
+                        <div className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                        <div className="h-4 bg-gray-200 rounded w-1/2" />
                       </motion.div>
                     ))
-                  ) : (
-                    <div className="col-span-full text-center py-8 text-gray-500">
-                      אין מוצרים זמינים כרגע
-                    </div>
-                  )}
-            </motion.div>
-          </div>
-        </motion.section>
-      </section>
-      
-      <ExpandedCategoryBanner />
+                  : featuredProducts.length > 0 ? (
+                      featuredProducts.map((product, index) => (
+                        <motion.div 
+                          key={product.id}
+                          variants={fadeIn}
+                        >
+                          <ProductCard product={product} />
+                        </motion.div>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-8 text-gray-500">
+                        אין מוצרים זמינים כרגע
+                      </div>
+                    )}
+              </motion.div>
+            </div>
+          </motion.section>
+        </section>
+        
+        <ExpandedCategoryBanner />
 
-      <motion.section 
-        className="py-8"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={fadeIn}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-2xl mx-auto text-center">
-            <motion.div
-              className="flex flex-col items-center gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-xl shadow-xl"
-              variants={fadeIn}
-            >
-              <div className="bg-blue-500 p-2 sm:p-3 rounded-full shadow-md">
-                <Package className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-              </div>
-              
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex flex-wrap items-center justify-center gap-1 sm:gap-2">
-                <span>ספקים?</span>
-                <span className="animate-bounce">🚀</span>
-                <span className="text-blue-600">זה הזמן שלכם לפרוץ</span>
-              </h2>
-
-              <p className="text-sm sm:text-base md:text-lg text-gray-600">
-                פרסמו את המוצרים שלכם והגיעו לאלפי סוחרים בישראל – תוך דקות!
-              </p>
-
-              <Button 
-                size="lg"
-                className="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                onClick={(e) => {
-                  if (!currentUser) {
-                    toast({
-                      title: "נדרשת התחברות",
-                      description: "עליך להתחבר או להירשם לפני פרסום מוצר",
-                      duration: 5000,
-                    });
-                    localStorage.setItem("preferredUserType", "supplier");
-                    localStorage.setItem("redirectAfterAuth", createPageUrl("UploadProduct"));
-                    navigate(createPageUrl("Auth") + "?tab=register");
-                  } else {
-                    navigate(createPageUrl("UploadProduct"));
-                  }
-                }}
-                aria-label="פרסום מוצר חדש"
-              >
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                  פרסום מוצר חדש
-                </div>
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </motion.section>
-      <section data-section="suppliers" className={`transition-opacity duration-500 ${isContentVisible.suppliers ? 'opacity-100' : 'opacity-0'}`} aria-labelledby="top-suppliers-heading">
         <motion.section 
-          className="bg-blue-50 py-8"
+          className="py-8"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={fadeIn}
         >
           <div className="container mx-auto px-4 md:px-6">
-            <div className="max-w-7xl mx-auto">
-              <motion.div className="flex justify-between items-center mb-6" variants={fadeIn}>
-                <div className="w-full sm:w-auto">
-                  <h2 id="top-suppliers-heading" className="text-lg font-bold text-gray-900 text-center sm:text-right">ספקים מובילים</h2>
-                </div>
-                <div className="hidden sm:block">
-                  <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-1 focus:ring-blue-500 focus-visible:ring-offset-1 transition-colors text-xs py-1 px-2">
-                    <Link to={createPageUrl("Suppliers")} className="flex items-center gap-1 group">
-                      <span className="text-xs">צפייה בכל הספקים</span>
-                      <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                </div>
-              </motion.div>
-              
-              <div className="mb-3 flex justify-center sm:hidden ">
-                <Button variant="outline" asChild className="border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:ring-1 focus:ring-blue-500 focus-visible:ring-offset-1 transition-colors text-xs py-1 px-2">
-                  <Link to={createPageUrl("Suppliers")} className="flex items-center gap-1 group">
-                    <span className="text-xs">צפייה בכל הספקים</span>
-                    <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </div>
-              
-              <motion.div 
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
-                variants={staggerContainer}
+            <div className="max-w-2xl mx-auto text-center">
+              <motion.div
+                className="flex flex-col items-center gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-xl shadow-xl"
+                variants={fadeIn}
               >
-                {loading
-                  ? Array(3).fill(0).map((_, i) => (
-                      <motion.div 
-                        key={i}
-                        variants={fadeIn}
-                        className="bg-white animate-pulse"
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                            <div className="flex-1">
-                              <div className="h-4 bg-gray-200 rounded w-3/4 mb-1" />
-                              <div className="h-3 bg-gray-200 rounded w-1/2" />
-                            </div>
-                          </div>
-                          <div className="h-3 bg-gray-200 rounded w-full mb-1" />
-                          <div className="h-3 bg-gray-200 rounded w-full" />
-                        </CardContent>
-                      </motion.div>
-                    ))
-                  : topSuppliers.map((supplier, index) => (
-                      <motion.div 
-                        key={supplier.id}
-                        variants={fadeIn}
-                      >
-                        <SupplierCard supplier={supplier} />
-                      </motion.div>
-                    ))}
+                <div className="bg-blue-500 p-2 sm:p-3 rounded-full shadow-md">
+                  <Package className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+                
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex flex-wrap items-center justify-center gap-1 sm:gap-2">
+                  <span>ספקים?</span>
+                  <span className="animate-bounce">🚀</span>
+                  <span className="text-blue-600">זה הזמן שלכם לפרוץ</span>
+                </h2>
+
+                <p className="text-sm sm:text-base md:text-lg text-gray-600">
+                  פרסמו את המוצרים שלכם והגיעו לאלפי סוחרים בישראל – תוך דקות!
+                </p>
+
+                <Button 
+                  size="lg"
+                  className="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  onClick={(e) => {
+                    if (!currentUser) {
+                      toast({
+                        title: "נדרשת התחברות",
+                        description: "עליך להתחבר או להירשם לפני פרסום מוצר",
+                        duration: 5000,
+                      });
+                      localStorage.setItem("preferredUserType", "supplier");
+                      localStorage.setItem("redirectAfterAuth", createPageUrl("UploadProduct"));
+                      navigate(createPageUrl("Auth") + "?tab=register");
+                    } else {
+                      navigate(createPageUrl("UploadProduct"));
+                    }
+                  }}
+                  aria-label="פרסום מוצר חדש"
+                >
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                    פרסום מוצר חדש
+                  </div>
+                </Button>
               </motion.div>
             </div>
           </div>
         </motion.section>
-      </section>
-      
-      <section data-section="features" className={`transition-opacity duration-500 ${isContentVisible.features ? 'opacity-100' : 'opacity-0'}`} aria-labelledby="why-join-heading">
-        <motion.section 
-          className="container mx-auto px-4 md:px-6 py-8 bg-gradient-to-b from-white to-gray-50"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={fadeIn}
-        >
-          <div className="max-w-7xl mx-auto">
-            <motion.div 
-              className="text-center max-w-3xl mx-auto mb-12"
-              variants={fadeIn}
-            >
-              <h2 id="why-join-heading" className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">למה להצטרף לקהילת Sitonimil ?</h2>
-              <p className="text-sm sm:text-base md:text-lg text-gray-600">
-                הצטרפו לאלפי סוחרים וספקים שכבר נהנים מחיבורים, הזדמנויות עסקיות ומכירות בקנה מידה ארצי
-              </p>
-            </motion.div>
-            
-            <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
-              variants={staggerContainer}
-            >
-              <motion.div variants={fadeIn}>
-                <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
-                  <CardContent className="p-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                      <TrendingUp className="h-4 w-4 text-blue-700" />
-                    </div>
-                    <h3 className="font-medium text-sm mb-1 text-gray-900">ספקים מאומתים</h3>
-                    <p className="text-xs text-gray-700">
-                      כל הספקים שלנו עוברים תהליך אימות קפדני כדי להבטיח שאתם עובדים רק עם ספקים אמינים ואיכותיים.
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={fadeIn}>
-                <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
-                  <CardContent className="p-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                      <Shield className="h-4 w-4 text-blue-700" />
-                    </div>
-                    <h3 className="font-medium text-sm mb-1 text-gray-900">פרסום מוצרים בקנה מידה ארצי</h3>
-                    <p className="text-xs text-gray-700">
-                    פרסום חופשי, חשיפה אמיתית – Sitonimil זה המקום להתחיל בו
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div variants={fadeIn}>
-                <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
-                  <CardContent className="p-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                      <Package className="h-4 w-4 text-blue-700" />
-                    </div>
-                    <h3 className="font-medium text-sm mb-1 text-gray-900"> כל מה שצריך בעסק הסיטונאי שלך</h3>
-                    <p className="text-xs text-gray-700">
-                    מערכת מתקדמת שתוכננה במיוחד למסחר סיטונאי – פשוטה, מהירה ונגישה                
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </motion.div>
-          </div>
-        </motion.section>
-      
-        <motion.section 
-          className="bg-gradient-to-r from-blue-800 to-indigo-900 py-8"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={fadeIn}
-          aria-labelledby="cta-heading"
-        >
-          <div className="container mx-auto px-4 md:px-6 text-center">
+        <section data-section="suppliers" className={`transition-opacity duration-500 ${isContentVisible.suppliers ? 'opacity-100' : 'opacity-0'}`} aria-labelledby="top-suppliers-heading">
+          <motion.section 
+            className="bg-blue-50 py-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={fadeIn}
+          >
+            <div className="container mx-auto px-4 md:px-6">
+              <div className="max-w-7xl mx-auto">
+                <motion.div className="flex justify-between items-center mb-6" variants={fadeIn}>
+                  <div className="w-full sm:w-auto">
+                    <h2 id="top-suppliers-heading" className="text-lg font-bold text-gray-900 text-center sm:text-right">ספקים מובילים</h2>
+                  </div>
+                  <div className="hidden sm:block">
+                    <Button 
+                      variant="ghost" 
+                      asChild 
+                      className="border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all px-4 py-2 rounded-full shadow-sm hover:shadow"
+                    >
+                      <Link to={createPageUrl("Suppliers")} className="flex items-center gap-2 group">
+                        <span className="text-sm font-medium">צפייה בכל הספקים</span>
+                        <div className="bg-blue-500 rounded-full p-1 transform group-hover:-translate-x-1 transition-all duration-200">
+                          <ArrowLeft className="h-3 w-3 text-white" />
+                        </div>
+                      </Link>
+                    </Button>
+                  </div>
+                </motion.div>
+                
+                <div className="mb-3 flex justify-center sm:hidden">
+                  <Button 
+                    variant="ghost" 
+                    asChild 
+                    className="mx-auto border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all px-4 py-2 rounded-full shadow-sm hover:shadow"
+                  >
+                    <Link to={createPageUrl("Suppliers")} className="flex items-center gap-2 group">
+                      <span className="text-sm font-medium">צפייה בכל הספקים</span>
+                      <div className="bg-blue-500 rounded-full p-1 transform group-hover:-translate-x-1 transition-all duration-200">
+                        <ArrowLeft className="h-3 w-3 text-white" />
+                      </div>
+                    </Link>
+                  </Button>
+                </div>
+                
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+                  variants={staggerContainer}
+                >
+                  {loading
+                    ? Array(3).fill(0).map((_, i) => (
+                        <motion.div 
+                          key={i}
+                          variants={fadeIn}
+                          className="bg-white animate-pulse"
+                        >
+                          <CardContent className="p-3">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                              <div className="flex-1">
+                                <div className="h-4 bg-gray-200 rounded w-3/4 mb-1" />
+                                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                              </div>
+                            </div>
+                            <div className="h-3 bg-gray-200 rounded w-full mb-1" />
+                            <div className="h-3 bg-gray-200 rounded w-full" />
+                          </CardContent>
+                        </motion.div>
+                      ))
+                    : topSuppliers.map((supplier, index) => (
+                        <motion.div 
+                          key={supplier.id}
+                          variants={fadeIn}
+                        >
+                          <SupplierCard supplier={supplier} />
+                        </motion.div>
+                      ))}
+                </motion.div>
+              </div>
+            </div>
+          </motion.section>
+        </section>
+        
+        <section data-section="features" className={`transition-opacity duration-500 ${isContentVisible.features ? 'opacity-100' : 'opacity-0'}`} aria-labelledby="why-join-heading">
+          <motion.section 
+            className="container mx-auto px-4 md:px-6 py-8 bg-gradient-to-b from-white to-gray-50"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={fadeIn}
+          >
             <div className="max-w-7xl mx-auto">
-              <motion.h2 
-                id="cta-heading"
-                className="text-xl font-bold text-white mb-3"
+              <motion.div 
+                className="text-center max-w-3xl mx-auto mb-12"
                 variants={fadeIn}
               >
-                מוכנים להתחיל?
-              </motion.h2>
-              <motion.p 
-                className="text-white/90 text-sm max-w-3xl mx-auto mb-4"
-                variants={fadeIn}
-              >
-                הצטרפו לאלפי ספקים וסוחרים אחרים בפלטפורמה הסיטונאית המובילה. מחכים לכם!
-              </motion.p>
+                <h2 id="why-join-heading" className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">למה להצטרף לקהילת Sitonimil ?</h2>
+                <p className="text-sm sm:text-base md:text-lg text-gray-600">
+                  הצטרפו לאלפי סוחרים וספקים שכבר נהנים מחיבורים, הזדמנויות עסקיות ומכירות בקנה מידה ארצי
+                </p>
+              </motion.div>
               
               <motion.div 
-                className="flex flex-wrap gap-2 justify-center"
-                variants={fadeIn}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+                variants={staggerContainer}
               >
-                {currentUser ? (
-                  <Button
-                    className="bg-white text-blue-700 hover:bg-gray-100 border border-white hover:border-gray-200 focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 font-medium text-xs py-1 px-3"
-                    onClick={() => navigate(redirectToLogin("Home"))}
-                  >
-                    <Search className="ml-1 h-3 w-3" />
-                    התחל לחפש מוצרים
-                  </Button>
-                ) : (
-                  <>
+                <motion.div variants={fadeIn}>
+                  <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
+                    <CardContent className="p-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                        <TrendingUp className="h-4 w-4 text-blue-700" />
+                      </div>
+                      <h3 className="font-medium text-sm mb-1 text-gray-900">ספקים מאומתים</h3>
+                      <p className="text-xs text-gray-700">
+                        כל הספקים שלנו עוברים תהליך אימות קפדני כדי להבטיח שאתם עובדים רק עם ספקים אמינים ואיכותיים.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div variants={fadeIn}>
+                  <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
+                    <CardContent className="p-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                        <Shield className="h-4 w-4 text-blue-700" />
+                      </div>
+                      <h3 className="font-medium text-sm mb-1 text-gray-900">פרסום מוצרים בקנה מידה ארצי</h3>
+                      <p className="text-xs text-gray-700">
+                      פרסום חופשי, חשיפה אמיתית – Sitonimil זה המקום להתחיל בו
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div variants={fadeIn}>
+                  <Card className="border-none shadow-lg hover:shadow focus-within:ring-1 focus-within:ring-blue-500">
+                    <CardContent className="p-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                        <Package className="h-4 w-4 text-blue-700" />
+                      </div>
+                      <h3 className="font-medium text-sm mb-1 text-gray-900"> כל מה שצריך בעסק הסיטונאי שלך</h3>
+                      <p className="text-xs text-gray-700">
+                      מערכת מתקדמת שתוכננה במיוחד למסחר סיטונאי – פשוטה, מהירה ונגישה                
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.section>
+        
+          <motion.section 
+            className="bg-gradient-to-r from-blue-800 to-indigo-900 py-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={fadeIn}
+            aria-labelledby="cta-heading"
+          >
+            <div className="container mx-auto px-4 md:px-6 text-center">
+              <div className="max-w-7xl mx-auto">
+                <motion.h2 
+                  id="cta-heading"
+                  className="text-xl font-bold text-white mb-3"
+                  variants={fadeIn}
+                >
+                  מוכנים להתחיל?
+                </motion.h2>
+                <motion.p 
+                  className="text-white/90 text-sm max-w-3xl mx-auto mb-4"
+                  variants={fadeIn}
+                >
+                  הצטרפו לאלפי ספקים וסוחרים אחרים בפלטפורמה הסיטונאית המובילה. מחכים לכם!
+                </motion.p>
+                
+                <motion.div 
+                  className="flex flex-wrap gap-2 justify-center"
+                  variants={fadeIn}
+                >
+                  {currentUser ? (
                     <Button
                       className="bg-white text-blue-700 hover:bg-gray-100 border border-white hover:border-gray-200 focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 font-medium text-xs py-1 px-3"
                       onClick={() => navigate(redirectToLogin("Home"))}
                     >
-                      <LogIn className="ml-1 h-3 w-3" />
-                      התחבר
+                      <Search className="ml-1 h-3 w-3" />
+                      התחל לחפש מוצרים
                     </Button>
-                  </>
-                )}
-              </motion.div>
+                  ) : (
+                    <>
+                      <Button
+                        className="bg-white text-blue-700 hover:bg-gray-100 border border-white hover:border-gray-200 focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 font-medium text-xs py-1 px-3"
+                        onClick={() => navigate(redirectToLogin("Home"))}
+                      >
+                        <LogIn className="ml-1 h-3 w-3" />
+                        התחבר
+                      </Button>
+                    </>
+                  )}
+                </motion.div>
+              </div>
             </div>
-          </div>
-        </motion.section>
-      </section>
-    </>
-  );
-}
+          </motion.section>
+        </section>
+      </>
+    );
+  }

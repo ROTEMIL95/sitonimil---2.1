@@ -1,10 +1,11 @@
 import './App.css'
 import Pages from "@/pages/index.jsx"
 import { Toaster } from "sonner"
+import { AppWrapper } from '@/components/PageMeta'
 
 function App() {
   return (
-    <>
+    <AppWrapper>
       <Pages />
       <Toaster 
         position="top-center"
@@ -12,7 +13,7 @@ function App() {
         richColors
         closeButton
       />
-    </>
+    </AppWrapper>
   )
 }
 
