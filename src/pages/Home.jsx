@@ -276,7 +276,7 @@ export default function Home() {
               // bg-clip-text text-transparent drop-shadow-sm font-['Arial'] "
               className="relative mb-4 text-6xl md:text-7xl lg:text-8xl font-extrabold 
               text-blue-500 bg-gradient-to-r from-blue-800 to-blue-500 
-              bg-clip-text text-transparent drop-shadow-sm font-['Arial']"
+              bg-clip-text text-transparent drop-shadow-sm font-['Rubik']"
               style={criticalHeadingStyles}
             suppressHydrationWarning
           >

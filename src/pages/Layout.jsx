@@ -39,6 +39,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/api/supabaseClient";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
+import UserDropdown from "@/components/UserDropdown";
 
 
 export default function Layout({ children }) {
@@ -471,215 +472,40 @@ export default function Layout({ children }) {
                   </Button>
                   */}
                   
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="relative focus:ring-2  focus-visible:ring-offset-2" aria-label="התראות">
-                        <Bell className="w-5 h-5" />
-                        {notifications.length > 0 && (
-                          <Badge className="absolute -top-1 -right-1 h-4 w-4 bg-blue-600 p-0 flex items-center justify-center">
-                            {notifications.length}
-                          </Badge>
-                        )}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-80 mr-1 bg-white rounded-xl shadow-lg p-1" align="start" dir="rtl">
-                      <DropdownMenuLabel className="font-normal px-2 py-2 flex justify-between items-center">
-                        <span className="font-medium">התראות</span>
-                        {notifications.length > 0 && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-xs h-auto py-1 hover:bg-gray-100 text-gray-500 focus:ring-2  focus-visible:ring-offset-2"
-                            onClick={markAllNotificationsAsRead}
-                          >
-                            סמן הכל כנקרא
-                          </Button>
-                        )}
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator className="my-1" />
-                      
-                      {notificationsLoading ? (
-                        <div className="flex justify-center items-center py-8">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                        </div>
-                      ) : notifications.length > 0 ? (
-                        <div className="max-h-[300px] overflow-y-auto">
-                          {notifications.map((notification) => (
-                            <DropdownMenuItem key={notification.id} className="px-2 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
-                              <div className="flex items-start gap-2 w-full" onClick={() => markNotificationAsRead(notification.id)}>
-                                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                  <Bell className="h-4 w-4 text-blue-600" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm line-clamp-2">{notification.message}</p>
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    {new Date(notification.created_at).toLocaleDateString('he-IL', {
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                      day: '2-digit',
-                                      month: '2-digit',
-                                    })}
-                                  </p>
-                                </div>
-                              </div>
-                            </DropdownMenuItem>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="py-8 text-center">
-                          <Bell className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                          <p className="text-gray-500 text-sm">אין התראות חדשות</p>
-                        </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                      onClick={() => setShowNotifications(!showNotifications)}
+                    >
+                      <Bell className="h-5 w-5" />
+                      {notifications.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                          {notifications.length}
+                        </span>
                       )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  
-                  <Button variant="ghost" size="icon" asChild className="focus:ring-2 focus-visible:ring-offset-2">
-                    <Link to={createPageUrl("Messages")} aria-label="הודעות">
-                      <MessageSquare className="w-5 h-5" />
-                    </Link>
-                  </Button>
+                    </Button>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="relative h-8 w-8 rounded-full focus:ring-2 focus-visible:ring-offset-2 hover:bg-gray-100"
-                      >
-                        <Avatar className="h-8 w-8 border-2 border-white shadow">
-                          <AvatarImage 
-                            src={`${user.avatar_url}?v=${Date.now()}`}
-                            alt={user.full_name}
-                          />
-                          <AvatarFallback className="bg-blue-100 text-blue-600">{user.full_name?.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 p-2 rounded-xl" dir="rtl">
-                      <div className="px-3 py-2 mb-1 bg-blue-50 rounded-lg">
-                        <DropdownMenuLabel className="flex items-center gap-2 text-sm p-0">
-                          <span className="font-semibold text-gray-800">{user.full_name}</span>
-                          {user.role === 'admin' && (
-                            <Badge variant="secondary" className="font-normal text-xs bg-blue-200 text-blue-800">
-                              <Shield className="h-3 w-3 ml-1" />
-                              אדמין
-                            </Badge>
-                          )}
-                        </DropdownMenuLabel>
-                        <p className="text-xs text-gray-500 mt-1">{user.email}</p>
-                      </div>
-                      <DropdownMenuSeparator className="my-1" />
-                      <div className="py-1">
-                        <DropdownMenuItem 
-                          onClick={() => {
-                            handleLinkClick();
-                            if (user) {
-                              navigate(createPageUrl("Profile"));
-                            } else {
-                              navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
-                              toast({
-                                title: "נדרשת התחברות",
-                                description: "עליך להתחבר כדי לצפות בפרופיל",
-                                duration: 3000,
-                              });
-                            }
-                          }}
-                          className="hover:bg-blue-50 cursor-pointer px-3 py-2 rounded-md focus:bg-blue-50 mb-1"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="bg-blue-100 p-1.5 rounded-full">
-                              <UserIcon className="h-4 w-4 text-blue-700" />
-                            </div>
-                            <span className="font-medium text-gray-800">הפרופיל שלי</span>
-                          </div>
-                        </DropdownMenuItem>
-                
-                        <DropdownMenuItem asChild className="hover:bg-blue-50 cursor-pointer px-3 py-2 rounded-md focus:bg-blue-50 mb-1">
-                          <Link to={createPageUrl("Help")} className="flex items-center gap-3">
-                            <div className="bg-green-100 p-1.5 rounded-full">
-                              <HelpCircle className="h-4 w-4 text-green-700" />
-                            </div>
-                            <span className="font-medium text-gray-800">עזרה ותמיכה</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="hover:bg-blue-50 cursor-pointer px-3 py-2 rounded-md focus:bg-blue-50 mb-1">
-                          <Link to={createPageUrl("Privacy")} className="flex items-center gap-3">
-                            <div className="bg-yellow-100 p-1.5 rounded-full">
-                              <Shield className="h-4 w-4 text-yellow-700" />
-                            </div>
-                            <span className="font-medium text-gray-800">מדיניות פרטיות</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="hover:bg-blue-50 cursor-pointer px-3 py-2 rounded-md focus:bg-blue-50">
-                          <Link to={createPageUrl("Terms")} className="flex items-center gap-3">
-                            <div className="bg-gray-100 p-1.5 rounded-full">
-                              <FileText className="h-4 w-4 text-gray-700" />
-                            </div>
-                            <span className="font-medium text-gray-800">תנאי שימוש</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      </div>
-                      <DropdownMenuSeparator className="my-1" />
-                      
-                      <h3 className="text-sm font-bold mt-2 mb-2 text-gray-500 px-3">עקבו אחרינו</h3>
-                      
-                      <div className="flex justify-center gap-2 px-3 py-2 mb-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-white hover:bg-blue-100 hover:text-blue-700 rounded-full h-9 w-9 shadow-sm border"
-                          onClick={() => {
-                            window.open('https://www.facebook.com/sitonimil', '_blank');
-                            setIsMenuOpen(false);
-                          }}
-                          aria-label="פייסבוק"
-                        >
-                          <Facebook className="h-4 w-4" />
-                        </Button>
-                        
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-white hover:bg-pink-100 hover:text-pink-600 rounded-full h-9 w-9 shadow-sm border"
-                          onClick={() => {
-                            window.open('https://www.instagram.com/sitonimil', '_blank');
-                            setIsMenuOpen(false);
-                          }}
-                          aria-label="אינסטגרם"
-                        >
-                          <Instagram className="h-4 w-4" />
-                        </Button>
-                        
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="bg-white hover:bg-blue-100 hover:text-blue-800 rounded-full h-9 w-9 shadow-sm border"
-                          onClick={() => {
-                            window.open('https://www.linkedin.com/company/sitonimil', '_blank');
-                            setIsMenuOpen(false);
-                          }}
-                          aria-label="לינקדאין"
-                        >
-                          <Linkedin className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="p-2 mt-1">
-                        <Button
-                          variant="outline"
-                          className="w-full border-red-500 text-red-600 hover:bg-red-50 rounded-md"
-                          onClick={() => {
-                            handleLogout();
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <LogOut className="w-4 h-4 ml-2" />
-                          <span className="font-medium">התנתקות</span>
-                        </Button>
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                      onClick={() => setShowMessages(!showMessages)}
+                    >
+                      <MessageSquare className="h-5 w-5" />
+                      {notifications.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
+                          {notifications.length}
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  <UserDropdown 
+                    user={user} 
+                    onLogout={handleLogout}
+                  />
                 </>
               ) : (
                 <div className="hidden md:flex items-center gap-3">
