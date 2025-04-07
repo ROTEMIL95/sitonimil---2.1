@@ -8,17 +8,17 @@
     "description": "פלטפורמת הסיטונאות המובילה בישראל – מחברים בין ספקים איכותיים לסוחרים בכל רחבי הארץ.",
     "icons": [
       {
-        "src": "/icons/לוגו 192.png",
+        "src": "/icons/icon-192x192.png",
         "sizes": "192x192",
         "type": "image/png"
       },
       {
-        "src": "/icons/לוגו 512.png",
+        "src": "/icons/icon-512x512.png",
         "sizes": "512x512",
         "type": "image/png"
       },
       {
-        "src": "/icons/לוגו מצומצם 512.png",
+        "src": "/icons/maskable-512x512.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "any maskable"
