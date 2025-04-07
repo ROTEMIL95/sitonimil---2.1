@@ -18,6 +18,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import PageMeta from "@/components/PageMeta";
+import ProductGrid from "../components/ProductGrid";
 
 // Optimized staggered animation settings
 const staggerContainer = {
@@ -406,36 +407,13 @@ export default function Home() {
                 </Button>
               </motion.div>
               
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
-                variants={staggerContainer}
-              >
-                {loading
-                  ? Array(4).fill(0).map((_, i) => (
-                      <motion.div
-                        key={i}
-                        variants={fadeIn}
-                        className="bg-white p-4 rounded-lg shadow-sm animate-pulse"
-                      >
-                        <div className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
-                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                        <div className="h-4 bg-gray-200 rounded w-1/2" />
-                      </motion.div>
-                    ))
-                  : featuredProducts.length > 0 ? (
-                      featuredProducts.map((product, index) => (
-                        <motion.div 
-                          key={product.id}
-                          variants={fadeIn}
-                        >
-                          <ProductCard product={product} />
-                        </motion.div>
-                      ))
-                    ) : (
-                      <div className="col-span-full text-center py-8 text-gray-500">
-                        אין מוצרים זמינים כרגע
-                      </div>
-                    )}
+              <motion.div variants={fadeIn}>
+                <ProductGrid 
+                  products={featuredProducts}
+                  loading={loading}
+                  viewMode="grid"
+                  className="mt-6"
+                />
               </motion.div>
             </div>
           </motion.section>
