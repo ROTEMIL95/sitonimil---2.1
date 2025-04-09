@@ -149,9 +149,7 @@ export default function Home() {
         }
 
         try {
-          console.log("Starting to fetch products...");
           const allProducts = await Product.list();
-          console.log("Raw products from backend:", allProducts);
           
           // Filter and sort products
           const validProducts = allProducts.filter(product => 
@@ -160,17 +158,20 @@ export default function Home() {
             product.price !== undefined && 
             product.status !== "inactive"
           );
-          console.log("Valid products after filtering:", validProducts);
           
+          // Sort products to prioritize specific product ID
           const sortedProducts = validProducts
-            .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+            .sort((a, b) => {
+              if (a.id === "efee1a4c-088d-4553-8738-77acc836e686") return -1;
+              if (b.id === "efee1a4c-088d-4553-8738-77acc836e686") return 1;
+              return (b.rating || 0) - (a.rating || 0);
+            })
             .slice(0, 4);
-          console.log("Final sorted products:", sortedProducts);
           
           setFeaturedProducts(sortedProducts);
         } catch (error) {
           console.error("Error loading products:", error);
-          setFeaturedProducts([]); // Set empty array instead of placeholder
+          setFeaturedProducts([]);
         }
 
         try {
@@ -191,9 +192,6 @@ export default function Home() {
     };
 
     loadData();
-
-   
-
   }, [lastUpdated, toast]);
 
   const fallbackSuppliers = [
@@ -250,6 +248,39 @@ export default function Home() {
 
     return () => observer.disconnect();
   }, []);
+
+  const loadFeaturedProducts = async () => {
+    try {
+      const response = await Product.list({
+        limit: 30,
+        sort: "created_at",
+        order: "desc",
+        filters: {
+          status: "active",
+          is_featured: true
+        }
+      });
+
+      if (response?.data) {
+        // Sort products to prioritize specific supplier ID
+        const sortedProducts = response.data.sort((a, b) => {
+          const isTargetSupplierA = a.supplier?.id === "5dde1ba1-edf6-474b-8385-ef819d37e6b0";
+          const isTargetSupplierB = b.supplier?.id === "5dde1ba1-edf6-474b-8385-ef819d37e6b0";
+          
+          if (isTargetSupplierA && !isTargetSupplierB) return -1;
+          if (!isTargetSupplierA && isTargetSupplierB) return 1;
+          return 0;
+        });
+
+        setFeaturedProducts(sortedProducts);
+      } else {
+        setFeaturedProducts([]);
+      }
+    } catch (error) {
+      console.error("Error loading featured products:", error);
+      setFeaturedProducts([]);
+    }
+  };
 
   return (
     <>

@@ -40,7 +40,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/api/supabaseClient";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
-import UserDropdown from "@/components/UserDropdown";
 import MobileMenu from "@/components/MobileMenu";
 
 
@@ -105,6 +104,35 @@ export default function Layout({ children }) {
       }
     } catch (error) {
       console.log("Error refreshing user data:", error);
+    }
+  }, []);
+
+  // Function to ensure only one menu is open at a time
+  const handleMenuToggle = useCallback((menuType) => {
+    if (menuType === 'main') {
+      setIsMenuOpen(prev => {
+        if (!prev) setApplicationMenuOpen(false);
+        return !prev;
+      });
+    } else if (menuType === 'application') {
+      setApplicationMenuOpen(prev => {
+        if (!prev) setIsMenuOpen(false);
+        return !prev;
+      });
+    } else if (menuType === 'notifications') {
+      setShowNotifications(prev => {
+        if (!prev) {
+          setShowMessages(false);
+        }
+        return !prev;
+      });
+    } else if (menuType === 'messages') {
+      setShowMessages(prev => {
+        if (!prev) {
+          setShowNotifications(false);
+        }
+        return !prev;
+      });
     }
   }, []);
 
@@ -413,16 +441,19 @@ export default function Layout({ children }) {
                 setShowMessages={setShowMessages}
                 handleLogout={handleLogout}
                 isMenuOpen={isMenuOpen}
-                setIsMenuOpen={setIsMenuOpen}
-                isApplicationMenuOpen={isApplicationMenuOpen}
-                setApplicationMenuOpen={setApplicationMenuOpen}
+                setIsMenuOpen={(value) => {
+                  if (value) {
+                    setApplicationMenuOpen(false);
+                  }
+                  setIsMenuOpen(value);
+                }}
                 handleLinkClick={handleLinkClick}
                 handlePublishProductClick={handlePublishProductClick}
               />
               
               <Link 
                 to={createPageUrl("Home")} 
-                className={`flex items-center gap-4 md:mr-0 absolute left-1/2 transform ${user ? '-translate-x-[10%] md:-translate-x-1/2' : '-translate-x-1/2'} md:relative md:left-0 md:transform-none rounded-md`} 
+                className={`flex items-center gap-4 md:mr-0 absolute left-1/2 transform -translate-x-1/2 md:relative md:left-0 md:transform-none rounded-md`} 
                 onClick={handleLinkClick} 
                 aria-label="דף הבית"
               >
@@ -469,39 +500,136 @@ export default function Layout({ children }) {
               {user ? (
                 <>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-                      onClick={() => setShowNotifications(!showNotifications)}
-                    >
-                      <Bell className="h-5 w-5" />
-                      {notifications.length > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                          {notifications.length}
-                        </span>
-                      )}
-                    </Button>
+                    {/* Desktop notification and message buttons */}
+                    <div className="hidden md:flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                        onClick={() => handleMenuToggle('notifications')}
+                      >
+                        <Bell className="h-5 w-5" />
+                        {notifications.length > 0 && (
+                          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                            {notifications.length}
+                          </span>
+                        )}
+                      </Button>
 
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                        onClick={() => handleMenuToggle('messages')}
+                      >
+                        <MessageSquare className="h-5 w-5" />
+                        {notifications.length > 0 && (
+                          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
+                            {notifications.length}
+                          </span>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {/* Desktop user menu - dropdown triggered by avatar */}
+                    <div className="hidden md:block">
+                      <DropdownMenu dir="rtl">
+                        <DropdownMenuTrigger asChild>
+                          <Avatar className="h-10 w-10 border-2 border-white shadow-sm cursor-pointer hover:ring-2 hover:ring-blue-200 transition-all">
+                            <AvatarImage src={user?.profileImage || user?.avatar_url} alt={user?.name || user?.full_name} />
+                            <AvatarFallback className="bg-blue-100 text-blue-600">
+                              {(user?.name || user?.full_name)?.charAt(0) || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-64 p-2" align="start">
+                          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg mb-2">
+                            <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+                              <AvatarImage src={user?.profileImage || user?.avatar_url} alt={user?.name || user?.full_name} />
+                              <AvatarFallback className="bg-blue-100 text-blue-600">
+                                {(user?.name || user?.full_name)?.charAt(0) || "U"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="font-medium text-gray-900">{user?.name || user?.full_name}</span>
+                              <span className="text-sm text-gray-500">{user?.email}</span>
+                            </div>
+                          </div>
+
+                          <DropdownMenuItem asChild>
+                            <Link to="/profile" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <UserIcon className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <span className="font-medium">פרופיל</span>
+                            </Link>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem asChild>
+                            <Link to="/settings" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                              <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
+                                <Settings className="h-4 w-4 text-purple-600" />
+                              </div>
+                              <span className="font-medium">הגדרות</span>
+                            </Link>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem asChild>
+                            <Link to="/help" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
+                              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                                <HelpCircle className="h-4 w-4 text-green-600" />
+                              </div>
+                              <span className="font-medium">עזרה</span>
+                            </Link>
+                          </DropdownMenuItem>
+
+                          <DropdownMenuSeparator />
+
+                          <div className="flex justify-center gap-2 p-2">
+                            <Button variant="outline" size="icon" className="h-8 w-8">
+                              <Facebook className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="icon" className="h-8 w-8">
+                              <Twitter className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="icon" className="h-8 w-8">
+                              <Instagram className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="icon" className="h-8 w-8">
+                              <Linkedin className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="icon" className="h-8 w-8">
+                              <Mail className="h-4 w-4" />
+                            </Button>
+                          </div>
+
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 p-2 rounded-lg hover:bg-red-50 hover:text-red-600"
+                          >
+                            <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
+                              <LogOut className="h-4 w-4 text-red-600" />
+                            </div>
+                            <span className="font-medium">התנתק</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    
+                    {/* Mobile Button - Only visible on small screens */}
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-                      onClick={() => setShowMessages(!showMessages)}
+                      className="md:hidden relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                      onClick={() => handleMenuToggle('application')}
+                      aria-expanded={isApplicationMenuOpen}
+                      aria-label={isApplicationMenuOpen ? "סגור תפריט אפליקציה" : "פתח תפריט אפליקציה"}
                     >
-                      <MessageSquare className="h-5 w-5" />
-                      {notifications.length > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
-                          {notifications.length}
-                        </span>
-                      )}
+                      <EllipsisVertical className={`h-5 w-5 transition-transform duration-300 ${isApplicationMenuOpen ? "rotate-90" : ""}`} />
                     </Button>
                   </div>
-                  
-                  <UserDropdown 
-                    user={user}
-                    onLogout={handleLogout}
-                  />
                 </>
               ) : (
                 <div className="hidden md:flex items-center gap-3">
@@ -533,254 +661,318 @@ export default function Layout({ children }) {
           </nav>
         </div>
 
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div 
-              className="md:hidden fixed inset-0 right-0 left-auto z-50 w-72 bg-white shadow-xl"
-              style={{ height: '100vh', top: 0 }}
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 300, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              id="mobile-menu"
-              role="navigation"
-              aria-label="תפריט נייד"
-            >
-              <div className="flex flex-col h-full">
-                <div className="p-4 flex justify-between items-center border-b sticky top-0 bg-white z-10">
-                  <h2 className="font-semibold text-lg">תפריט</h2>
+        {/* Mobile menu row - Only visible on small screens */}
+        {user && (
+          <div
+            className={`${
+              isApplicationMenuOpen ? "flex" : "hidden"
+            } md:hidden items-center justify-between w-full gap-4 px-5 py-4 shadow-theme-md border-t border-gray-200`}
+          >
+            <div className="max-w-7xl mx-auto w-full">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Link to="/profile" className="group">
+                    <Avatar className="h-14 w-14 border-2 border-white shadow-sm transition-all group-hover:ring-2 group-hover:ring-blue-200">
+                      <AvatarImage src={user?.profileImage || user?.avatar_url} alt={user?.name || user?.full_name} />
+                      <AvatarFallback className="bg-blue-100 text-blue-600">
+                        {(user?.name || user?.full_name)?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
+                  
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-900">{user?.name || user?.full_name}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="focus:ring-2 focus-visible:ring-offset-2 p-1.5 h-auto w-auto"
-                    aria-label="סגור תפריט"
+                    className="relative flex items-center justify-center text-gray-500 transition-colors bg-gray-100 rounded-full h-10 w-10 hover:bg-blue-100 hover:text-blue-600"
+                    onClick={() => handleMenuToggle('notifications')}
                   >
-                    <X className="h-7 w-7 text-blue-700" />
-                  </Button>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto py-4 px-4 pb-24 space-y-4">
-                  {user && (
-                    <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
-                      <Avatar className="h-12 w-12">
-                        {user.logo_url || user.avatar_url ? (
-                          <AvatarImage 
-                            src={`${user.logo_url || user.avatar_url}?v=${Date.now()}`}
-                            alt={user.company_name || user.full_name}
-                          />
-                        ) : (
-                          <AvatarFallback className="bg-blue-100 text-blue-600">
-                            {(user.company_name || user.full_name)?.charAt(0) || "U"}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{user.company_name || user.full_name}</p>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                      </div>
-                    </div>
-                  )}
-                
-                  {/* קישורי ניווט ראשיים */}
-                  <div className="border-b border-gray-200 pb-4">
-                    <h3 className="text-sm font-bold mb-3 text-gray-500 px-2">ניווט</h3>
-                    {getAllNavLinks().map((link) => (
-                      <Link
-                        key={link.path}
-                        to={link.path}
-                        className={`block px-4 py-3 mb-1 rounded-md text-sm font-medium focus:outline-none focus:ring-2 ${
-                          isActive(link.path)
-                            ? "bg-blue-50 text-blue-700"
-                            : "text-gray-800 hover:bg-gray-50"
-                        }`}
-                        onClick={() => {
-                          handleLinkClick();
-                          setIsMenuOpen(false);
-                        }}
-                        aria-current={isActive(link.path) ? "page" : undefined}
-                      >
-                        {link.name}
-                      </Link>
-                    ))}
-                    
-                    <Link
-                      to={createPageUrl("UploadProduct")}
-                      className="flex items-center justify-center gap-1 text-sm font-medium w-full py-2.5 px-4 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 mt-3"
-                      onClick={(e) => {
-                        handlePublishProductClick(e);
-                        handleLinkClick();
-                        setIsMenuOpen(false);
-                      }}
-                      aria-label="פרסום מוצר חדש"
-                    >
-                      <PlusCircle className="h-6 w-6 "/>
-                       פרסם מוצר
-                    </Link>
-                  </div>
-                  
-                  {/* קישורים נוספים */}
-                  <div className="pt-2">
-                    <h3 className="text-sm font-bold mb-3 text-gray-500 px-2">פעולות מהירות</h3>
-                    {user ? (
-                      <>
-                        <Link
-                          to={createPageUrl("Messages")}
-                          className="flex items-center px-4 py-3 mb-1 rounded-md hover:bg-gray-50"
-                          onClick={() => {
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <MessageSquare className="w-5 h-5 ml-3" />
-                          <span>הודעות</span>
-                        </Link>
-                        <Button
-                          type="button"
-                          className="flex items-center px-4 py-3 mb-1 rounded-md h w-full text-right"
-                          onClick={() => {
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                            if (user) {
-                              navigate(createPageUrl("Profile"));
-                            } else {
-                              navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
-                              toast({
-                                title: "נדרשת התחברות",
-                                description: "עליך להתחבר כדי לצפות בפרופיל",
-                                duration: 3000,
-                              });
-                            }
-                          }}
-                        >
-                          <UserIcon className="w-5 h-5 ml-3" />
-                          <span >הפרופיל שלי</span>
-                        </Button>
-                        
-                      </>
-                    ) : (
-                      <div className="space-y-3">
-                        <Link
-                          to={createPageUrl("Help") + "?tab=faq"}
-                          className="flex items-center px-4 pt-3 pb-1 mb-1 rounded-md hover:bg-gray-50"
-                          onClick={() => {
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <HelpCircle className="w-5 h-5 ml-3" />
-                          <span> שאלות נפוצות</span>
-                        </Link>
-                        
-                        <Link
-                          to={createPageUrl("Help") + "?tab=contact"}
-                          className="flex items-center px-4 py-1 mb-1 rounded-md hover:bg-gray-50"
-                          onClick={() => {
-                            handleLinkClick();
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <Mail className="w-5 h-5 ml-3" />
-                          <span>צור קשר</span>
-                        </Link>
-                        
-                        <h3 className="text-sm font-bold mt-6 mb-4 text-gray-500 px-2 pb-1 pt-3 border-t border-gray-200">התחברות / הרשמה</h3>
-                        
-                        <Button 
-                          className="w-full bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 justify-center focus:outline-none focus:ring-2  focus-visible:ring-offset-2" 
-                          asChild
-                        >
-                          <Link 
-                            to={createPageUrl("Auth") + "?tab=login"}
-                            onClick={() => {
-                              handleLinkClick();
-                              setIsMenuOpen(false);
-                            }}
-                          >
-                            <LogIn className="h-4 w-4" />
-                            התחברות
-                          </Link>
-                        </Button>
-                        <Button 
-                          className="w-full border-blue-700 text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2  focus-visible:ring-offset-2" 
-                          variant="outline" 
-                          asChild
-                        >
-                          <Link 
-                            to={createPageUrl("Auth") + "?tab=register"}
-                            onClick={() => {
-                              handleLinkClick();
-                              setIsMenuOpen(false);
-                            }}
-                          >
-                            <UserPlus className="h-4 w-4 ml-2" />
-                            הרשמה
-                          </Link>
-                        </Button>
-
-                        <h3 className="text-sm font-bold mt-6 mb-3 text-gray-500 px-2 pt-2 border-t border-gray-200">עקבו אחרינו</h3>
-                        
-                        <div className="flex flex-wrap gap-3 px-4 py-2 mb-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="bg-gray-100 hover:bg-blue-100 hover:text-blue-700 rounded-full h-10 w-10"
-                            onClick={() => {
-                              window.open('https://www.facebook.com/sitonimil', '_blank');
-                              setIsMenuOpen(false);
-                            }}
-                            aria-label="פייסבוק"
-                          >
-                            <Facebook className="h-5 w-5" />
-                          </Button>
-                          
-                         
-                          
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="bg-gray-100 hover:bg-pink-100 hover:text-pink-600 rounded-full h-10 w-10"
-                            onClick={() => {
-                              window.open('https://www.instagram.com/sitonimil', '_blank');
-                              setIsMenuOpen(false);
-                            }}
-                            aria-label="אינסטגרם"
-                          >
-                            <Instagram className="h-5 w-5" />
-                          </Button>
-                          
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="bg-gray-100 hover:bg-blue-100 hover:text-blue-800 rounded-full h-10 w-10"
-                            onClick={() => {
-                              window.open('https://www.linkedin.com/company/sitonimil', '_blank');
-                              setIsMenuOpen(false);
-                            }}
-                            aria-label="לינקדאין"
-                          >
-                            <Linkedin className="h-5 w-5" />
-                          </Button>
-                        </div>
-                        
-                      </div>
+                    <Bell className="h-5 w-5" />
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                        {notifications.length}
+                      </span>
                     )}
-                  </div>
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative flex items-center justify-center text-gray-500 transition-colors bg-gray-100 rounded-full h-10 w-10 hover:bg-blue-100 hover:text-blue-600"
+                    onClick={() => handleMenuToggle('messages')}
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
+                        {notifications.length}
+                      </span>
+                    )}
+                  </Button>
+                  
+                  <button onClick={handleLogout} className="rounded-full p-2 bg-red-100 hover:bg-red-200">
+                    <LogOut className="h-5 w-5 text-red-600" />
+                  </button>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
 
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div
-              className="md:hidden fixed inset-0 bg-black/20 z-40"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMenuOpen(false)}
-            />
+            <>
+              <motion.div 
+                className="md:hidden fixed inset-0 right-0 left-auto z-50 w-72 bg-white shadow-xl"
+                style={{ height: '100vh', top: 0 }}
+                initial={{ x: 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 300, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                id="mobile-menu"
+                role="navigation"
+                aria-label="תפריט נייד"
+                onAnimationStart={() => {
+                  // Ensure application menu is closed when main menu is open
+                  setApplicationMenuOpen(false);
+                }}
+              >
+                <div className="flex flex-col h-full">
+                  <div className="p-4 flex justify-between items-center border-b sticky top-0 bg-white z-10">
+                    <h2 className="font-semibold text-lg">תפריט</h2>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="focus:ring-2 focus-visible:ring-offset-2 p-1.5 h-auto w-auto"
+                      aria-label="סגור תפריט"
+                    >
+                      <X className="h-7 w-7 text-blue-700" />
+                    </Button>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto py-4 px-4 pb-24 space-y-4">
+                    {user && (
+                      <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                        <Avatar className="h-12 w-12">
+                          {user.logo_url || user.avatar_url ? (
+                            <AvatarImage 
+                              src={`${user.logo_url || user.avatar_url}?v=${Date.now()}`}
+                              alt={user.company_name || user.full_name}
+                            />
+                          ) : (
+                            <AvatarFallback className="bg-blue-100 text-blue-600">
+                              {(user.company_name || user.full_name)?.charAt(0) || "U"}
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{user.company_name || user.full_name}</p>
+                          <p className="text-sm text-gray-500">{user.email}</p>
+                        </div>
+                      </div>
+                    )}
+                  
+                    {/* קישורי ניווט ראשיים */}
+                    <div className="border-b border-gray-200 pb-4">
+                      <h3 className="text-sm font-bold mb-3 text-gray-500 px-2">ניווט</h3>
+                      {getAllNavLinks().map((link) => (
+                        <Link
+                          key={link.path}
+                          to={link.path}
+                          className={`block px-4 py-3 mb-1 rounded-md text-sm font-medium focus:outline-none focus:ring-2 ${
+                            isActive(link.path)
+                              ? "bg-blue-50 text-blue-700"
+                              : "text-gray-800 hover:bg-gray-50"
+                          }`}
+                          onClick={() => {
+                            handleLinkClick();
+                            setIsMenuOpen(false);
+                          }}
+                          aria-current={isActive(link.path) ? "page" : undefined}
+                        >
+                          {link.name}
+                        </Link>
+                      ))}
+                      
+                      <Link
+                        to={createPageUrl("UploadProduct")}
+                        className="flex items-center justify-center gap-1 text-sm font-medium w-full py-2.5 px-4 rounded-full bg-blue-700 text-white hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 mt-3"
+                        onClick={(e) => {
+                          handlePublishProductClick(e);
+                          handleLinkClick();
+                          setIsMenuOpen(false);
+                        }}
+                        aria-label="פרסום מוצר חדש"
+                      >
+                        <PlusCircle className="h-6 w-6 "/>
+                         פרסם מוצר
+                      </Link>
+                    </div>
+                    
+                    {/* קישורים נוספים */}
+                    <div className="pt-2">
+                      <h3 className="text-sm font-bold mb-3 text-gray-500 px-2">פעולות מהירות</h3>
+                      {user ? (
+                        <>
+                          <Link
+                            to={createPageUrl("Messages")}
+                            className="flex items-center px-4 py-3 mb-1 rounded-md hover:bg-gray-50"
+                            onClick={() => {
+                              handleLinkClick();
+                              setIsMenuOpen(false);
+                            }}
+                          >
+                            <MessageSquare className="w-5 h-5 ml-3" />
+                            <span>הודעות</span>
+                          </Link>
+                          <Button
+                            type="button"
+                            className="flex items-center px-4 py-3 mb-1 rounded-md h w-full text-right"
+                            onClick={() => {
+                              handleLinkClick();
+                              setIsMenuOpen(false);
+                              if (user) {
+                                navigate(createPageUrl("Profile"));
+                              } else {
+                                navigate(createPageUrl("Auth") + "?tab=login&redirect=Profile");
+                                toast({
+                                  title: "נדרשת התחברות",
+                                  description: "עליך להתחבר כדי לצפות בפרופיל",
+                                  duration: 3000,
+                                });
+                              }
+                            }}
+                          >
+                            <UserIcon className="w-5 h-5 ml-3" />
+                            <span >הפרופיל שלי</span>
+                          </Button>
+                          
+                        </>
+                      ) : (
+                        <div className="space-y-3">
+                          <Link
+                            to={createPageUrl("Help") + "?tab=faq"}
+                            className="flex items-center px-4 pt-3 pb-1 mb-1 rounded-md hover:bg-gray-50"
+                            onClick={() => {
+                              handleLinkClick();
+                              setIsMenuOpen(false);
+                            }}
+                          >
+                            <HelpCircle className="w-5 h-5 ml-3" />
+                            <span> שאלות נפוצות</span>
+                          </Link>
+                          
+                          <Link
+                            to={createPageUrl("Help") + "?tab=contact"}
+                            className="flex items-center px-4 py-1 mb-1 rounded-md hover:bg-gray-50"
+                            onClick={() => {
+                              handleLinkClick();
+                              setIsMenuOpen(false);
+                            }}
+                          >
+                            <Mail className="w-5 h-5 ml-3" />
+                            <span>צור קשר</span>
+                          </Link>
+                          
+                          <h3 className="text-sm font-bold mt-6 mb-4 text-gray-500 px-2 pb-1 pt-3 border-t border-gray-200">התחברות / הרשמה</h3>
+                          
+                          <Button 
+                            className="w-full bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 justify-center focus:outline-none focus:ring-2  focus-visible:ring-offset-2" 
+                            asChild
+                          >
+                            <Link 
+                              to={createPageUrl("Auth") + "?tab=login"}
+                              onClick={() => {
+                                handleLinkClick();
+                                setIsMenuOpen(false);
+                              }}
+                            >
+                              <LogIn className="h-4 w-4" />
+                              התחברות
+                            </Link>
+                          </Button>
+                          <Button 
+                            className="w-full border-blue-700 text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2  focus-visible:ring-offset-2" 
+                            variant="outline" 
+                            asChild
+                          >
+                            <Link 
+                              to={createPageUrl("Auth") + "?tab=register"}
+                              onClick={() => {
+                                handleLinkClick();
+                                setIsMenuOpen(false);
+                              }}
+                            >
+                              <UserPlus className="h-4 w-4 ml-2" />
+                              הרשמה
+                            </Link>
+                          </Button>
+
+                          <h3 className="text-sm font-bold mt-6 mb-3 text-gray-500 px-2 pt-2 border-t border-gray-200">עקבו אחרינו</h3>
+                          
+                          <div className="flex flex-wrap gap-3 px-4 py-2 mb-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="bg-gray-100 hover:bg-blue-100 hover:text-blue-700 rounded-full h-10 w-10"
+                              onClick={() => {
+                                window.open('https://www.facebook.com/sitonimil', '_blank');
+                                setIsMenuOpen(false);
+                              }}
+                              aria-label="פייסבוק"
+                            >
+                              <Facebook className="h-5 w-5" />
+                            </Button>
+                            
+                           
+                            
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="bg-gray-100 hover:bg-pink-100 hover:text-pink-600 rounded-full h-10 w-10"
+                              onClick={() => {
+                                window.open('https://www.instagram.com/sitonimil', '_blank');
+                                setIsMenuOpen(false);
+                              }}
+                              aria-label="אינסטגרם"
+                            >
+                              <Instagram className="h-5 w-5" />
+                            </Button>
+                            
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="bg-gray-100 hover:bg-blue-100 hover:text-blue-800 rounded-full h-10 w-10"
+                              onClick={() => {
+                                window.open('https://www.linkedin.com/company/sitonimil', '_blank');
+                                setIsMenuOpen(false);
+                              }}
+                              aria-label="לינקדאין"
+                            >
+                              <Linkedin className="h-5 w-5" />
+                            </Button>
+                          </div>
+                          
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="md:hidden fixed inset-0 bg-black/20 z-40"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMenuOpen(false)}
+              />
+            </>
           )}
         </AnimatePresence>
       </header>

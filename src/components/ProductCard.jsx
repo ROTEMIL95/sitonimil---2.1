@@ -264,9 +264,11 @@ export default function ProductCard({
   };
 
   const formatPrice = (price) => {
+    if (price === 0) return "לקבלת מחיר צור קשר ";
     if (price === undefined || price === null) return "N/A";
     return new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(price);
   };
+
 
   const handleContactClick = (e) => {
     e.preventDefault();
@@ -440,7 +442,14 @@ export default function ProductCard({
                   מינימום הזמנה: {product.minimum_order || 1} יח'
                 </p>
               </div>
-              <p className="font-[900] font-heebo text-xl sm:text-2xl text-gray-900 tracking-tight">{formatPrice(product.price)}</p>
+              <p className={cn(
+                "font-heebo text-gray-900 tracking-tight pr-12",
+                product.price === 0 
+                  ? "text-xs font-[600]" 
+                  : "font-[800] text-base sm:text-2xl"
+              )}>
+                {formatPrice(product.price)}
+              </p>
             </div>
             
             {/* Action Buttons */}
