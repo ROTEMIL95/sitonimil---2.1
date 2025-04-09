@@ -21,7 +21,8 @@ import {
   PlusCircle,
   Shield,
   Heart,
-  FileText
+  FileText,
+  EllipsisVertical
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +41,7 @@ import { toast } from "sonner";
 import { supabase } from "@/api/supabaseClient";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import UserDropdown from "@/components/UserDropdown";
+import MobileMenu from "@/components/MobileMenu";
 
 
 export default function Layout({ children }) {
@@ -50,6 +52,9 @@ export default function Layout({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [favoriteProducts, setFavoriteProducts] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
+  const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -399,17 +404,21 @@ export default function Layout({ children }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <nav className="py-4 flex items-center justify-between">
             <div className="flex items-center md:flex-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden focus:ring-2 focus-visible:ring-offset-2 p-2 h-auto w-auto"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-expanded={isMenuOpen}
-                aria-controls="mobile-menu"
-                aria-label={isMenuOpen ? "סגור תפריט" : "פתח תפריט"}
-              >
-                {isMenuOpen ? <X className="h-9 w-9 text-gray-900" /> : <Menu className="h-9 w-9 text-gray-900" />}
-              </Button>
+              <MobileMenu
+                user={user}
+                notifications={notifications}
+                showNotifications={showNotifications}
+                showMessages={showMessages}
+                setShowNotifications={setShowNotifications}
+                setShowMessages={setShowMessages}
+                handleLogout={handleLogout}
+                isMenuOpen={isMenuOpen}
+                setIsMenuOpen={setIsMenuOpen}
+                isApplicationMenuOpen={isApplicationMenuOpen}
+                setApplicationMenuOpen={setApplicationMenuOpen}
+                handleLinkClick={handleLinkClick}
+                handlePublishProductClick={handlePublishProductClick}
+              />
               
               <Link 
                 to={createPageUrl("Home")} 
@@ -459,19 +468,6 @@ export default function Layout({ children }) {
             <div className="flex items-center gap-4">
               {user ? (
                 <>
-                  {/* Favorites Icon - temporarily removed
-                  <Button variant="ghost" size="icon" asChild className="relative focus:ring-2 focus-visible:ring-offset-2">
-                    <Link to={createPageUrl("Favorites")} aria-label="מועדפים">
-                      <Heart className="w-5 h-5" />
-                      {favoriteProducts.length > 0 && (
-                        <Badge className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-red-500 p-0 flex items-center justify-center text-[10px] font-bold border border-white shadow-sm">
-                          {favoriteProducts.length > 99 ? "99+" : favoriteProducts.length}
-                        </Badge>
-                      )}
-                    </Link>
-                  </Button>
-                  */}
-                  
                   <div className="flex items-center gap-2">
                     <Button
                       variant="ghost"
@@ -503,7 +499,7 @@ export default function Layout({ children }) {
                   </div>
                   
                   <UserDropdown 
-                    user={user} 
+                    user={user}
                     onLogout={handleLogout}
                   />
                 </>
