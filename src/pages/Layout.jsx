@@ -467,9 +467,9 @@ export default function Layout({ children }) {
                 aria-label="דף הבית"
               >
                 <img 
-                  src="/images/logo2.png" 
+                  src="/icons/logoWebsite.png" 
                   alt="Sitonimil" 
-                  className="h-9 md:h-11"
+                  className="h-14 md:h-16"
                 />
               </Link>
               
