@@ -22,7 +22,10 @@ import {
   Shield,
   Heart,
   FileText,
-  EllipsisVertical
+  EllipsisVertical,
+  Home,
+  Search,
+  ShoppingBag
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,8 +57,14 @@ export default function Layout({ children }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Function to close the user menu dropdown
+  const closeUserMenu = () => {
+    setIsUserMenuOpen(false);
+  };
 
   // Function to refresh user data
   const refreshUserData = useCallback(async () => {
@@ -533,7 +542,7 @@ export default function Layout({ children }) {
                     
                     {/* Desktop user menu - dropdown triggered by avatar */}
                     <div className="hidden md:block">
-                      <DropdownMenu dir="rtl">
+                      <DropdownMenu dir="rtl" open={isUserMenuOpen} onOpenChange={setIsUserMenuOpen}>
                         <DropdownMenuTrigger asChild>
                           <Avatar className="h-10 w-10 border-2 border-white shadow-sm cursor-pointer hover:ring-2 hover:ring-blue-200 transition-all">
                             <AvatarImage src={user?.profileImage || user?.avatar_url} alt={user?.name || user?.full_name} />
@@ -556,7 +565,7 @@ export default function Layout({ children }) {
                             </div>
                           </div>
 
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem asChild onClick={closeUserMenu}>
                             <Link to="/profile" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
                               <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                                 <UserIcon className="h-4 w-4 text-blue-600" />
@@ -565,7 +574,7 @@ export default function Layout({ children }) {
                             </Link>
                           </DropdownMenuItem>
 
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem asChild onClick={closeUserMenu}>
                             <Link to="/settings" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
                               <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
                                 <Settings className="h-4 w-4 text-purple-600" />
@@ -574,7 +583,7 @@ export default function Layout({ children }) {
                             </Link>
                           </DropdownMenuItem>
 
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem asChild onClick={closeUserMenu}>
                             <Link to="/help" className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
                               <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
                                 <HelpCircle className="h-4 w-4 text-green-600" />
@@ -586,19 +595,19 @@ export default function Layout({ children }) {
                           <DropdownMenuSeparator />
 
                           <div className="flex justify-center gap-2 p-2">
-                            <Button variant="outline" size="icon" className="h-8 w-8">
+                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={closeUserMenu}>
                               <Facebook className="h-4 w-4" />
                             </Button>
-                            <Button variant="outline" size="icon" className="h-8 w-8">
+                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={closeUserMenu}>
                               <Twitter className="h-4 w-4" />
                             </Button>
-                            <Button variant="outline" size="icon" className="h-8 w-8">
+                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={closeUserMenu}>
                               <Instagram className="h-4 w-4" />
                             </Button>
-                            <Button variant="outline" size="icon" className="h-8 w-8">
+                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={closeUserMenu}>
                               <Linkedin className="h-4 w-4" />
                             </Button>
-                            <Button variant="outline" size="icon" className="h-8 w-8">
+                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={closeUserMenu}>
                               <Mail className="h-4 w-4" />
                             </Button>
                           </div>
@@ -606,7 +615,10 @@ export default function Layout({ children }) {
                           <DropdownMenuSeparator />
 
                           <DropdownMenuItem
-                            onClick={handleLogout}
+                            onClick={() => {
+                              closeUserMenu();
+                              handleLogout();
+                            }}
                             className="flex items-center gap-2 p-2 rounded-lg hover:bg-red-50 hover:text-red-600"
                           >
                             <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
@@ -632,28 +644,43 @@ export default function Layout({ children }) {
                   </div>
                 </>
               ) : (
-                <div className="hidden md:flex items-center gap-3">
-                  <Button 
-                    variant="default" 
-                    size="sm" 
-                    className="bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 focus:ring-2  focus:ring-offset-2" 
-                    asChild
+                <div className="flex items-center gap-3">
+                  {/* Login/register buttons - desktop only */}
+                  <div className="hidden md:flex items-center gap-3">
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="bg-blue-700 text-white hover:bg-blue-800 flex items-center gap-2 focus:ring-2  focus:ring-offset-2" 
+                      asChild
+                    >
+                      <Link to={createPageUrl("Auth") + "?tab=login"}>
+                        <LogIn className="h-4 w-4" />
+                        <span>התחברות</span>
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-blue-700 text-blue-700 flex items-center gap-2 hover:bg-blue-50 focus:ring-2  focus:ring-offset-2" 
+                      asChild
+                    >
+                      <Link to={createPageUrl("Auth") + "?tab=register"}>
+                        <UserPlus className="h-4 w-4" />
+                        <span>הרשמה</span>
+                      </Link>
+                    </Button>
+                  </div>
+                  
+                  {/* Mobile Button - Only visible on small screens */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="md:hidden relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                    onClick={() => handleMenuToggle('application')}
+                    aria-expanded={isApplicationMenuOpen}
+                    aria-label={isApplicationMenuOpen ? "סגור תפריט אפליקציה" : "פתח תפריט אפליקציה"}
                   >
-                    <Link to={createPageUrl("Auth") + "?tab=login"}>
-                      <LogIn className="h-4 w-4" />
-                      <span>התחברות</span>
-                    </Link>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-blue-700 text-blue-700 flex items-center gap-2 hover:bg-blue-50 focus:ring-2  focus:ring-offset-2" 
-                    asChild
-                  >
-                    <Link to={createPageUrl("Auth") + "?tab=register"}>
-                      <UserPlus className="h-4 w-4" />
-                      <span>הרשמה</span>
-                    </Link>
+                    <EllipsisVertical className={`h-5 w-5 transition-transform duration-300 ${isApplicationMenuOpen ? "rotate-90" : ""}`} />
                   </Button>
                 </div>
               )}
@@ -662,14 +689,14 @@ export default function Layout({ children }) {
         </div>
 
         {/* Mobile menu row - Only visible on small screens */}
-        {user && (
-          <div
-            className={`${
-              isApplicationMenuOpen ? "flex" : "hidden"
-            } md:hidden items-center justify-between w-full gap-4 px-5 py-4 shadow-theme-md border-t border-gray-200`}
-          >
-            <div className="max-w-7xl mx-auto w-full">
-              <div className="flex items-center justify-between w-full">
+        <div
+          className={`${
+            isApplicationMenuOpen ? "flex" : "hidden"
+          } md:hidden flex-col items-center justify-between w-full gap-4 px-5 py-4 shadow-md border-t border-gray-200 bg-white`}
+        >
+          <div className="max-w-7xl mx-auto w-full">
+            <div className="flex items-center justify-between w-full">
+              {user ? (
                 <div className="flex items-center gap-2">
                   <Link to="/profile" className="group">
                     <Avatar className="h-14 w-14 border-2 border-white shadow-sm transition-all group-hover:ring-2 group-hover:ring-blue-200">
@@ -684,44 +711,86 @@ export default function Layout({ children }) {
                     <span className="font-medium text-gray-900">{user?.name || user?.full_name}</span>
                   </div>
                 </div>
-                
+              ) : (
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative flex items-center justify-center text-gray-500 transition-colors bg-gray-100 rounded-full h-10 w-10 hover:bg-blue-100 hover:text-blue-600"
-                    onClick={() => handleMenuToggle('notifications')}
-                  >
-                    <Bell className="h-5 w-5" />
-                    {notifications.length > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                        {notifications.length}
-                      </span>
-                    )}
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative flex items-center justify-center text-gray-500 transition-colors bg-gray-100 rounded-full h-10 w-10 hover:bg-blue-100 hover:text-blue-600"
-                    onClick={() => handleMenuToggle('messages')}
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                    {notifications.length > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
-                        {notifications.length}
-                      </span>
-                    )}
-                  </Button>
-                  
-                  <button onClick={handleLogout} className="rounded-full p-2 bg-red-100 hover:bg-red-200">
-                    <LogOut className="h-5 w-5 text-red-600" />
-                  </button>
+                  <div className="h-14 w-14 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white shadow-sm">
+                    <UserIcon className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-900">אורח</span>
+                    <span className="text-sm text-gray-500">התחבר כדי להנות מכל האפשרויות</span>
+                  </div>
                 </div>
+              )}
+              
+              <div className="flex items-center gap-2">
+                {user ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative flex items-center justify-center text-gray-500 transition-colors bg-gray-100 rounded-full h-10 w-10 hover:bg-blue-100 hover:text-blue-600"
+                      onClick={() => {
+                        handleMenuToggle('notifications');
+                        setApplicationMenuOpen(false);
+                      }}
+                    >
+                      <Bell className="h-5 w-5" />
+                      {notifications.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                          {notifications.length}
+                        </span>
+                      )}
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative flex items-center justify-center text-gray-500 transition-colors bg-gray-100 rounded-full h-10 w-10 hover:bg-blue-100 hover:text-blue-600"
+                      onClick={() => {
+                        handleMenuToggle('messages');
+                        setApplicationMenuOpen(false);
+                      }}
+                    >
+                      <MessageSquare className="h-5 w-5" />
+                      {notifications.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
+                          {notifications.length}
+                        </span>
+                      )}
+                    </Button>
+                    
+                    <button 
+                      onClick={() => {
+                        handleLogout();
+                        setApplicationMenuOpen(false);
+                      }} 
+                      className="rounded-full p-2 bg-red-100 hover:bg-red-200"
+                    >
+                      <LogOut className="h-5 w-5 text-red-600" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to={createPageUrl("Auth") + "?tab=login"} onClick={() => setApplicationMenuOpen(false)}>
+                      <Button variant="ghost" size="icon" className="relative flex items-center justify-center bg-blue-100 rounded-full h-10 w-10 hover:bg-blue-200">
+                        <LogIn className="h-5 w-5 text-blue-600" />
+                      </Button>
+                    </Link>
+                    
+                    <Link to={createPageUrl("Auth") + "?tab=register"} onClick={() => setApplicationMenuOpen(false)}>
+                      <Button variant="ghost" size="icon" className="relative flex items-center justify-center bg-green-100 rounded-full h-10 w-10 hover:bg-green-200">
+                        <UserPlus className="h-5 w-5 text-green-600" />
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
+            
+        
           </div>
-        )}
+        </div>
 
         <AnimatePresence>
           {isMenuOpen && (
