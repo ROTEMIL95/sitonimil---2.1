@@ -326,7 +326,7 @@ export default function Layout({ children }) {
 
     // Add admin dashboard link if user is admin
     if (user?.role === 'admin') {
-      links.push({ name: "ניהול האתר", path: createPageUrl("AdminDashboard") });
+      links.push({ name: "ניהול האתר", path: "/admin" });
     }
 
     return links;

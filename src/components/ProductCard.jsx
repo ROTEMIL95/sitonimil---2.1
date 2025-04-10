@@ -175,7 +175,6 @@ export default function ProductCard({
           // Use the imported fetchSupplierById function directly
           const supplier = await fetchSupplierById(product.supplier_id);
           if (supplier) {
-            console.log("Loaded supplier:", supplier);
             setSupplierData(supplier);
             
             // Store supplier data globally for access in dialog
