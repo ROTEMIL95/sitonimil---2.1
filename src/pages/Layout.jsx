@@ -44,6 +44,8 @@ import { toast } from "sonner";
 import { supabase } from "@/api/supabaseClient";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import MobileMenu from "@/components/MobileMenu";
+import { prefetchData } from "@/api/queryClient";
+import { QUERY_KEYS } from "@/api/entities";
 
 
 export default function Layout({ children }) {
@@ -60,6 +62,44 @@ export default function Layout({ children }) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Prefetch common data based on current route to reduce server calls on navigation
+  useEffect(() => {
+    // Skip prefetching if user is not logged in
+    if (!user) return;
+    
+    // Route-specific prefetching
+    if (location.pathname === "/" || location.pathname.includes("/home")) {
+      // Home page - prefetch featured products, categories and suppliers
+      prefetchData(QUERY_KEYS.PRODUCT.ALL, Product.list);
+      prefetchData(QUERY_KEYS.USER.SUPPLIERS, User.getSuppliers);
+    } 
+    else if (location.pathname.includes("/search")) {
+      // Search page - prefetch categories for filters
+      if (location.search.includes("category=")) {
+        const params = new URLSearchParams(location.search);
+        const category = params.get("category");
+        if (category) {
+          prefetchData(QUERY_KEYS.PRODUCT.BY_CATEGORY(category), () => Product.getByCategory(category));
+        }
+      }
+    }
+    else if (location.pathname.includes("/product")) {
+      // Product page - get product ID from URL
+      const params = new URLSearchParams(location.search);
+      const productId = params.get("id");
+      const supplierId = params.get("supplier_id");
+      
+      if (productId) {
+        prefetchData(QUERY_KEYS.PRODUCT.DETAIL(productId), () => Product.getById(productId));
+      }
+      
+      if (supplierId) {
+        prefetchData(QUERY_KEYS.USER.DETAIL(supplierId), () => User.getById(supplierId));
+        prefetchData(QUERY_KEYS.PRODUCT.BY_SUPPLIER(supplierId), () => Product.getBySupplier(supplierId));
+      }
+    }
+  }, [location.pathname, location.search, user]);
 
   // Function to close the user menu dropdown
   const closeUserMenu = () => {

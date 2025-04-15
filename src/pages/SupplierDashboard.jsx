@@ -1,3 +1,4 @@
+// src/pages/SupplierDashboard.jsx - Dashboard for suppliers
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -10,13 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -25,23 +20,14 @@ import {
   MessageSquare,
   Settings,
   FileText,
-  MoreHorizontal,
   Pencil,
   Trash2,
-  BarChart3,
   Eye,
   AlertCircle,
   ShoppingBag,
   Badge,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function SupplierDashboard() {
@@ -656,4 +642,4 @@ export default function SupplierDashboard() {
       </Tabs>
     </div>
   );
-}
+} 

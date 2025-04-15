@@ -1,5 +1,22 @@
 import { supabase } from "./supabaseClient";
 
+// מפתחות מטמון קבועים לשימוש עם React Query
+export const QUERY_KEYS = {
+  USER: {
+    ME: ['user', 'me'],
+    ALL: ['users', 'all'],
+    DETAIL: (id) => ['user', id],
+    SUPPLIERS: ['users', 'suppliers']
+  },
+  PRODUCT: {
+    ALL: ['products', 'all'],
+    DETAIL: (id) => ['product', id],
+    BY_SUPPLIER: (supplierId) => ['products', 'supplier', supplierId],
+    BY_CATEGORY: (category) => ['products', 'category', category],
+    SEARCH: (query) => ['products', 'search', query]
+  }
+};
+
 export const User = {
     id: "uuid",
     role: "text",
@@ -168,6 +185,31 @@ export const User = {
         
         if (error) throw error;
         return data;
+    },
+
+    // פונקציות חדשות עבור React Query
+
+    // קבלת משתמש לפי ID
+    async getById(id) {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        return data;
+    },
+
+    // קבלת כל הספקים
+    async getSuppliers() {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('business_type', 'supplier');
+        
+        if (error) throw error;
+        return data;
     }
 };
 
@@ -217,32 +259,51 @@ export const Product = {
         }
     },
 
+    // פונקציות חדשות עבור React Query
+
+    // קבלת מוצר לפי ID
     async getById(id) {
-        try {
-            const { data, error } = await supabase
-                .from('products')
-                .select('*')
-                .eq('id', id)
-                .single();
-            
-            if (error) throw error;
-            
-            // Process JSONB fields
-            return {
-                ...data,
-                // Ensure images is parsed properly from JSONB
-                images: typeof data.images === 'string' 
-                    ? JSON.parse(data.images) 
-                    : (Array.isArray(data.images) ? data.images : []),
-                // Ensure specifications is parsed properly from JSONB
-                specifications: typeof data.specifications === 'string'
-                    ? JSON.parse(data.specifications)
-                    : (data.specifications || {})
-            };
-        } catch (error) {
-            console.error(`Error fetching product with ID ${id}:`, error);
-            throw error;
-        }
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        return data;
+    },
+
+    // קבלת מוצרים לפי קטגוריה
+    async getByCategory(category) {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('category', category);
+        
+        if (error) throw error;
+        return data;
+    },
+
+    // קבלת מוצרים לפי ספק
+    async getBySupplier(supplierId) {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('supplier_id', supplierId);
+        
+        if (error) throw error;
+        return data;
+    },
+
+    // חיפוש מוצרים
+    async search(query) {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+        
+        if (error) throw error;
+        return data;
     },
 
     async create(productData) {
@@ -294,39 +355,6 @@ export const Product = {
             .eq('id', id);
         
         if (error) throw error;
-    },
-
-    async getBySupplier(supplierId) {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .eq('supplier_id', supplierId)
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data;
-    },
-
-    async getByCategory(category) {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .eq('category', category)
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data;
-    },
-
-    async search(query) {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        return data;
     }
 };
 

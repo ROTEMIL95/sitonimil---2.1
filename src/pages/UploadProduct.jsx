@@ -70,6 +70,22 @@ export default function UploadProduct() {
         const userData = await User.me();
         setUser(userData);
         
+        // If we have stored product data from admin section, use that
+        if (storedProductData) {
+          try {
+            const parsedData = JSON.parse(storedProductData);
+            console.log("Loading product data from sessionStorage:", parsedData);
+            setProductData(parsedData);
+            // Clear sessionStorage after use
+            sessionStorage.removeItem('editProductData');
+            setLoading(false);
+            return;
+          } catch (e) {
+            console.error("Error parsing stored product data:", e);
+            // Continue with normal flow if parsing fails
+          }
+        }
+        
         // Check if user is a supplier using consistent approach
         const isSupplier = (userData?.user_metadata?.business_type === "supplier") || (userData?.business_type === "supplier");
         
@@ -100,14 +116,30 @@ export default function UploadProduct() {
           }
         }
 
-        // If editing, load product data
-        if (editMode) {
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('edit');
+        
+        // If editing from URL parameter
+        if (editId) {
+          const product = await Product.getById(editId);
+          
+          // Verify this product belongs to this user or user is admin
+          if (product.supplier_id !== userData.id && userData.role !== 'admin') {
+            toast.error("אין לך הרשאה לערוך מוצר זה");
+            navigate(createPageUrl("AdminDashboard"));
+            return;
+          }
+          
+          setProductData(product);
+        } else if (editMode) {
+          // If editing using route parameter
           const product = await Product.getById(productId);
           
-          // Verify this product belongs to this user
-          if (product.supplier_id !== userData.id) {
+          // Verify this product belongs to this user or user is admin
+          if (product.supplier_id !== userData.id && userData.role !== 'admin') {
             toast.error("אין לך הרשאה לערוך מוצר זה");
-            navigate(createPageUrl("Dashboard"));
+            navigate(createPageUrl("AdminAdminDashboard"));
             return;
           }
           
@@ -254,10 +286,33 @@ export default function UploadProduct() {
     
     try {
       if (editMode) {
+        // Log product update attempt
+        logInfo(LogModule.PRODUCTS, "Product update attempt", {
+          productId: productData.id,
+          userId: user.id,
+          title: productData.title
+        });
+        
         await Product.update(productData.id, formattedData);
+        
+        // Log successful product update
+        logInfo(LogModule.PRODUCTS, "Product updated successfully", {
+          productId: productData.id,
+          userId: user.id,
+          title: productData.title,
+          category: productData.category
+        });
+        
         toast.success("המוצר עודכן בהצלחה");
-        navigate(createPageUrl("Dashboard"));
+        navigate(createPageUrl("AdminDashboard"));
       } else {
+        // Log product creation attempt
+        logInfo(LogModule.PRODUCTS, "Product creation attempt", {
+          userId: user.id,
+          title: productData.title,
+          category: productData.category
+        });
+        
         let result;
         if (typeof UploadProductAPI === 'function') {
           result = await UploadProductAPI(formattedData);
@@ -265,11 +320,27 @@ export default function UploadProduct() {
           result = await Product.create(formattedData);
         }
         
+        // Log successful product creation
+        logInfo(LogModule.PRODUCTS, "Product created successfully", {
+          productId: result?.id,
+          userId: user.id,
+          title: productData.title,
+          category: productData.category
+        });
+        
         toast.success("המוצר נוצר בהצלחה");
         navigate(createPageUrl("Search") + `?supplier=${user.id}&new=true`);
       }
     } catch (error) {
       console.error("Error saving product:", error);
+      
+      // Log product creation/update failure
+      logError(LogModule.PRODUCTS, editMode ? "Product update failed" : "Product creation failed", {
+        userId: user.id,
+        title: productData.title,
+        error: error.message || "Unknown error"
+      });
+      
       toast.error("אירעה שגיאה בשמירת המוצר: " + (error.message || ""));
     } finally {
       setSaving(false);
@@ -302,7 +373,7 @@ export default function UploadProduct() {
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={() => navigate(createPageUrl("Dashboard"))}
+          onClick={() => navigate(createPageUrl("AdminDashboard"))}
           className="gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -704,13 +775,92 @@ export default function UploadProduct() {
                 type="button"
                 variant="outline"
                 className="flex-1"
-                onClick={() => navigate(createPageUrl("Dashboard"))}
+                onClick={() => navigate(createPageUrl("AdminDashboard"))}
               >
                 ביטול
               </Button>
+
+              {editMode && (
+                <Button
+                  type="button"
+                  className="flex-1"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    
+                    // Reset errors
+                    const newErrors = {
+                      title: !productData.title,
+                      price: !productData.price && !productData.contact_for_price,
+                      category: !productData.category,
+                      minimum_order: !productData.minimum_order,
+                      stock: productData.stock === undefined || productData.stock === null
+                    };
+                    
+                    setErrors(newErrors);
+                    
+                    // Check if there are any errors
+                    if (Object.values(newErrors).some(error => error)) {
+                      toast.error("נא למלא את כל שדות החובה המסומנים");
+                      return;
+                    }
+                    
+                    // Format numeric fields
+                    const formattedData = {
+                      ...productData,
+                      price: productData.contact_for_price ? null : Number(productData.price),
+                      minimum_order: Number(productData.minimum_order),
+                      stock: Number(productData.stock),
+                      supplier_id: user.id,
+                      updated_at: new Date(),
+                      images: Array.isArray(productData.images) ? productData.images : [],
+                      specifications: productData.specifications || {}
+                    };
+                    
+                    setSaving(true);
+                    
+                    try {
+                      // שמור את המוצר אבל הישאר בדף
+                      await Product.update(productData.id, formattedData);
+                      toast.success("השינויים נשמרו בהצלחה");
+                    } catch (error) {
+                      console.error("Error saving product:", error);
+                      toast.error("אירעה שגיאה בשמירת המוצר: " + (error.message || ""));
+                    } finally {
+                      setSaving(false);
+                    }
+                  }}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                      שומר...
+                    </>
+                  ) : (
+                    <>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="h-4 w-4 ml-2"
+                      >
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                      </svg>
+                      שמור והמשך עריכה
+                    </>
+                  )}
+                </Button>
+              )}
+
               <Button 
                 type="submit" 
-                className="flex-1"
+                className="flex-1 bg-green-600 hover:bg-green-700"
                 disabled={saving}
               >
                 {saving ? (
@@ -720,7 +870,27 @@ export default function UploadProduct() {
                   </>
                 ) : (
                   <>
-                    {editMode ? "עדכן מוצר" : "פרסם מוצר"}
+                    {editMode ? (
+                      <>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          className="h-4 w-4 ml-2"
+                        >
+                          <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+                        </svg>
+                        שמור וחזור
+                      </>
+                    ) : (
+                      <>
+                        פרסם מוצר
+                      </>
+                    )}
                   </>
                 )}
               </Button>

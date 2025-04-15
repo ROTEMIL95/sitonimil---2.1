@@ -9,23 +9,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/api/supabaseClient";
 
-// רשימת הקטגוריות
-const categories = [
-  { value: "electronics", label: "אלקטרוניקה" },
-  { value: "clothing", label: "ביגוד" },
-  { value: "home_goods", label: "מוצרי בית" },
-  { value: "food_beverage", label: "מזון ומשקאות" },
-  { value: "health_beauty", label: "בריאות ויופי" },
-  { value: "industrial", label: "ציוד תעשייתי" },
-  { value: "automotive", label: "רכב" },
-  { value: "sports", label: "ספורט" },
-  { value: "toys", label: "צעצועים" }
-];
-
+// רשימת הקטגוריות - מיובאת מהשרת
 export default function SearchBar({ onSearch, className = "", initialQuery = "", initialCategory = "" }) {
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
+  const [isFocused, setIsFocused] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // טעינת הקטגוריות מהשרת
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("value, label, image_url")
+          .order("label", { ascending: true });
+
+        if (error) {
+          console.error("Error fetching categories:", error);
+          return;
+        }
+
+        setCategories(data || []);
+      } catch (err) {
+        console.error("Exception fetching categories:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // עדכון ערכי החיפוש כאשר הפרמטרים החיצוניים משתנים
   useEffect(() => {
@@ -38,39 +55,33 @@ export default function SearchBar({ onSearch, className = "", initialQuery = "",
     onSearch(query, category);
   };
 
+  const handleCategorySelect = (value) => {
+    setCategory(value);
+    onSearch(query, value);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className={`flex gap-2 ${className}`}>
-      <div className="relative flex-1">
-        <Search className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="חפש מוצרים..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-4 pr-10 border-blue-100 focus-visible:ring-blue-400"
-        />
-      </div>
-      
-      <Select value={category} onValueChange={setCategory}>
-        <SelectTrigger className="w-[180px] border-blue-100 focus:ring-blue-400" dir="rtl">
-          <SelectValue placeholder="כל הקטגוריות" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={null} dir="rtl">כל הקטגוריות</SelectItem>
-          {categories.map((category) => (
-            <SelectItem key={category.value} value={category.value} dir="rtl">
-              {category.label}
-            </SelectItem>
+    <form onSubmit={handleSubmit} className={`w-full max-w-[1600px] mx-auto ${className}`}>  
+      <div className="w-full overflow-x-auto scrollbar-hide">
+        <div className="flex gap-4 py-4 px-2  justify-start">
+          {categories.map((cat) => (
+            <div 
+              key={cat.value} 
+              className={`flex flex-col items-center min-w-[100px] cursor-pointer transition-all hover:opacity-80`}
+              onClick={() => handleCategorySelect(cat.value)}
+            >
+              <div className={`w-20 h-20 rounded-full overflow-hidden border-2 ${category === cat.value ? 'border-blue-500' : 'border-gray-200'}`}>
+                <img
+                  src={cat.image_url || `https://ui-avatars.com/api/?name=${cat.label}&background=random&color=fff`}
+                  alt={cat.label}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="text-sm mt-2 text-center font-medium max-w-[100px] line-clamp-2">{cat.label}</span>
+            </div>
           ))}
-        </SelectContent>
-      </Select>
-      
-      <Button 
-        type="submit" 
-        className="bg-blue-600 hover:bg-blue-700"
-      >
-        חיפוש
-      </Button>
+        </div>
+      </div>
     </form>
   );
 }

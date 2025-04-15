@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createPageUrl, redirectToLogin } from "@/utils";
-import { Product } from "@/api/entities";
+import { Product, Review } from "@/api/entities";
+import { useProduct, useProducts, useSuppliers, useCurrentUser } from "@/api/hooks";
 import { User } from "@/api/entities";
 import { Message } from "@/api/entities";
-import { Review } from "@/api/entities";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -67,95 +67,75 @@ function ProductImage({ src, alt, className }) {
 
 export default function ProductPage() {
   const navigate = useNavigate();
-  const [product, setProduct] = useState(null);
-  const [supplier, setSupplier] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   
+  // קבלת המזהה של המוצר מה-URL
+  const urlParams = useMemo(() => new URLSearchParams(window.location.search), []);
+  const productId = useMemo(() => urlParams.get("id"), [urlParams]);
+  
+  // שימוש ב-React Query לטעינת נתוני המוצר
+  const { 
+    data: allProducts, 
+    isLoading: productsLoading,
+    error: productsError
+  } = useProducts();
+  
+  // מציאת המוצר הנוכחי מתוך כל המוצרים
+  const currentProduct = useMemo(() => {
+    if (allProducts && productId) {
+      return allProducts.find(p => p.id === productId);
+    }
+    return null;
+  }, [allProducts, productId]);
+  
+  // שימוש ב-React Query לטעינת נתוני המשתמשים והספקים
+  const { 
+    data: suppliers,
+    isLoading: suppliersLoading 
+  } = useSuppliers();
+  
+  // מציאת הספק של המוצר
+  const supplier = useMemo(() => {
+    if (suppliers && currentProduct?.supplier_id) {
+      return suppliers.find(s => s.id === currentProduct.supplier_id);
+    }
+    return null;
+  }, [suppliers, currentProduct]);
+  
+  // שימוש ב-React Query לטעינת נתוני המשתמש המחובר
+  const { 
+    data: user,
+    isLoading: userLoading 
+  } = useCurrentUser();
+  
+  // מצב הטעינה המשולב
+  const isLoading = productsLoading || suppliersLoading || userLoading;
+  
+  const [reviews, setReviews] = useState([]);
+  
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      setIsLoading(true);
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const productId = urlParams.get("id");
-        
-        if (!productId) {
-          navigate(createPageUrl("Search"));
-          return;
-        }
-        
-        const productData = await Product.list();
-        
-        // וידוא שהמידע חזר כמערך
-        if (!Array.isArray(productData)) {
-          console.error("Product.list did not return an array:", productData);
-          setError(new Error("מידע המוצרים אינו תקין"));
-          setIsLoading(false);
-          setLoading(false);
-          return;
-        }
-        
-        const product = productData.find(p => p.id === productId);
-        
-        if (!product) {
-          navigate(createPageUrl("Search"));
-          return;
-        }
-        
-        setProduct(product);
-        
-        // טעינת מוצרים דומים
-        loadRelatedProducts(productData, product);
-        
-        try {
-          const userData = await User.list();
-          const supplier = userData.find(u => u.id === product.supplier_id);
-          setSupplier(supplier);
-        } catch (error) {
-          console.error("Error loading supplier:", error);
-          setError(error);
-        }
-        
+    // טעינת ביקורות
+    const loadReviews = async () => {
+      if (productId) {
         try {
           const reviewsData = await Review.list();
           const productReviews = reviewsData.filter(r => r.product_id === productId);
           setReviews(productReviews);
         } catch (error) {
           console.error("Error loading reviews:", error);
-          setError(error);
         }
-        
-        try {
-          const userData = await User.me();
-          setUser(userData);
-        } catch (error) {
-          console.log("User not logged in");
-        }
-        
-      } catch (error) {
-        console.error("Error loading product:", error);
-        setError(error);
-        navigate(createPageUrl("Search"));
       }
-      setIsLoading(false);
-      setLoading(false);
     };
     
-    loadData();
-  }, [navigate]);
+    loadReviews();
+  }, [productId]);
   
-  // פונקציה נפרדת לטעינת מוצרים דומים
-  const loadRelatedProducts = (allProducts, currentProduct) => {
-    if (!currentProduct || !Array.isArray(allProducts)) return;
-    
-    try {
+  // עדכון מוצרים דומים כאשר המוצר הנוכחי או כל המוצרים משתנים
+  useEffect(() => {
+    if (currentProduct && Array.isArray(allProducts)) {
+      // מוצרים מאותה קטגוריה
       const similar = allProducts.filter(p => 
         p.category === currentProduct.category && 
         p.id !== currentProduct.id
@@ -170,21 +150,26 @@ export default function ProductPage() {
           img.src = product.images[0];
         }
       });
-    } catch (error) {
-      console.error("Error loading related products:", error);
     }
-  };
-
+  }, [currentProduct, allProducts]);
+  
+  // ניווט חזרה לדף החיפוש אם אין מוצר או אם יש שגיאה
+  useEffect(() => {
+    if ((!productId || productsError) && !isLoading) {
+      navigate(createPageUrl("Search"));
+    }
+  }, [productId, productsError, isLoading, navigate]);
+  
   const handleContactWhatsapp = () => {
     const phoneNumber = supplier?.phone || "972500000000";
     
     // Get the full product URL (current domain + product page path)
     const baseUrl = window.location.origin;
     const productPath = createPageUrl("Product");
-    const productUrl = `${baseUrl}${productPath}?id=${product.id}${product.supplier_id ? `&supplier_id=${product.supplier_id}` : ''}`;
+    const productUrl = `${baseUrl}${productPath}?id=${currentProduct.id}${currentProduct.supplier_id ? `&supplier_id=${currentProduct.supplier_id}` : ''}`;
     
     const message = `שלום,\n` +
-    `אני מתעניין במוצר "${product.title}" שראיתי באתר Sitonim-il\n` +
+    `אני מתעניין במוצר "${currentProduct.title}" שראיתי באתר Sitonim-il\n` +
     `אשמח לקבל פרטים נוספים על המוצר.\n` +
     `קישור למוצר: ${productUrl}`;
     
@@ -207,9 +192,9 @@ export default function ProductPage() {
     try {
       await Message.create({
         sender_id: user.id,
-        receiver_id: product.supplier_id,
+        receiver_id: currentProduct.supplier_id,
         content: message,
-        product_id: product.id
+        product_id: currentProduct.id
       });
       
       setMessage("");
@@ -242,11 +227,14 @@ export default function ProductPage() {
     );
   }
 
-  if (error) {
-    return <div className="text-red-500">שגיאה: {error.message}</div>;
+  if (productsError) {
+    return <div className="text-red-500">שגיאה: {productsError.message}</div>;
   }
 
-  if (!product) return null;
+  if (!currentProduct) return null;
+  
+  // משתנה עזר שמקל על העדכון - במקום product השתמשנו ב-currentProduct
+  const product = currentProduct;
 
   const getCategoryLabel = (categoryValue) => {
     if (!categoryValue) return "כללי";
@@ -267,7 +255,7 @@ export default function ProductPage() {
   };
 
   const renderProductImages = () => {
-    if (loading) {
+    if (productsLoading) {
       return (
         <div className="aspect-square bg-gray-200 animate-pulse rounded-lg"></div>
       );

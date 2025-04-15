@@ -19,6 +19,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import PageMeta from "@/components/PageMeta";
 import ProductGrid from "../components/ProductGrid";
+import { useProducts, useUsers, useCurrentUser } from "@/api/hooks";
+import { QUERY_KEYS } from "@/api/entities";
+import { prefetchData } from "@/api/queryClient";
 
 // Optimized staggered animation settings
 const staggerContainer = {
@@ -54,13 +57,6 @@ const criticalHeadingStyles = {
 
 
 export default function Home() {
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [topSuppliers, setTopSuppliers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const { toast } = useToast();
-  const [lastUpdated, setLastUpdated] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState("");
   const [isContentVisible, setIsContentVisible] = useState({
     hero: false,
@@ -69,8 +65,72 @@ export default function Home() {
     features: false
   });
   const [popularCategories, setPopularCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const headingRef = useRef(null);
+  const { toast } = useToast();
+
+  // Define fallbackSuppliers before it's used in the useMemo hooks
+  const fallbackSuppliers = [
+    {
+      id: "supplier1",
+      company_name: "אלקטרוניקה בע\"מ",
+      description: "ספק מוביל למוצרי אלקטרוניקה.",
+      address: "תל אביב",
+      verified: true
+    },
+    {
+      id: "supplier2",
+      company_name: "טקסטיל ישראל",
+      description: "מגוון רחב של מוצרי טקסטיל איכותיים.",
+      address: "חיפה",
+      verified: true
+    },
+    {
+      id: "supplier3",
+      company_name: "בית וגן",
+      description: "מוצרים לבית ולגינה במחירים סיטונאיים.",
+      address: "ירושלים",
+      verified: false
+    }
+  ];
+
+  // React Query hooks
+  const { data: currentUser } = useCurrentUser();
+  const { data: productsData, isLoading: isProductsLoading } = useProducts();
+  const { data: usersData, isLoading: isUsersLoading } = useUsers();
+  
+  // Derived states from React Query data
+  const featuredProducts = React.useMemo(() => {
+    if (!productsData) return [];
+    
+    // Filter and sort products
+    const validProducts = productsData.filter(product => 
+      product && 
+      product.title && 
+      product.price !== undefined && 
+      product.status !== "inactive"
+    );
+    
+    // Sort products to prioritize specific product ID
+    return validProducts
+      .sort((a, b) => {
+        if (a.id === "efee1a4c-088d-4553-8738-77acc836e686") return -1;
+        if (b.id === "efee1a4c-088d-4553-8738-77acc836e686") return 1;
+        return (b.rating || 0) - (a.rating || 0);
+      })
+      .slice(0, 4);
+  }, [productsData]);
+
+  const topSuppliers = React.useMemo(() => {
+    if (!usersData) return fallbackSuppliers;
+    
+    const suppliers = usersData
+      .filter(u => u.business_type === "supplier" && u.company_name)
+      .slice(0, 3);
+    
+    return suppliers.length > 0 ? suppliers : fallbackSuppliers;
+  }, [usersData]);
 
   // Prioritize rendering immediately without waiting for animation framework
   useEffect(() => {
@@ -89,9 +149,14 @@ export default function Home() {
     
     // Use a short timeout to prioritize the hero rendering first
     setTimeout(deferLoad, 100);
+    
+    // Prefetch data that might be needed on subsequent pages
+    // This reduces load times when navigating to product or supplier pages
+    prefetchData(QUERY_KEYS.PRODUCT.ALL, Product.list);
+    prefetchData(QUERY_KEYS.USER.SUPPLIERS, User.getSuppliers);
   }, []);
 
-  // Fetch categories from Supabase
+  // Fetch categories from Supabase - keeping this outside React Query for now
   useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase.from("categories").select("*");
@@ -135,91 +200,6 @@ export default function Home() {
     fetchPopularCategories();
   }, []);
 
-  // We'll use the categories fetched from the server
-  // No local fallback needed
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        try {
-          const userData = await User.me();
-          setCurrentUser(userData);
-        } catch (error) {
-          console.log("User not logged in");
-        }
-
-        try {
-          const allProducts = await Product.list();
-          
-          // Filter and sort products
-          const validProducts = allProducts.filter(product => 
-            product && 
-            product.title && 
-            product.price !== undefined && 
-            product.status !== "inactive"
-          );
-          
-          // Sort products to prioritize specific product ID
-          const sortedProducts = validProducts
-            .sort((a, b) => {
-              if (a.id === "efee1a4c-088d-4553-8738-77acc836e686") return -1;
-              if (b.id === "efee1a4c-088d-4553-8738-77acc836e686") return 1;
-              return (b.rating || 0) - (a.rating || 0);
-            })
-            .slice(0, 4);
-          
-          setFeaturedProducts(sortedProducts);
-        } catch (error) {
-          console.error("Error loading products:", error);
-          setFeaturedProducts([]);
-        }
-
-        try {
-          const usersData = await User.list();
-          const suppliers = usersData
-            .filter(u => u.business_type === "supplier" && u.company_name)
-            .slice(0, 3);
-          setTopSuppliers(suppliers.length > 0 ? suppliers : fallbackSuppliers);
-        } catch (error) {
-          console.error("Error loading suppliers:", error);
-          setTopSuppliers(fallbackSuppliers);
-        }
-
-      } catch (error) {
-        console.error("Error loading data:", error);
-      }
-      setLoading(false);
-    };
-
-    loadData();
-  }, [lastUpdated, toast]);
-
-  const fallbackSuppliers = [
-    {
-      id: "supplier1",
-      company_name: "אלקטרוניקה בע\"מ",
-      description: "ספק מוביל למוצרי אלקטרוניקה.",
-      address: "תל אביב",
-      verified: true
-    },
-    {
-      id: "supplier2",
-      company_name: "טקסטיל ישראל",
-      description: "מגוון רחב של מוצרי טקסטיל איכותיים.",
-      address: "חיפה",
-      verified: true
-    },
-    {
-      id: "supplier3",
-      company_name: "בית וגן",
-      description: "מוצרים לבית ולגינה במחירים סיטונאיים.",
-      address: "ירושלים",
-      verified: false
-    }
-  ];
-
-  
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery) {
@@ -249,45 +229,31 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  const loadFeaturedProducts = async () => {
-    try {
-      const response = await Product.list({
-        limit: 30,
-        sort: "created_at",
-        order: "desc",
-        filters: {
-          status: "active",
-          is_featured: true
-        }
-      });
-
-      if (response?.data) {
-        // Sort products to prioritize specific supplier ID
-        const sortedProducts = response.data.sort((a, b) => {
-          const isTargetSupplierA = a.supplier?.id === "5dde1ba1-edf6-474b-8385-ef819d37e6b0";
-          const isTargetSupplierB = b.supplier?.id === "5dde1ba1-edf6-474b-8385-ef819d37e6b0";
-          
-          if (isTargetSupplierA && !isTargetSupplierB) return -1;
-          if (!isTargetSupplierA && isTargetSupplierB) return 1;
-          return 0;
-        });
-
-        setFeaturedProducts(sortedProducts);
-      } else {
-        setFeaturedProducts([]);
-      }
-    } catch (error) {
-      console.error("Error loading featured products:", error);
-      setFeaturedProducts([]);
-    }
-  };
-
   return (
     <>
       <PageMeta
         title="Sitonim-il - האתר המוביל למסחר סיטונאי בישראל"
         description="Sitonim-il - הפלטפורמה המובילה למסחר סיטונאי בישראל. פרסם את המוצרים שלך, חפש ספקים, והתחבר עם לקוחות וספקים ברחבי הארץ."
       />
+      
+      {/* קו הפרדה ושאדו מתחת להדר - מסגרת תחתונה אפורה ברוחב מלא */}
+      <div className="w-full border-b border-gray-200 shadow-sm"></div>
+      
+      {/* תפריט קטגוריות - מוצג רק במחשב */}
+      <nav className="hidden md:block bg-white border-t border-b py-4 px-6 overflow-x-auto whitespace-nowrap shadow-sm">
+        <ul className="flex gap-8 text-sm font-medium text-gray-700 justify-center">
+          {categories.map((cat) => (
+            <li key={cat.value} className="px-2">
+              <Link
+                to={`/search?category=${cat.value}`}
+                className="hover:text-blue-600 transition py-1 px-0.5 hover:bg-blue-50 rounded-md"
+              >
+                {cat.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
       
       <section 
         data-section="hero" 
@@ -441,7 +407,7 @@ export default function Home() {
               <motion.div variants={fadeIn}>
                 <ProductGrid 
                   products={featuredProducts}
-                  loading={loading}
+                  loading={isProductsLoading}
                   viewMode="grid"
                   className="mt-6"
                 />
@@ -556,7 +522,7 @@ export default function Home() {
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
                   variants={staggerContainer}
                 >
-                  {loading
+                  {isUsersLoading
                     ? Array(3).fill(0).map((_, i) => (
                         <motion.div 
                           key={i}

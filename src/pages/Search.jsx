@@ -2,18 +2,21 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Product } from "@/api/entities";
 import { User } from "@/api/entities";
+import { QUERY_KEYS } from "@/api/entities";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
-import { Search, X, FilterIcon, ListFilter, Grid3X3,  Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, X, Sliders, ListFilter, Grid3X3, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductFilter from "@/components/ProductFilter";
 import ProductGrid from "@/components/ProductGrid";
 import SearchBar from "@/components/SearchBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SupplierCard from "@/components/SupplierCard";
 import PageMeta from "@/components/PageMeta";
+import { useProductSearch, useProducts, useUsers, useProductsByCategory, useProductsBySupplier } from "@/api/hooks";
 
 // הגדרת טיפוס לאפשרויות הסינון
 const initialFilterOptions = {
@@ -26,6 +29,9 @@ const initialFilterOptions = {
 
 // מספר מוצרים מקסימלי לעמוד
 const PRODUCTS_PER_PAGE = 30;
+
+// הגדרת מפתח המטמון עבור localStorage
+const SEARCH_CACHE_KEY = "sitonim_search_cache";
 
 // פונקציית סינון ומיון המוצרים - מוגדרת מחוץ לקומפוננטה למנוע שגיאות הרפרור
 const filterAndSortProducts = (products, options, searchQuery) => {
@@ -91,8 +97,12 @@ export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [viewMode, setViewMode] = useState("grid");
+  const [viewMode, setViewMode] = useState(() => {
+    // שחזור תצוגה אחרונה מה-localStorage
+    return localStorage.getItem("sitonim_view_mode") || "grid";
+  });
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   // Get search query parameters
   const query = searchParams.get("q") || "";
@@ -106,104 +116,99 @@ export default function SearchPage() {
   // טאב פעיל
   const [activeTab, setActiveTab] = useState(searchType === "suppliers" ? "suppliers" : "products");
   
-  // Filter state
-  const [filterOptions, setFilterOptions] = useState({
-    ...initialFilterOptions,
-    categories: categoryParam ? [categoryParam] : []
+  // Filter state - מיכאל את מצב הסינון מה-localStorage בטעינה ראשונית
+  const [filterOptions, setFilterOptions] = useState(() => {
+    // נסה לשחזר את הסינון האחרון מה-localStorage
+    try {
+      const savedFilters = localStorage.getItem(SEARCH_CACHE_KEY);
+      if (savedFilters) {
+        const parsed = JSON.parse(savedFilters);
+        // אם יש קטגוריה ב-URL, נשתמש בה במקום הקטגוריה השמורה
+        if (categoryParam) {
+          return {
+            ...parsed,
+            categories: categoryParam ? [categoryParam] : []
+          };
+        }
+        return parsed;
+      }
+    } catch (e) {
+      console.error("Error loading saved filters:", e);
+    }
+    
+    // ברירת מחדל אם אין מידע שמור או שיש שגיאה
+    return {
+      ...initialFilterOptions,
+      categories: categoryParam ? [categoryParam] : []
+    };
   });
 
-  const [allProducts, setAllProducts] = useState([]);
-  const [allSuppliers, setAllSuppliers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [suppliers, setSuppliers] = useState({});
-
-  // Function to refresh product data
-  const refreshProducts = async () => {
-    setLoading(true);
-    try {
-      const products = await Product.list();
-      // סינון מוצרים לא תקינים
-      const validProducts = products.filter(product => 
-        product && product.title && product.price !== undefined
-      );
-      setAllProducts(validProducts);
-      
-      console.log("Refreshed products:", validProducts.length);
-    } catch (error) {
-      console.error("Error refreshing products:", error);
-      toast({
-        variant: "destructive",
-        description: "שגיאה בטעינת המוצרים",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // טעינת מוצרים ראשונית - רק פעם אחת
+  // שמירת הסינון ל-localStorage בכל שינוי
   useEffect(() => {
-    const loadInitialProducts = async () => {
-      setLoading(true);
-      try {
-        const products = await Product.list();
-        // סינון מוצרים לא תקינים
-        const validProducts = products.filter(product => 
-          product && product.title && product.price !== undefined
-        );
-        setAllProducts(validProducts);
-        console.log("Initial products loaded:", validProducts.length);
-
-        // Load suppliers for product info and for supplier search
-        try {
-          const usersList = await User.list();
-          const suppliersMap = {};
-          const suppliersList = [];
-          
-          usersList.forEach(user => {
-            suppliersMap[user.id] = user;
-            
-            // אם זה ספק, נוסיף אותו לרשימת הספקים לחיפוש
-            if (user.business_type === "supplier" && user.company_name) {
-              suppliersList.push(user);
-            }
-          });
-          
-          setSuppliers(suppliersMap);
-          setAllSuppliers(suppliersList);
-        } catch (error) {
-          console.error("Error loading suppliers:", error);
-        }
-      } catch (error) {
-        console.error("Error loading products:", error);
-        toast({
-          variant: "destructive",
-          description: "שגיאה בטעינת המוצרים",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadInitialProducts();
-  }, []);
-
-  // חישוב המוצרים המסוננים באמצעות useMemo - רק כאשר הסינונים או המוצרים משתנים
-  const filteredProducts = useMemo(() => {
-    let filtered = filterAndSortProducts(allProducts, filterOptions, query);
-    
-    // Apply supplier filter if provided
-    if (supplierParam) {
-      filtered = filtered.filter(product => product.supplier_id === supplierParam);
+    try {
+      localStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify(filterOptions));
+    } catch (e) {
+      console.error("Error saving filters to localStorage:", e);
     }
+  }, [filterOptions]);
+
+  // שמירת מצב התצוגה ל-localStorage
+  useEffect(() => {
+    localStorage.setItem("sitonim_view_mode", viewMode);
+  }, [viewMode]);
+
+  // שימוש בהוקים המתאימים של React Query בהתאם לפרמטרים, עם מניעת רענון מיותר
+  const {
+    data: productsData = [],
+    isLoading: productsLoading,
+  } = query && query.length > 2
+    ? useProductSearch(query)
+    : categoryParam
+      ? useProductsByCategory(categoryParam)
+      : supplierParam
+        ? useProductsBySupplier(supplierParam)
+        : useProducts();
+
+  // השתמש ב-React Query כדי לטעון משתמשים, עם מניעת רענון מיותר
+  const {
+    data: usersList = [],
+    isLoading: usersLoading,
+  } = useUsers();
+
+  // עיבוד רשימת הספקים מתוך רשימת המשתמשים המלאה
+  const { suppliersMap, suppliersList } = useMemo(() => {
+    const suppliersMap = {};
+    const suppliersList = [];
     
-    return filtered;
-  }, [allProducts, filterOptions, query, supplierParam]);
+    usersList.forEach(user => {
+      suppliersMap[user.id] = user;
+      
+      if (user.business_type === "supplier" && user.company_name) {
+        suppliersList.push(user);
+      }
+    });
+    
+    return { suppliersMap, suppliersList };
+  }, [usersList]);
+
+  // חישוב המוצרים המסוננים באמצעות useMemo
+  const filteredProducts = useMemo(() => {
+    // אם הנתונים עדיין טוענים, נחזיר מערך ריק
+    if (productsLoading) return [];
+    
+    // סינון מוצרים לא תקינים
+    const validProducts = productsData.filter(product => 
+      product && product.title && product.price !== undefined
+    );
+    
+    return filterAndSortProducts(validProducts, filterOptions, query);
+  }, [productsData, filterOptions, query, productsLoading]);
 
   // חיפוש ספקים
   const filteredSuppliers = useMemo(() => {
-    if (!query) return allSuppliers;
+    if (!query || usersLoading) return suppliersList;
     
-    return allSuppliers.filter(supplier => {
+    return suppliersList.filter(supplier => {
       const companyName = supplier.company_name?.toLowerCase() || '';
       const description = supplier.description?.toLowerCase() || '';
       const address = supplier.address?.toLowerCase() || '';
@@ -213,8 +218,19 @@ export default function SearchPage() {
              description.includes(searchQuery) || 
              address.includes(searchQuery);
     });
-  }, [allSuppliers, query]);
+  }, [suppliersList, query, usersLoading]);
   
+  // חישוב המוצרים לעמוד הנוכחי
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+  
+  // חישוב מספר העמודים הכולל
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  }, [filteredProducts]);
+
   // הפרדה בין מוצרים חדשים לישנים אם מסומן שזה מוצר חדש
   const { newProducts, otherProducts } = useMemo(() => {
     if (!isNewProduct || !supplierParam) {
@@ -243,7 +259,7 @@ export default function SearchPage() {
 
   // Apply scroll effect to newly added products
   useEffect(() => {
-    if (isNewProduct && newProducts.length > 0 && !loading) {
+    if (isNewProduct && newProducts.length > 0 && !productsLoading) {
       // Scroll to the new products section smoothly
       const newProductsHeader = document.getElementById('new-products-section');
       if (newProductsHeader) {
@@ -261,17 +277,7 @@ export default function SearchPage() {
         description: "המוצר שלך מוצג כעת בחנות",
       });
     }
-  }, [isNewProduct, newProducts.length, loading]);
-
-  // Get paginated products
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
-    return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
-  }, [filteredProducts, currentPage]);
-  
-  const totalPages = useMemo(() => {
-    return Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
-  }, [filteredProducts]);
+  }, [isNewProduct, newProducts.length, productsLoading]);
 
   // Pagination navigation
   const handlePageChange = (page) => {
@@ -283,6 +289,64 @@ export default function SearchPage() {
     
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // פונקציה להטמנה מוקדמת של הדף הבא והקודם
+  const prefetchAdjacentPages = () => {
+    if (!query && !categoryParam && !supplierParam) {
+      return; // אם אין חיפוש, אין צורך בהטמנה מוקדמת של דפים נוספים
+    }
+    
+    // הטמן מראש את הדף הבא
+    if (currentPage < totalPages) {
+      const nextPageParams = new URLSearchParams(searchParams);
+      nextPageParams.set("page", (currentPage + 1).toString());
+      // שמור את הפרמטרים כדי לדעת מה להטמין
+      const nextPageQuery = nextPageParams.toString();
+      
+      // קבע את הדף הבא במטמון
+      if (query && query.length > 2) {
+        queryClient.prefetchQuery({
+          queryKey: QUERY_KEYS.PRODUCT.SEARCH(query),
+          queryFn: () => Product.search(query)
+        });
+      } else if (categoryParam) {
+        queryClient.prefetchQuery({
+          queryKey: QUERY_KEYS.PRODUCT.BY_CATEGORY(categoryParam), 
+          queryFn: () => Product.getByCategory(categoryParam)
+        });
+      } else if (supplierParam) {
+        queryClient.prefetchQuery({
+          queryKey: QUERY_KEYS.PRODUCT.BY_SUPPLIER(supplierParam),
+          queryFn: () => Product.getBySupplier(supplierParam)
+        });
+      }
+    }
+  };
+
+  // בצע הטמנה מוקדמת כאשר המשתמש נמצא בדף למשך זמן מה
+  useEffect(() => {
+    const timer = setTimeout(prefetchAdjacentPages, 1000);
+    return () => clearTimeout(timer);
+  }, [currentPage, query, categoryParam, supplierParam]);
+
+  // Function to refresh product data
+  const refreshProducts = () => {
+    // Invalidate and refetch all relevant queries based on current search parameters
+    if (query && query.length > 2) {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PRODUCT.SEARCH(query) });
+    } else if (categoryParam) {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PRODUCT.BY_CATEGORY(categoryParam) });
+    } else if (supplierParam) {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PRODUCT.BY_SUPPLIER(supplierParam) });
+    } else {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PRODUCT.ALL });
+    }
+    
+    toast({
+      description: "מרענן נתונים...",
+      duration: 1500,
+    });
   };
 
   const handleSearch = (searchQuery, category) => {
@@ -403,7 +467,7 @@ export default function SearchPage() {
 
   // Render the main content of the search page
   const renderContent = () => {
-    if (loading) {
+    if (productsLoading || usersLoading) {
       return <ProductGrid products={[]} loading={true} viewMode={viewMode} />;
     }
     
@@ -413,44 +477,18 @@ export default function SearchPage() {
         <Tabs 
           value={activeTab}
           onValueChange={handleTabChange}
-          className="mb-4"
+          className="mb-2"
         >
-          <div className="flex justify-between items-center mb-2">
-            <TabsList className="mb-2">
-              <TabsTrigger value="products" className="flex items-center gap-1">
-                <Package className="h-4 w-4" />
-                <span>מוצרים {filteredProducts.length > 0 && `(${filteredProducts.length})`}</span>
-              </TabsTrigger>
-            
-            </TabsList>
-            
-         
-          </div>
+        
           
           <TabsContent value="products">
-            {newProducts.length > 0 && (
-              <div className="mb-4" id="new-products-section">
-                <div className="flex items-center mb-3">
-                  <h2 className="text-xl font-bold">מוצרים חדשים</h2>
-                  <Badge variant="default" className="ml-2 bg-green-500">חדש</Badge>
-                </div>
-                <ProductGrid products={newProducts} loading={false} viewMode={viewMode} />
-                <Separator className="my-4" />
-              </div>
-            )}
-            
+          
             <div>
-              {newProducts.length > 0 ? (
-                <h2 className="text-xl font-bold mb-3">מוצרים נוספים</h2>
-              ) : (
-                <h2 className="text-xl font-bold mb-3">
-                  {query ? `תוצאות חיפוש עבור "${query}"` : 'כל המוצרים'}
-                </h2>
-              )}
+            
               
               {filteredProducts.length > 0 ? (
                 <>
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex justify-between items-center mb-1">
                     <div className="text-sm text-gray-500">
                       מציג {Math.min((currentPage - 1) * PRODUCTS_PER_PAGE + 1, filteredProducts.length)}-
                       {Math.min(currentPage * PRODUCTS_PER_PAGE, filteredProducts.length)} מתוך {filteredProducts.length} מוצרים
@@ -469,8 +507,8 @@ export default function SearchPage() {
                   
                   {/* תצוגת תקציר של ספקים כאשר יש חיפוש כולל עם תוצאות ספקים */}
                   {searchType === "all" && filteredSuppliers.length > 0 && (
-                    <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                      <div className="flex items-center justify-between mb-1">
                         <h3 className="text-lg font-semibold text-blue-800">נמצאו גם {filteredSuppliers.length} ספקים</h3>
                         <Button 
                           variant="link" 
@@ -487,12 +525,12 @@ export default function SearchPage() {
                   )}
                 </>
               ) : (
-                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                <div className="text-center py-6 bg-gray-50 rounded-lg">
                   <p className="text-gray-500">לא נמצאו מוצרים מתאימים לחיפוש שלך</p>
                   <Button 
                     variant="link" 
                     onClick={clearFilters}
-                    className="mt-2 text-blue-600"
+                    className="mt-1 text-blue-600"
                   >
                     נקה סינון ונסה שוב
                   </Button>
@@ -502,7 +540,7 @@ export default function SearchPage() {
           </TabsContent>
           
           <TabsContent value="suppliers">
-            <h2 className="text-xl font-bold mb-3">
+            <h2 className="text-xl font-bold mb-2">
               {query ? `ספקים התואמים לחיפוש "${query}"` : 'כל הספקים'}
             </h2>
             
@@ -516,8 +554,8 @@ export default function SearchPage() {
                 
                 {/* תצוגת תקציר של מוצרים כאשר יש חיפוש כולל עם תוצאות מוצרים */}
                 {searchType === "all" && filteredProducts.length > 0 && (
-                  <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
                       <h3 className="text-lg font-semibold text-blue-800">נמצאו גם {filteredProducts.length} מוצרים</h3>
                       <Button 
                         variant="link" 
@@ -534,7 +572,7 @@ export default function SearchPage() {
                 )}
               </>
             ) : (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
+              <div className="text-center py-6 bg-gray-50 rounded-lg">
                 <p className="text-gray-500">לא נמצאו ספקים מתאימים לחיפוש שלך</p>
                 {query && (
                   <Button 
@@ -544,7 +582,7 @@ export default function SearchPage() {
                       params.delete("q");
                       setSearchParams(params);
                     }}
-                    className="mt-2 text-blue-600"
+                    className="mt-1 text-blue-600"
                   >
                     נקה חיפוש ונסה שוב
                   </Button>
@@ -557,19 +595,12 @@ export default function SearchPage() {
     );
   };
 
-  // Refresh products when a new product is added
-  useEffect(() => {
-    if (isNewProduct) {
-      refreshProducts();
-    }
-  }, [isNewProduct]);
-
   // Render pagination controls
   const renderPagination = () => {
     if (totalPages <= 1) return null;
     
     return (
-      <div className="flex justify-center items-center mt-6 mb-8 gap-1">
+      <div className="flex justify-center items-center mt-4 mb-4 gap-1">
         <Button
           variant="outline"
           size="sm"
@@ -637,37 +668,27 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16 md:pt-20 pb-6">
+    <div className="min-h-screen bg-gray-50 pt-12 md:pt-18 pb-6">
       <PageMeta
         title={`חיפוש ${query ? `"${query}"` : ""} |  Sitonim-il`}
         description={`חיפוש ${activeTab === "products" ? "מוצרים" : "ספקים"} באתר Sitonim-il${query ? ` - "${query}"` : ""}. מצא את המוצרים או הספקים הטובים ביותר בקטגוריה שלך.`}
       />
 
       <div className="max-w-[1600px] mx-auto px-3 md:px-4">
-        <div className="max-w-6xl mx-auto mb-2">
-          <div className="flex justify-between items-center mb-1.5">
-            <h1 className="text-xl font-bold text-right">מוצרים</h1>
-
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={refreshProducts}
-              className="border-gray-300 text-gray-700 hover:bg-gray-100 h-8"
-              aria-label="רענן רשימת מוצרים"
-            >
-              רענון מוצרים
-            </Button>
+        <div className="max-w-8xl mx-auto mb-1">
+          <div className="flex justify-between items-center mb-1">
+            <h1 className="text-xl font-bold text-right">כל המוצרים</h1>
           </div>
           <SearchBar 
             initialQuery={query}
             initialCategory={categoryParam}
             onSearch={handleSearch}
-            className="mb-2"
+            className="mb-2 pt-2"
           />
           
           {/* תצוגת סינונים פעילים */}
           {hasActiveFilters && (
-            <div className="flex flex-wrap items-center gap-1 mt-1 p-1.5 bg-blue-50/50 rounded-lg justify-end border border-blue-100">
+            <div className="flex flex-wrap items-center gap-1 mt-1 p-1.5 bg-blue-50/50 rounded-lg justify-end border border-blue-100 mb-1">
               <span className="text-xs font-medium text-blue-700">סינון פעיל:</span>
               
               {filterOptions.categories.map(category => (
@@ -730,29 +751,73 @@ export default function SearchPage() {
           )}
         </div>
 
-        <div className="flex justify-between items-center mb-2 gap-2">
+        <div className="flex justify-between items-center mb-1 gap-2">
           <div className="flex items-center gap-1.5">
             <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="md:hidden flex items-center gap-1.5 border-gray-300 text-gray-700 h-8" aria-label="פתח אפשרויות סינון">
-                  <FilterIcon className="h-3.5 w-3.5" />
-                  סינון
+                <Button variant="outline" className="flex items-center gap-1.5 border-gray-300 text-gray-700 h-8" aria-label="פתח אפשרויות סינון">
+                  <Sliders className="w-4 h-4 rotate-90" />
+                  סינון 
+                  {hasActiveFilters && (
+                    <Badge variant="default" className="h-5 ml-1.5 bg-blue-600 text-xs">
+                      {filterOptions.categories.length + (filterOptions.rating > 0 ? 1 : 0) + 
+                       ((filterOptions.priceRange[0] > 0 || filterOptions.priceRange[1] < 500) ? 1 : 0) +
+                       ((filterOptions.minOrderRange[0] > 0 || filterOptions.minOrderRange[1] < 200) ? 1 : 0)}
+                    </Badge>
+                  )}
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <div className="py-4">
-                  <ProductFilter
-                    options={filterOptions}
-                    onChange={handleFilterChange}
-                    onReset={clearFilters}
-                  />
+                <div className="flex flex-col h-full">
+                  <div className="p-4 border-b flex items-center justify-between bg-gray-50">
+                    <h3 className="font-semibold text-lg">סינון מוצרים</h3>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => {
+                          clearFilters();
+                          setIsMobileFilterOpen(false);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-50/50 h-8 px-2"
+                      >
+                        נקה הכל
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsMobileFilterOpen(false)}
+                        className="border-gray-300 h-8 w-8 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto p-4 pb-24">
+                    <div className="text-sm text-blue-700 mb-3 font-medium">
+                      נמצאו {filteredProducts.length} מוצרים
+                    </div>
+                    <ProductFilter
+                      options={filterOptions}
+                      onChange={handleFilterChange}
+                      onReset={clearFilters}
+                    />
+                  </div>
+                  
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t flex justify-end">
+                    <Button 
+                      size="lg" 
+                      className="bg-blue-600 hover:bg-blue-700 min-w-[150px]"
+                      onClick={() => setIsMobileFilterOpen(false)}
+                    >
+                      הצג תוצאות ({filteredProducts.length})
+                    </Button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
-            
-            <span className="text-xs text-gray-500">
-              {filteredProducts.length} מוצרים
-            </span>
+         
           </div>
           
           <div className="flex items-center gap-1.5">
@@ -779,18 +844,8 @@ export default function SearchPage() {
           </div>
         </div>
 
-        <div className="flex gap-2 relative">
-          <div className="hidden md:block w-[190px] flex-shrink-0">
-            <div className="sticky top-20">
-              <ProductFilter
-                options={filterOptions}
-                onChange={handleFilterChange}
-                onReset={clearFilters}
-              />
-            </div>
-          </div>
-          
-          <div className="flex-1 min-w-0 pl-0">
+        <div className="flex relative mt-0.5">          
+          <div className="flex-1 min-w-0">
             {renderContent()}
           </div>
         </div>

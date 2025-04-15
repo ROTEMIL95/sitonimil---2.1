@@ -235,7 +235,7 @@ export default function Auth() {
         formData.businessType,
         supplierData
       );
-
+      
       // Store the email temporarily to populate the login form
       const registeredEmail = formData.email;
       
