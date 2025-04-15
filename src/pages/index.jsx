@@ -3,7 +3,7 @@ import Layout from "./Layout.jsx";
 import Home from "./Home";
 import Search from "./Search";
 import Product from "./Product";
-import Dashboard from "./Dashboard";
+import SupplierDashboard from "./SupplierDashboard";
 import UploadProduct from "./UploadProduct";
 import Supplier from "./Supplier";
 import Suppliers from "./Suppliers";
@@ -20,6 +20,9 @@ import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/Dashboard";
 import Users from "./admin/Users";
 import Products from "./admin/Products";
+import EditUser from "./admin/EditUser";
+import EditProduct from "./admin/EditProduct";
+import Categories from "./admin/Categories";
 
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -54,7 +57,7 @@ function PagesContent() {
         <Route path="/Home" element={<Navigate to="/" />} />
         <Route path="/Search" element={<Search />} />
         <Route path="/Product" element={<Product />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
+        <Route path="/Dashboard" element={<SupplierDashboard />} />
         <Route path="/UploadProduct" element={<UploadProduct />} />
         <Route path="/Supplier" element={<Supplier />} />
         <Route path="/Suppliers" element={<Suppliers />} />
@@ -73,7 +76,10 @@ function PagesContent() {
           <Route index element={<Navigate to="dashboard" />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<Users />} />
+          <Route path="users/edit/:id" element={<EditUser />} />
           <Route path="products" element={<Products />} />
+          <Route path="products/edit/:id" element={<EditProduct />} />
+          <Route path="categories" element={<Categories />} />
         </Route>
 
         {/* 404 */}

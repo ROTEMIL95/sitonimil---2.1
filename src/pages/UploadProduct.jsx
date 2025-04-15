@@ -44,7 +44,6 @@ export default function UploadProduct() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploadState, setUploadState] = useState([]);
   
   // Image upload state
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -64,6 +63,9 @@ export default function UploadProduct() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Check for product data in sessionStorage first (from admin edit)
+        const storedProductData = sessionStorage.getItem('editProductData');
+        
         // Load user data
         const userData = await User.me();
         setUser(userData);

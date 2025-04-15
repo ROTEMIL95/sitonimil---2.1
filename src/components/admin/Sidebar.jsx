@@ -5,7 +5,9 @@ import { LayoutDashboard, Users, Boxes } from "lucide-react";
 const navItems = [
   { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
   { name: "Users", path: "/admin/users", icon: <Users size={18} /> },
-  { name: "Products", path: "/admin/products", icon: <Boxes size={18} /> }
+  { name: "Products", path: "/admin/products", icon: <Boxes size={18} /> },
+  { name: "Categories", path: "/admin/categories", icon: <Tag size={18} /> },
+  { name: "Logs", path: "/admin/logs", icon: <FileText size={18} /> }
 ];
 
 export default function Sidebar() {
