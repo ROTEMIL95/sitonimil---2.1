@@ -15,6 +15,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import SupplierCard from "@/components/SupplierCard";
 import PageMeta from "@/components/PageMeta";
 import { useProductSearch, useProducts, useUsers, useProductsByCategory, useProductsBySupplier } from "@/api/hooks";
+import { createPageUrl } from "@/utils";
 
 // הגדרת טיפוס לאפשרויות הסינון
 const initialFilterOptions = {
@@ -463,6 +464,42 @@ export default function SearchPage() {
     }
   }, [searchType, query, filteredSuppliers.length]);
 
+  // Generate ItemList schema for structured data
+  const itemListSchema = useMemo(() => {
+    if (!paginatedProducts || paginatedProducts.length === 0) {
+      return null;
+    }
+
+    const items = paginatedProducts.map((product, index) => ({
+      "@type": "ListItem",
+      position: (currentPage - 1) * PRODUCTS_PER_PAGE + index + 1,
+      item: {
+        "@type": "Product",
+        url: `${window.location.origin}${createPageUrl("Product")}?id=${product.id}`,
+        name: product.title,
+        // Add image if available
+        ...(product.images && product.images.length > 0 && { image: product.images[0] }),
+        // Optional: Add description if you want it in the schema
+        // description: product.description,
+        // Optional: Add offers (price) if available and relevant for ItemList
+        // offers: {
+        //   "@type": "Offer",
+        //   price: product.price,
+        //   priceCurrency: "ILS" // Assuming Israeli Shekel
+        // }
+      }
+    }));
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      itemListElement: items,
+      // Optional: Add name and description for the ItemList itself
+      name: query ? `תוצאות חיפוש עבור "${query}"` : categoryParam ? `מוצרים בקטגוריית ${getCategoryLabel(categoryParam)}` : "רשימת מוצרים",
+      description: `עמוד ${currentPage} מתוך ${totalPages} של ${query ? `תוצאות חיפוש עבור "${query}"` : categoryParam ? `מוצרים בקטגוריית ${getCategoryLabel(categoryParam)}` : "מוצרים"}`
+    };
+  }, [paginatedProducts, currentPage, totalPages, query, categoryParam]);
+
   // Render the main content of the search page
   const renderContent = () => {
     if (productsLoading || usersLoading) {
@@ -667,8 +704,17 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-gray-50 pt-12 md:pt-18 pb-6">
       <PageMeta
-        title={`חיפוש ${query ? `"${query}"` : ""} |  Sitonim-il`}
-        description={`חיפוש ${activeTab === "products" ? "מוצרים" : "ספקים"} באתר Sitonim-il${query ? ` - "${query}"` : ""}. מצא את המוצרים או הספקים הטובים ביותר בקטגוריה שלך.`}
+        title={
+          query
+            ? `חיפוש "${query}" | Sitonim-il`
+            : categoryParam
+              ? `קטגוריית ${getCategoryLabel(categoryParam)} | Sitonim-il`
+              : supplierParam
+                ? `מוצרי ${suppliersMap[supplierParam]?.company_name || 'ספק'} | Sitonim-il`
+                : `כל המוצרים | Sitonim-il`
+        }
+        description={`חיפוש ${activeTab === "products" ? "מוצרים" : "ספקים"} באתר Sitonim-il${query ? ` - "${query}"` : ""}${categoryParam ? ` בקטגוריית ${getCategoryLabel(categoryParam)}` : ''}. מצא את המוצרים או הספקים הטובים ביותר בקטגוריה שלך.`}
+        schema={itemListSchema}
       />
 
       <div className="max-w-[1600px] mx-auto px-3 md:px-4">

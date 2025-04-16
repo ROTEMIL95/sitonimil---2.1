@@ -360,7 +360,7 @@ export default function Layout({ children }) {
   const getAllNavLinks = () => {
     const links = [
       { name: "דף הבית", path: createPageUrl("Home") },
-      { name: "חיפוש מוצרים", path: createPageUrl("Search") },
+      { name: "חיפוש מוצרים", path: createPageUrl("Products") },
       { name: "מציאת ספקים", path: createPageUrl("Suppliers") },
     ];
 
@@ -1124,7 +1124,7 @@ export default function Layout({ children }) {
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl("Search")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
+                  <Link to={createPageUrl("Products")} className="text-sm text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2  rounded-sm px-1 py-0.5 inline-block" onClick={handleLinkClick}>
                     חיפוש מוצרים
                   </Link>
                 </li>

@@ -6,6 +6,7 @@ export default function SearchBar({ onSearch, className = "", initialQuery = "",
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // טעינת הקטגוריות מהשרת
   useEffect(() => {

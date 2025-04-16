@@ -232,8 +232,32 @@ export default function Home() {
   return (
     <>
       <PageMeta
-        title="Sitonim-il - האתר המוביל למסחר סיטונאי בישראל"
-        description="Sitonim-il - הפלטפורמה המובילה למסחר סיטונאי בישראל. פרסם את המוצרים שלך, חפש ספקים, והתחבר עם לקוחות וספקים ברחבי הארץ."
+        title="מסחר סיטונאי בישראל: מצא ספקים וקונים | Sitonim-il"
+        description="Sitonim-il: פלטפורמת B2B המובילה בישראל למסחר סיטונאי. חבר בין ספקים לקונים, פרסם מוצרים, הרחב את העסק שלך וגלה הזדמנויות חדשות."
+        schema={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "name": "Sitonim-il",
+              "url": "https://sitonimil.co.il", 
+              "logo": "https://sitonimil.co.il/icons/icon-512x512.png", 
+              "description": "פלטפורמת B2B המובילה בישראל למסחר סיטונאי, המחברת בין ספקים לקונים."
+            },
+            {
+              "@type": "WebSite",
+              "url": "https://sitonimil.co.il", 
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://sitonimil.co.il/products?q={search_term_string}" 
+                },
+                "query-input": "required name=search_term_string"
+              }
+            }
+          ]
+        }}
       />
       
       {/* קו הפרדה ושאדו מתחת להדר - מסגרת תחתונה אפורה ברוחב מלא */}

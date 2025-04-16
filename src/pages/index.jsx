@@ -1,7 +1,7 @@
 import Layout from "./Layout.jsx";
 
 import Home from "./Home";
-import Search from "./Search";
+import Products from "./Products.jsx";
 import Product from "./Product";
 import SupplierDashboard from "./SupplierDashboard";
 import UploadProduct from "./UploadProduct";
@@ -19,7 +19,7 @@ import AccessibilityStatement from "./AccessibilityStatement";
 import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/Dashboard";
 import Users from "./admin/Users";
-import Products from "./admin/Products";
+import AdminProducts from "./admin/AdminProducts";
 import EditUser from "./admin/EditUser";
 import EditProduct from "./admin/EditProduct";
 import Categories from "./admin/Categories";
@@ -55,7 +55,7 @@ function PagesContent() {
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/Home" element={<Navigate to="/" />} />
-        <Route path="/Search" element={<Search />} />
+        <Route path="/Products" element={<Products />} />
         <Route path="/Product" element={<Product />} />
         <Route path="/Dashboard" element={<SupplierDashboard />} />
         <Route path="/UploadProduct" element={<UploadProduct />} />
@@ -77,8 +77,8 @@ function PagesContent() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="users/edit/:id" element={<EditUser />} />
-          <Route path="products" element={<Products />} />
-          <Route path="products/edit/:id" element={<EditProduct />} />
+          <Route path="AdminProducts" element={<AdminProducts />} />
+          <Route path="AdminProducts/edit/:id" element={<EditProduct />} />
           <Route path="categories" element={<Categories />} />
         </Route>
 
