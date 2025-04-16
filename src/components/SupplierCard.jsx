@@ -106,7 +106,7 @@ export default function SupplierCard({ supplier, className = "" }) {
         </div>
 
         {/* Details */}
-        <div className="grid grid-cols-2 gap-3 text-sm text-black mt-10">
+        <div className="grid grid-cols-2 gap-3 text-sm text-black my-6">
           <div className="flex items-center gap-1">
             <MapPin className="w-3 h-3 text-gray-400" />
             {supplier.address || "תל אביב, ישראל"}
@@ -125,17 +125,10 @@ export default function SupplierCard({ supplier, className = "" }) {
           </div>
         </div>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 text-xs text-black mt-6">
-          {supplier.categories?.map((category, index) => (
-            <span key={index} className="bg-gray-100 px-2 py-0.5 rounded-full">
-              {category}
-            </span>
-          ))}
-        </div>
+      
 
         {/* Actions */}
-        <div className="flex justify-between items-center pt-5 border-t gap-3">
+        <div className="flex justify-between items-center pt-10 border-t gap-3">
           <Button 
             className="flex-1 bg-blue-900 hover:bg-blue-800 text-white rounded-md px-4 py-2 text-sm font-medium"
             onClick={() => setShowContactPopup(true)}

@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/api/supabaseClient";
 
 // רשימת הקטגוריות - מיובאת מהשרת
 export default function SearchBar({ onSearch, className = "", initialQuery = "", initialCategory = "" }) {
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
-  const [isFocused, setIsFocused] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   // טעינת הקטגוריות מהשרת
   useEffect(() => {

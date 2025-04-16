@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
 import { Product } from "@/api/entities";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Filter, Building } from "lucide-react";
+import { Building, SlidersHorizontal } from "lucide-react";
 import SupplierCard from "../components/SupplierCard";
+import { supabase } from "@/api/supabaseClient";
 
 export default function SuppliersPage() {
   const navigate = useNavigate();
@@ -24,24 +23,39 @@ export default function SuppliersPage() {
     establishedBefore: null
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [categories, setCategories] = useState([]);
 
-  const categories = [
-    { value: "electronics", label: "אלקטרוניקה" },
-    { value: "clothing", label: "ביגוד" },
-    { value: "home_goods", label: "מוצרי בית" },
-    { value: "food_beverage", label: "מזון ומשקאות" },
-    { value: "health_beauty", label: "בריאות ויופי" },
-    { value: "industrial", label: "ציוד תעשייתי" },
-    { value: "automotive", label: "רכב" },
-    { value: "sports", label: "ספורט" },
-    { value: "toys", label: "צעצועים" }
-  ];
+
 
   const getCategoryLabel = (categoryValue) => {
     if (!categoryValue) return "כללי";
     const category = categories.find(cat => cat.value === categoryValue);
     return category ? category.label : categoryValue;
   };
+  
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("value, label, image_url")
+          .order("label", { ascending: true });
+
+        if (error) {
+          console.error("Error fetching categories:", error);
+          return;
+        }
+
+        setCategories(data || []);
+      } catch (err) {
+        console.error("Exception fetching categories:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -217,41 +231,17 @@ export default function SuppliersPage() {
   return (
     <div className="py-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-right">ספקים</h1>
-        <p className="text-gray-500 text-right">
-          מצא ספקים מהימנים מרחבי העולם לעסק שלך
-        </p>
+        <h1 className="text-3xl font-bold mb-2 text-right">כל הספקים</h1>
       </div>
-
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="חפש לפי שם, מיקום או תיאור..."
-            className="pr-10 text-right"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        
-        <div className="flex gap-2">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">    
+        <div className="flex gap-2 justify-start w-full" dir="rtl">
           <Button 
             variant="outline" 
-            className="flex gap-2 md:w-auto"
+            className="flex gap-2 md:w-auto rounded-full p-6 items-center"
             onClick={() => setShowFilters(!showFilters)}
           >
-            <Filter className="h-4 w-4" />
             <span>{showFilters ? "הסתר מסננים" : "הצג מסננים"}</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex gap-2 md:w-auto"
-            onClick={() => navigate(createPageUrl("Search"))}
-          >
-            <Search className="h-4 w-4" />
-            <span>חפש מוצרים</span>
+            <SlidersHorizontal className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -263,34 +253,34 @@ export default function SuppliersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div className="space-y-2">
               <label className="text-sm font-medium block text-right">אימות ספק</label>
-              <div className="flex items-center justify-end">
-                <label className="text-sm text-gray-700 cursor-pointer">
-                  הצג רק ספקים מאומתים
-                </label>
+              <div className="flex items-center justify-start" dir="rtl">
                 <input 
                   type="checkbox"
-                  className="mr-2 h-4 w-4 text-blue-600 rounded" 
+                  className="ml-2 h-4 w-4 text-blue-600 rounded"
                   checked={filters.verifiedOnly}
                   onChange={(e) => setFilters({...filters, verifiedOnly: e.target.checked})}
                 />
+                <label className="text-sm text-gray-700 cursor-pointer">
+                  הצג רק ספקים מאומתים
+                </label>
               </div>
             </div>
             
             <div className="space-y-2">
               <label className="text-sm font-medium block text-right">מיקום</label>
-              <div className="max-h-20 overflow-y-auto text-right">
+              <div className="max-h-20 overflow-y-auto text-right" dir="rtl">
                 {allLocations.length > 0 ? (
                   allLocations.map(location => (
-                    <div key={location} className="flex items-center justify-end mb-1">
-                      <label className="text-sm text-gray-700 cursor-pointer">
-                        {location}
-                      </label>
+                    <div key={location} className="flex items-center mb-1">
                       <input 
                         type="checkbox"
-                        className="mr-2 h-4 w-4 text-blue-600 rounded" 
+                        className="ml-2 h-4 w-4 text-blue-600 rounded" 
                         checked={filters.locations.includes(location)}
                         onChange={() => toggleLocation(location)}
                       />
+                      <label className="text-sm text-gray-700 cursor-pointer">
+                        {location}
+                      </label>
                     </div>
                   ))
                 ) : (
@@ -301,8 +291,7 @@ export default function SuppliersPage() {
             
             <div className="space-y-2">
               <label className="text-sm font-medium block text-right">מספר מוצרים מינימלי</label>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-700">{filters.minProducts}</span>
+              <div className="flex justify-between items-center" dir="rtl">
                 <input 
                   type="range" 
                   min="0" 
@@ -311,35 +300,20 @@ export default function SuppliersPage() {
                   className="w-full" 
                   value={filters.minProducts}
                   onChange={(e) => setFilters({...filters, minProducts: parseInt(e.target.value)})}
+                  dir="ltr"
                 />
+                <span className="text-sm text-gray-700 mr-2">{filters.minProducts}</span>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium block text-right">שנת הקמה</label>
-              <select
-                className="w-full border border-gray-300 rounded-md text-right px-3 py-2 text-sm"
-                value={filters.establishedBefore || ""}
-                onChange={(e) => setFilters({
-                  ...filters, 
-                  establishedBefore: e.target.value ? parseInt(e.target.value) : null
-                })}
-              >
-                <option value="">כל השנים</option>
-                {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                  <option key={year} value={year}>
-                    לפני {year}
-                  </option>
-                ))}
-              </select>
-            </div>
+            
           </div>
           
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-start mt-4" dir="rtl">
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-sm" 
+              className="text-sm rounded-full p-6" 
               onClick={handleClearFilters}
             >
               נקה את כל המסננים
@@ -349,28 +323,42 @@ export default function SuppliersPage() {
       )}
 
       <div className="mb-6">
-        <Tabs defaultValue="all" className="w-full" dir="rtl">
-          <TabsList className="mb-4 h-auto flex flex-wrap w-full justify-start overflow-auto bg-gray-100 p-1 rounded-xl">
-            <TabsTrigger 
-              value="all" 
+        <div className="w-full overflow-x-auto scrollbar-hide pb-2">
+          <div className="flex gap-4 py-4 px-2 justify-start">
+            <div 
+              key="all" 
+              className={`flex flex-col items-center min-w-[100px] cursor-pointer transition-all hover:opacity-80 ${!selectedCategory ? 'scale-105' : ''}`}
               onClick={() => setSelectedCategory(null)}
-              className={`rounded-lg font-medium transition-all py-2 px-4 mx-1 ${!selectedCategory ? "bg-white text-[rgb(2,132,199)] shadow-sm border-b-2 border-[rgb(2,132,199)]" : ""}`}
             >
-              הכל
-            </TabsTrigger>
+              <div className={`w-20 h-20 rounded-full overflow-hidden border-2 ${!selectedCategory ? 'border-blue-500 shadow-md' : 'border-gray-200'}`}>
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                  <Building className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <span className="text-sm mt-2 text-center font-medium max-w-[100px] line-clamp-2">כל הספקים</span>
+            </div>
             
-            {allCategories.map((category) => (
-              <TabsTrigger
-                key={category}
-                value={category}
-                onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category ? "bg-blue-600 text-white" : ""}
-              >
-                {getCategoryLabel(category)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+            {allCategories.map((categoryValue) => {
+              const category = categories.find(cat => cat.value === categoryValue) || { value: categoryValue, label: getCategoryLabel(categoryValue) };
+              return (
+                <div 
+                  key={category.value} 
+                  className={`flex flex-col items-center min-w-[100px] cursor-pointer transition-all hover:opacity-80 ${selectedCategory === category.value ? 'scale-105' : ''}`}
+                  onClick={() => setSelectedCategory(category.value)}
+                >
+                  <div className={`w-20 h-20 rounded-full overflow-hidden border-2 ${selectedCategory === category.value ? 'border-blue-500 shadow-md' : 'border-gray-200'}`}>
+                    <img
+                      src={category.image_url || `https://ui-avatars.com/api/?name=${category.label}&background=random&color=fff`}
+                      alt={category.label}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className="text-sm mt-2 text-center font-medium max-w-[100px] line-clamp-2">{category.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {(searchQuery || selectedCategory || 

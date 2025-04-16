@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Product } from "@/api/entities";
-import { User } from "@/api/entities";
 import { QUERY_KEYS } from "@/api/entities";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
-import { Search, X, Sliders, ListFilter, Grid3X3, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, SlidersHorizontal, ListFilter, Grid3X3, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductFilter from "@/components/ProductFilter";
 import ProductGrid from "@/components/ProductGrid";
 import SearchBar from "@/components/SearchBar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import SupplierCard from "@/components/SupplierCard";
 import PageMeta from "@/components/PageMeta";
 import { useProductSearch, useProducts, useUsers, useProductsByCategory, useProductsBySupplier } from "@/api/hooks";
@@ -755,7 +753,7 @@ export default function SearchPage() {
             <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" className="flex items-center gap-1.5 p-6 text-2xl border-gray-300 rounded-full text-gray-700" aria-label="פתח אפשרויות סינון">
-                  <Sliders className="w-4 h-4 rotate-90" />
+                  <SlidersHorizontal className="w-4 h-4" />
                   סינון 
                   {hasActiveFilters && (
                     <Badge variant="default" className="h-5 ml-1.5 bg-blue-600 text-xs">
