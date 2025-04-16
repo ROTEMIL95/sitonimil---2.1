@@ -485,7 +485,6 @@ export default function SearchPage() {
           
             <div>
             
-              
               {filteredProducts.length > 0 ? (
                 <>
                   <div className="flex justify-between items-center mb-1">
@@ -755,7 +754,7 @@ export default function SearchPage() {
           <div className="flex items-center gap-1.5">
             <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-1.5 border-gray-300 text-gray-700 h-8" aria-label="פתח אפשרויות סינון">
+                <Button variant="outline" className="flex items-center gap-1.5 p-6 text-2xl border-gray-300 rounded-full text-gray-700" aria-label="פתח אפשרויות סינון">
                   <Sliders className="w-4 h-4 rotate-90" />
                   סינון 
                   {hasActiveFilters && (
@@ -769,33 +768,10 @@ export default function SearchPage() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <div className="flex flex-col h-full">
-                  <div className="p-4 border-b flex items-center justify-between bg-gray-50">
-                    <h3 className="font-semibold text-lg">סינון מוצרים</h3>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => {
-                          clearFilters();
-                          setIsMobileFilterOpen(false);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-50/50 h-8 px-2"
-                      >
-                        נקה הכל
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIsMobileFilterOpen(false)}
-                        className="border-gray-300 h-8 w-8 p-0"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  
                   
                   <div className="flex-1 overflow-y-auto p-4 pb-24">
-                    <div className="text-sm text-blue-700 mb-3 font-medium">
+                    <div className="text-sm text-blue-700 mb-3 font-medium" dir="rtl">
                       נמצאו {filteredProducts.length} מוצרים
                     </div>
                     <ProductFilter
@@ -808,7 +784,7 @@ export default function SearchPage() {
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t flex justify-end">
                     <Button 
                       size="lg" 
-                      className="bg-blue-600 hover:bg-blue-700 min-w-[150px]"
+                      className="bg-blue-600 hover:bg-blue-700 min-w-[150px] " 
                       onClick={() => setIsMobileFilterOpen(false)}
                     >
                       הצג תוצאות ({filteredProducts.length})
