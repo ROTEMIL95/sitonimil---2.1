@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, TrendingUp, Shield, Package, Search, UserPlus, LogIn, ShoppingBag, Store, Building, Plus } from "lucide-react";
+import { ArrowLeft, TrendingUp, Shield, Package, Search, UserPlus, LogIn, ShoppingBag, Store, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createPageUrl, redirectToLogin } from "@/utils";
@@ -8,15 +8,12 @@ import { Product } from "@/api/entities";
 import { User } from "@/api/entities";
 import { Category } from "@/api/entities";
 import { useToast } from "@/components/ui/use-toast";
-import ProductCard from "../components/ProductCard";
 import SupplierCard from "../components/SupplierCard";
 import { motion, AnimatePresence } from "framer-motion";
 import CategoryBanner from "../components/CategoryBanner";
 import ExpandedCategoryBanner from "../components/ExpandedCategoryBanner";
 import { supabase } from "@/api/supabaseClient";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+
 import PageMeta from "@/components/PageMeta";
 import ProductGrid from "../components/ProductGrid";
 import { useProducts, useUsers, useCurrentUser } from "@/api/hooks";
@@ -62,7 +59,8 @@ export default function Home() {
     hero: false,
     products: false,
     suppliers: false,
-    features: false
+    features: false,
+    recentProducts: false
   });
   const [popularCategories, setPopularCategories] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -122,6 +120,29 @@ export default function Home() {
       .slice(0, 4);
   }, [productsData]);
 
+  // Get recently added products
+  const recentProducts = React.useMemo(() => {
+    if (!productsData) return [];
+    
+    // Filter valid products
+    const validProducts = productsData.filter(product => 
+      product && 
+      product.title && 
+      product.price !== undefined && 
+      product.status !== "inactive"
+    );
+    
+    // Sort by created_at date (newest first)
+    return validProducts
+      .sort((a, b) => {
+        // Fallback to IDs if created_at is not available
+        const dateA = a.created_at ? new Date(a.created_at) : 0;
+        const dateB = b.created_at ? new Date(b.created_at) : 0;
+        return dateB - dateA;
+      })
+      .slice(0, 4);
+  }, [productsData]);
+
   const topSuppliers = React.useMemo(() => {
     if (!usersData) return fallbackSuppliers;
     
@@ -143,7 +164,8 @@ export default function Home() {
         ...prev, 
         products: true,
         suppliers: true,
-        features: true 
+        features: true,
+        recentProducts: true
       }));
     };
     
@@ -287,7 +309,7 @@ export default function Home() {
     {/* Simplified gradient background */}
     <div className="absolute inset-0 bg-gradient-to-b from-white to-blue-50"></div>
 
-    <div className="relative container mx-auto px-3 md:px-3 md:py-2 lg:py-2">
+    <div className="relative container mx-auto px-3 md:px-3 md:py-2 lg:py-2 mt-5">
       <div className="max-w-3xl mx-auto text-center md:text-right ">
         {/* Main heading with class connecting to the critical CSS in index.html */}
         <h1 
@@ -402,7 +424,7 @@ export default function Home() {
                     asChild 
                     className="border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all px-4 py-2 rounded-full shadow-sm hover:shadow"
                   >
-                    <Link to={createPageUrl("Search")} className="flex items-center gap-2 group">
+                    <Link to={createPageUrl("Products")} className="flex items-center gap-2 group">
                       <span className="text-sm font-medium">צפייה בכל המוצרים</span>
                       <div className="bg-blue-500 rounded-full p-1 transform group-hover:-translate-x-1 transition-all duration-200">
                         <ArrowLeft className="h-3 w-3 text-white" />
@@ -648,6 +670,65 @@ export default function Home() {
             </div>
           </motion.section>
         
+          {/* New section: Recently added products */}
+          <section data-section="recentProducts" className={`transition-opacity duration-500 ${isContentVisible.recentProducts ? 'opacity-100' : 'opacity-0'}`} aria-labelledby="recently-added-products-heading">
+            <motion.section 
+              className="container mx-auto px-4 md:px-6 py-10 bg-white"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={fadeIn}
+            >
+              <div className="max-w-7xl mx-auto">
+                <motion.div className="flex justify-between items-center mb-6" variants={fadeIn}>
+                  <div className="w-full sm:w-auto text-center sm:text-right">
+                    <h2 id="recently-added-products-heading" className="text-xl sm:text-xl md:text-2xl font-bold text-gray-900">הועלו לאחרונה</h2>
+                    <p className="text-sm text-gray-500 mt-1">המוצרים החדשים ביותר באתר</p>
+                  </div>
+                  <div className="hidden sm:block">
+                    <Button 
+                      variant="ghost" 
+                      asChild 
+                      className="border border-green-200 bg-green-50 hover:bg-green-100 text-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all px-4 py-2 rounded-full shadow-sm hover:shadow"
+                    >
+                      <Link to={createPageUrl("Products") + "?sort=newest"} className="flex items-center gap-2 group">
+                        <span className="text-sm font-medium">צפייה בכל המוצרים החדשים</span>
+                        <div className="bg-green-500 rounded-full p-1 transform group-hover:-translate-x-1 transition-all duration-200">
+                          <ArrowLeft className="h-3 w-3 text-white" />
+                        </div>
+                      </Link>
+                    </Button>
+                  </div>
+                </motion.div>
+                
+                {/* כפתור למובייל */}
+                <motion.div className="block sm:hidden text-center mb-6" variants={fadeIn}>
+                  <Button 
+                    variant="ghost" 
+                    asChild 
+                    className="mx-auto border border-green-200 bg-green-50 hover:bg-green-100 text-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all px-4 py-2 rounded-full shadow-sm hover:shadow"
+                  >
+                    <Link to={createPageUrl("Products") + "?sort=newest"} className="flex items-center gap-2 group">
+                      <span className="text-sm font-medium">צפייה בכל המוצרים החדשים</span>
+                      <div className="bg-green-500 rounded-full p-1 transform group-hover:-translate-x-1 transition-all duration-200">
+                        <ArrowLeft className="h-3 w-3 text-white" />
+                      </div>
+                    </Link>
+                  </Button>
+                </motion.div>
+                
+                <motion.div variants={fadeIn}>
+                  <ProductGrid 
+                    products={recentProducts}
+                    loading={isProductsLoading}
+                    viewMode="grid"
+                    className="mt-6"
+                  />
+                </motion.div>
+              </div>
+            </motion.section>
+          </section>
+          
           <motion.section 
             className="bg-gradient-to-r from-blue-800 to-indigo-900 py-8"
             initial="hidden"

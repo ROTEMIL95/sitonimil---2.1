@@ -25,6 +25,7 @@ import EditProduct from "./admin/EditProduct";
 import Categories from "./admin/Categories";
 
 import ScrollToTop from "@/components/ScrollToTop";
+import NotFound from "@/components/NotFound";
 
 import {
   BrowserRouter as Router,
@@ -83,7 +84,7 @@ function PagesContent() {
         </Route>
 
         {/* 404 */}
-        <Route path="*" element={<div className="p-10 text-center text-red-500 text-xl">404 – הדף לא נמצא</div>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );

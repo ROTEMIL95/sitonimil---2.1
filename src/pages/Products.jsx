@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
-import { X, SlidersHorizontal, ListFilter, Grid3X3, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, SlidersHorizontal, ListFilter, Grid3X3, Package, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import ProductFilter from "@/components/ProductFilter";
 import ProductGrid from "@/components/ProductGrid";
 import SearchBar from "@/components/SearchBar";
@@ -718,9 +718,45 @@ export default function SearchPage() {
       />
 
       <div className="max-w-[1600px] mx-auto px-3 md:px-4">
+        {/* Breadcrumbs and Back Button */}
+        <div className="flex justify-between items-center mb-2 text-sm">
+          <nav aria-label="Breadcrumb">
+            <ol className="flex items-center gap-1.5 text-gray-500">
+              <li>
+                <Link to="/" className="hover:text-blue-600 transition-colors">
+                  דף הבית
+                </Link>
+              </li>
+              {(categoryParam || supplierParam || query) && (
+                <li className="flex items-center gap-1.5">
+                  <span className="text-gray-400">/</span>
+                  {categoryParam ? (
+                    <span>קטגוריה: {getCategoryLabel(categoryParam)}</span>
+                  ) : supplierParam ? (
+                    <span>ספק: {suppliersMap[supplierParam]?.company_name || 'ספק לא ידוע'}</span>
+                  ) : (
+                    <span>חיפוש: "{query}"</span>
+                  )}
+                </li>
+              )}
+            </ol>
+          </nav>
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/")}
+            className="gap-1.5 border-gray-300 text-gray-700 hover:bg-gray-100"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            חזור לדף הבית
+          </Button>
+        </div>
+
         <div className="max-w-8xl mx-auto mb-1">
           <div className="flex justify-between items-center mb-1">
-            <h1 className="text-xl font-bold text-right">כל המוצרים</h1>
+            <h1 className="text-xl font-bold text-right">
+              {categoryParam ? `קטגוריית ${getCategoryLabel(categoryParam)}` : supplierParam ? `מוצרי ${suppliersMap[supplierParam]?.company_name || 'ספק'}` : query ? `תוצאות חיפוש עבור "${query}"` : "כל המוצרים"}
+            </h1>
           </div>
           <SearchBar 
             initialQuery={query}
