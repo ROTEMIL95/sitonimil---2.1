@@ -478,7 +478,20 @@ export default function SearchPage() {
         url: `${window.location.origin}${createPageUrl("Product")}?id=${product.id}`,
         name: product.title,
         ...(product.images && product.images.length > 0 && { image: product.images[0] }),
-      
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "ILS",
+          price: product.price,
+          availability: "https://schema.org/InStock",
+          url: `${window.location.origin}${createPageUrl("Product")}?id=${product.id}`
+        },
+        ...(product.rating && product.rating > 0 && {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating,
+            reviewCount: product.review_count || 1
+          }
+        })
       }
     }));
 
@@ -486,7 +499,6 @@ export default function SearchPage() {
       "@context": "https://schema.org",
       "@type": "ItemList",
       itemListElement: items,
-      // Optional: Add name and description for the ItemList itself
       name: query ? `תוצאות חיפוש עבור "${query}"` : categoryParam ? `מוצרים בקטגוריית ${getCategoryLabel(categoryParam)}` : "רשימת מוצרים",
       description: `עמוד ${currentPage} מתוך ${totalPages} של ${query ? `תוצאות חיפוש עבור "${query}"` : categoryParam ? `מוצרים בקטגוריית ${getCategoryLabel(categoryParam)}` : "מוצרים"}`
     };
