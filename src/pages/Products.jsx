@@ -477,16 +477,8 @@ export default function SearchPage() {
         "@type": "Product",
         url: `${window.location.origin}${createPageUrl("Product")}?id=${product.id}`,
         name: product.title,
-        // Add image if available
         ...(product.images && product.images.length > 0 && { image: product.images[0] }),
-        // Optional: Add description if you want it in the schema
-        // description: product.description,
-        // Optional: Add offers (price) if available and relevant for ItemList
-        // offers: {
-        //   "@type": "Offer",
-        //   price: product.price,
-        //   priceCurrency: "ILS" // Assuming Israeli Shekel
-        // }
+      
       }
     }));
 
