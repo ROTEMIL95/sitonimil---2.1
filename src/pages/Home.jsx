@@ -288,16 +288,22 @@ export default function Home() {
       {/* תפריט קטגוריות - מוצג רק במחשב */}
       <nav className="hidden md:block bg-white border-t border-b py-4 px-6 overflow-x-auto whitespace-nowrap shadow-sm">
         <ul className="flex gap-8 text-sm font-medium text-gray-700 justify-center">
-          {categories.map((cat) => (
-            <li key={cat.value} className="px-2">
-              <Link
-                to={`/search?category=${cat.value}`}
-                className="hover:text-blue-600 transition py-1 px-0.5 hover:bg-blue-50 rounded-md"
-              >
-                {cat.label}
-              </Link>
+          {categories && categories.length > 0 ? (
+            categories.map((cat) => (
+              <li key={cat.value} className="px-2">
+                <Link
+                  to={createPageUrl("Products") + `?category=${cat.value}`}
+                  className="hover:text-blue-600 transition py-1 px-0.5 hover:bg-blue-50 rounded-md"
+                >
+                  {cat.label}
+                </Link>
+              </li>
+            ))
+          ) : (
+            <li className="px-2">
+              <span className="text-gray-400">טוען קטגוריות...</span>
             </li>
-          ))}
+          )}
         </ul>
       </nav>
       
